@@ -26,9 +26,12 @@ ops_list = dict(log=1, log10=1, abs=1, sqrt=1, sin=1, asin=1, cos=1, acos=1, hyp
 def correct_expression(expression):
     re_expr = re.findall('log10|log2|log1p|expm1|atan2|\//|\d+\.\d+|\d+|\W|\w+',expression)
     i = 0
+    if re_expr[0] == '-' and is_float(re_expr[1]):
+        re_expr[1] *= -1
+        re_expr.pop(0)
     _len = lambda x: len(x)
     for i in range(_len(re_expr)):
-        if re_expr[i].isdigit() and re_expr[i + 1] == '(':
+        if is_float(re_expr[i]) and re_expr[i + 1] == '(':
             re_expr.insert(i + 1, '*')
             print('a')
         elif re_expr[i].isdigit() and re_expr[i + 1] in ops_list:
@@ -39,6 +42,10 @@ def correct_expression(expression):
             re_expr.insert(i + 1, '*')
             i += 1
             print('b')
+        elif re_expr[i] == '(' and re_expr[i+1] == '-' and is_float(re_expr[i+2]):
+            re_expr[i+2] *= -1
+            re_expr.pop(i+1)
+
         if i + 2 >= _len(re_expr):
             break
     return re_expr
@@ -84,24 +91,24 @@ def calc(expression):
         i = expression[0]
         if is_float(i):
             stack.append(float(i))
-            expression.remove((i))
+            expression.remove(i)
         elif i in binary_operations:
             if len(stack)>1 and isinstance(stack[-1],(int,float)) and isinstance(stack[-2],(int,float)):
                 b = stack.pop()
                 a = stack.pop()
                 if i == '+':
                     stack.append(a + b)
-                if i == '-':
+                elif i == '-':
                     stack.append(a - b)
-                if i == '*':
+                elif i == '*':
                     stack.append(a * b)
-                if i == '/':
+                elif i == '/':
                     stack.append(a / b)
-                if i == '//':
+                elif i == '//':
                     stack.append(a // b)
-                if i == '%':
+                elif i == '%':
                     stack.append(a % b)
-                if i == '^':
+                elif i == '^':
                     stack.append(a ** b)
             else:
                 stack.append(i)
@@ -124,7 +131,7 @@ def to_postfix(expression):
     stack = []
     ops_bracket = []
     for i in correct_expression(expression):
-        if i.isnumeric():
+        if is_float(i):
             res.append(i)
         elif i in ops_list:
             res.append(i)
@@ -156,8 +163,8 @@ def to_postfix(expression):
     return res
 
  #a = calc(to_postfix('abs(2)+3*2'))
-print('res', calc(to_postfix('abs(-2)+3*2')))
-#print(calc(to_postfix('pow(abs(2+1-1),abs(56-53)+1)+3*(3-4)')))
+#print('res', calc(to_postfix('abs(-2)+3*2')))
+print(calc(to_postfix('pow(abs(2+1-1),abs(56-53)+1)+3*(3-4)')))
 #print(calc(to_postfix('pow(abs(2+1-1),abs(56-53)+1)+3*(3-4)')))
 
 
