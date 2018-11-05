@@ -17,7 +17,7 @@ def createparser():
     parser = argparse.ArgumentParser(prog='pycalc', description='pure Python command line calculator',
                                      epilog="""Anton Charnichenka for EPAM: Introduction to Python 
                                      and Golang programming, 2018.""")
-    parser.add_argument('expression', nargs=argparse.REMAINDER, help="""mathematical expression string to evaluate; 
+    parser.add_argument('expression', help="""mathematical expression string to evaluate; 
                                       implicit multiplication is supported""")
     
     return parser
@@ -25,12 +25,14 @@ def createparser():
 def main():
     """calculation chain"""
     parser = createparser()
-    main_input, spare_input = parser.parse_known_args(sys.argv[1:])
+    namespace = parser.parse_args(sys.argv[1:])
+    user_expr = namespace.expression
+    #main_input, spare_input = parser.parse_known_args(sys.argv[1:])
     # get user's expression
-    if main_input.expression:
-        user_expr = main_input.expression[0]
-    else:
-        user_expr = spare_input[0]
+    #if main_input.expression:
+        #user_expr = main_input.expression[0]
+    #else:
+        #user_expr = spare_input[0]
 
     # calculation chain
     # tokenize user's expression string
