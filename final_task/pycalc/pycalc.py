@@ -22,9 +22,8 @@ def createparser():
     
     return parser
 
-
-# main
-if __name__ == "__main__":
+def main():
+    """calculation chain"""
     parser = createparser()
     main_input, spare_input = parser.parse_known_args(sys.argv[1:])
     # get user's expression
@@ -64,3 +63,7 @@ if __name__ == "__main__":
     else:
         print(result)
         sys.exit(0)
+    
+# main
+if __name__ == "__main__":
+    main()

@@ -7,5 +7,5 @@ setup(
     author_email = 'antt0n.chern1chenk0@gmail.com',
     description = 'pure Python command line calculator',
     packages = ['pycalc'],
-    entry_points = {'console_scripts': ['pycalc = pycalc.pycalc']},
+    entry_points = {'console_scripts': ['pycalc = pycalc.pycalc:main']},
     classifiers=["Programming Language :: Python :: 3.6", "Operating System :: Linux Mint"])
