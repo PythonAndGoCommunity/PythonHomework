@@ -5,11 +5,11 @@
 import argparse
 import sys
 # import from pycalc self library
-from tokenizer import Tokenizer
-from addmultsigns import Multsignsadder
-from rpn import RPN
-from constsreplacer import Constsreplacer
-from rpncalculator import RPNcalculator
+from .tokenizer import Tokenizer
+from .addmultsigns import Multsignsadder
+from .rpn import RPN
+from .constsreplacer import Constsreplacer
+from .rpncalculator import RPNcalculator
 
 
 def createparser():
