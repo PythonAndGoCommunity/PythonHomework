@@ -1,7 +1,7 @@
 """This module contains a class that allows to replace constants by their numeric equivalents"""
 
 # import from pyalc self library
-from pycalclib import constants_numeric_equivalents
+from .pycalclib import constants_numeric_equivalents
 
 
 class Constsreplacer():

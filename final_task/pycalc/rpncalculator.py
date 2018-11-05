@@ -1,7 +1,7 @@
 """This module contains a class that allows to evaluate math expression in RPN"""
 
 # import from pycalc self library
-from pycalclib import operators_dict, functions_dict
+from .pycalclib import operators_dict, functions_dict
 
 
 class RPNcalculator():

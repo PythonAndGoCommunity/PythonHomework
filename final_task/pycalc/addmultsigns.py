@@ -1,7 +1,7 @@
 """This module contains a class that allows to take into account implicit multiplication signs"""
 
 # import from pycalc self library
-from pycalclib import constants, functions, negative_functions
+from .pycalclib import constants, functions, negative_functions
 
 
 class Multsignsadder():

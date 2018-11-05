@@ -3,7 +3,7 @@
 # general import 
 import re
 # import from pycalc self library
-from pycalclib import r_strings, operators, constants
+from .pycalclib import r_strings, operators, constants
 
 
 class Tokenizer():

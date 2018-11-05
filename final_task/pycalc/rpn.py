@@ -1,8 +1,8 @@
 """This module contains a class that allows to transform infix notation math tokens into RPN"""
 
 # import from pycalc self library
-from pycalclib import constants, negative_constants, operators, comparison_operators, precedence
-from pycalclib import functions, negative_functions
+from .pycalclib import constants, negative_constants, operators, comparison_operators, precedence
+from .pycalclib import functions, negative_functions
 
 
 class RPN():
