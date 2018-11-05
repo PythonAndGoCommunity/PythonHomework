@@ -4,11 +4,11 @@
 import unittest
 
 # import of classes to be tested from pycalc modules
-from tokenizer import Tokenizer
-from addmultsigns import Multsignsadder
-from rpn import RPN
-from constsreplacer import Constsreplacer
-from rpncalculator import RPNcalculator
+from .tokenizer import Tokenizer
+from .addmultsigns import Multsignsadder
+from .rpn import RPN
+from .constsreplacer import Constsreplacer
+from .rpncalculator import RPNcalculator
 
 
 # Tests of 'Tokenizer' class from 'tokenizer' module
