@@ -9,17 +9,17 @@ import operator
 r_one_sign_operators = [r'^\+', r'^-', r'^\*', r'^/', r'^\^', r'^%']
 r_two_signs_operators = [r'^//', r'^\*\*']
 r_comparison_operators = [r'^<=', r'^>=', r'^<', r'^>', r'^==', r'^!=']
-r_functions = [r'^acosh', r'^acos', r'^asinh', r'^asin', r'^atan2', r'^atanh', r'^atan', r'^ceil', r'^copysign', r'^cosh',
-               r'^cos', r'^degrees', r'^erfc', r'^erf', r'^expm1', r'^exp', r'^fabs', r'^factorial', r'^floor', r'^fmod',
-               r'^gamma', r'^gcd', r'^hypot', r'^isfinite', r'^isinf', r'^isnan', r'^ldexp', r'^lgamma', r'^log10', r'^log1p',
-               r'^log2', r'^log', r'^pow', r'^radians', r'^sinh', r'^sin', r'^sqrt', r'^tanh', r'^tan',  r'^trunc',
-               r'^abs', r'^round']
+r_functions = [r'^acosh', r'^acos', r'^asinh', r'^asin', r'^atan2', r'^atanh', r'^atan', r'^ceil', r'^copysign',
+               r'^cosh', r'^cos', r'^degrees', r'^erfc', r'^erf', r'^expm1', r'^exp', r'^fabs', r'^factorial',
+               r'^floor', r'^fmod', r'^gamma', r'^gcd', r'^hypot', r'^isfinite', r'^isinf', r'^isnan', r'^ldexp',
+               r'^lgamma', r'^log10', r'^log1p', r'^log2', r'^log', r'^pow', r'^radians', r'^sinh', r'^sin',
+               r'^sqrt', r'^tanh', r'^tan',  r'^trunc', r'^abs', r'^round']
 r_negative_functions = [r'^-acosh', r'^-acos', r'^-asinh', r'^-asin', r'^-atan2', r'^-atanh', r'^-atan', r'^-ceil',
                         r'^-copysign', r'^-cosh', r'^-cos', r'^-degrees', r'^-erfc', r'^-erf', r'^-expm1', r'^-exp',
-                        r'^-fabs', r'^-factorial', r'^-floor', r'^-fmod', r'^-gamma', r'^-gcd', r'^-hypot', r'^-isfinite',
-                        r'^-isinf', r'^-isnan', r'^-ldexp', r'^-lgamma', r'^-log10', r'^-log1p', r'^-log2', r'^-log',
-                        r'^-pow', r'^-radians', r'^-sinh', r'^-sin', r'-^sqrt', r'^-tanh', r'^-tan',  r'^-trunc',
-                        r'^-abs', r'^-round']
+                        r'^-fabs', r'^-factorial', r'^-floor', r'^-fmod', r'^-gamma', r'^-gcd', r'^-hypot',
+                        r'^-isfinite', r'^-isinf', r'^-isnan', r'^-ldexp', r'^-lgamma', r'^-log10', r'^-log1p',
+                        r'^-log2', r'^-log', r'^-pow', r'^-radians', r'^-sinh', r'^-sin', r'-^sqrt', r'^-tanh',
+                        r'^-tan',  r'^-trunc', r'^-abs', r'^-round']
 r_constants = [r'^e', r'^pi', r'^tau', r'^inf', r'^nan']
 r_negative_constants = [r'^\-e', r'^\-pi', r'^\-tau', r'^\-inf', r'^\-nan']
 r_int_numbers = [r'^\d+']
