@@ -15,7 +15,7 @@ from .rpncalculator import RPNcalculator
 def createparser():
     """Creates parser with one positional argument 'expression' to parse user's mathematical expression"""
     parser = argparse.ArgumentParser(prog='pycalc', description='pure Python command line calculator',
-                                     epilog="""Anton Charnichenka for EPAM: Introduction to Python 
+                                     epilog="""Anton Charnichenka for EPAM: Introduction to Python
                                      and Golang programming, 2018.""")
     parser.add_argument('expression', help="""mathematical expression string to evaluate;
     implicit multiplication is supported""")

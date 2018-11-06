@@ -62,7 +62,7 @@ class Tokenizer():
 
         while len(self.user_expr) != 0:
             for r_string in self.r_strings:
-                search_result = re.search(r''.join(r_string), self.user_expr)
+                search_result = re.search(r_string, self.user_expr)
                 if search_result is not None:
                     if (search_result.group(0) == '-' and len(self.tokens) != 0
                             and self.tokens[-1] in (['('] + self.operators[2:])):

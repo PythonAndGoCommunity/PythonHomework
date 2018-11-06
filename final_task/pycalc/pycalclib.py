@@ -6,29 +6,29 @@ import operator
 
 
 # r_strings that are used to find operators / functions / etc
-r_one_sign_operators = ['^\+', '^-', '^\*', '^/', '^\^', '^%']
-r_two_signs_operators = ['^//', '^\*\*']
-r_comparison_operators = ['^<=', '^>=', '^<', '^>', '^==', '^!=']
-r_functions = ['^acosh', '^acos', '^asinh', '^asin', '^atan2', '^atanh', '^atan', '^ceil', '^copysign', '^cosh',
-               '^cos', '^degrees', '^erfc', '^erf', '^expm1', '^exp', '^fabs', '^factorial', '^floor', '^fmod',
-               '^gamma', '^gcd', '^hypot', '^isfinite', '^isinf', '^isnan', '^ldexp', '^lgamma', '^log10', '^log1p',
-               '^log2', '^log', '^pow', '^radians', '^sinh', '^sin', '^sqrt', '^tanh', '^tan',  '^trunc',
-               '^abs', '^round']
-r_negative_functions = ['^-acosh', '^-acos', '^-asinh', '^-asin', '^-atan2', '^-atanh', '^-atan', '^-ceil',
-                        '^-copysign', '^-cosh', '^-cos', '^-degrees', '^-erfc', '^-erf', '^-expm1', '^-exp',
-                        '^-fabs', '^-factorial', '^-floor', '^-fmod', '^-gamma', '^-gcd', '^-hypot', '^-isfinite',
-                        '^-isinf', '^-isnan', '^-ldexp', '^-lgamma', '^-log10', '^-log1p', '^-log2', '^-log',
-                        '^-pow', '^-radians', '^-sinh', '^-sin', '-^sqrt', '^-tanh', '^-tan',  '^-trunc',
-                        '^-abs', '^-round']
-r_constants = ['^e', '^pi', '^tau', '^inf', '^nan']
-r_negative_constants = ['^\-e', '^\-pi', '^\-tau', '^\-inf', '^\-nan']
-r_int_numbers = ['^\d+']
-r_negative_int_numbers = ['^\-\d+']
-r_float_numbers = ['^\d+\.\d+|^\.\d+']
-r_negative_float_numbers = ['^\-\d+\.\d+|^\-\.\d+']
-r_brackets = ['^\(', '^\)']
-r_comma = ['^,']
-r_space = ['^\s']
+r_one_sign_operators = [r'^\+', r'^-', r'^\*', r'^/', r'^\^', r'^%']
+r_two_signs_operators = [r'^//', r'^\*\*']
+r_comparison_operators = [r'^<=', r'^>=', r'^<', r'^>', r'^==', r'^!=']
+r_functions = [r'^acosh', r'^acos', r'^asinh', r'^asin', r'^atan2', r'^atanh', r'^atan', r'^ceil', r'^copysign', r'^cosh',
+               r'^cos', r'^degrees', r'^erfc', r'^erf', r'^expm1', r'^exp', r'^fabs', r'^factorial', r'^floor', r'^fmod',
+               r'^gamma', r'^gcd', r'^hypot', r'^isfinite', r'^isinf', r'^isnan', r'^ldexp', r'^lgamma', r'^log10', r'^log1p',
+               r'^log2', r'^log', r'^pow', r'^radians', r'^sinh', r'^sin', r'^sqrt', r'^tanh', r'^tan',  r'^trunc',
+               r'^abs', r'^round']
+r_negative_functions = [r'^-acosh', r'^-acos', r'^-asinh', r'^-asin', r'^-atan2', r'^-atanh', r'^-atan', r'^-ceil',
+                        r'^-copysign', r'^-cosh', r'^-cos', r'^-degrees', r'^-erfc', r'^-erf', r'^-expm1', r'^-exp',
+                        r'^-fabs', r'^-factorial', r'^-floor', r'^-fmod', r'^-gamma', r'^-gcd', r'^-hypot', r'^-isfinite',
+                        r'^-isinf', r'^-isnan', r'^-ldexp', r'^-lgamma', r'^-log10', r'^-log1p', r'^-log2', r'^-log',
+                        r'^-pow', r'^-radians', r'^-sinh', r'^-sin', r'-^sqrt', r'^-tanh', r'^-tan',  r'^-trunc',
+                        r'^-abs', r'^-round']
+r_constants = [r'^e', r'^pi', r'^tau', r'^inf', r'^nan']
+r_negative_constants = [r'^\-e', r'^\-pi', r'^\-tau', r'^\-inf', r'^\-nan']
+r_int_numbers = [r'^\d+']
+r_negative_int_numbers = [r'^\-\d+']
+r_float_numbers = [r'^\d+\.\d+|^\.\d+']
+r_negative_float_numbers = [r'^\-\d+\.\d+|^\-\.\d+']
+r_brackets = [r'^\(', r'^\)']
+r_comma = [r'^,']
+r_space = [r'^\s']
 # all r_strings together
 r_strings = r_brackets + r_two_signs_operators + r_one_sign_operators + r_negative_functions + r_functions + \
             r_comparison_operators + r_negative_float_numbers + r_negative_int_numbers + r_negative_constants + \
