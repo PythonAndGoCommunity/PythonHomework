@@ -6,16 +6,16 @@ from .pycalclib import operators_dict, functions_dict
 
 class RPNcalculator():
     """A model of RPN math expression evaluator"""
-    
+
     def __init__(self, rpn_tokens):
         """Initialize RPNcalculator object"""
-        
+
         self.rpn_tokens = rpn_tokens
         self.error_msg = None
         self.operators_dict = operators_dict
         self.functions_dict = functions_dict
         self.stack = []
-        
+
     def evaluate(self):
         """Evaluates math expression given in a form of RPN tokens"""
         for token in self.rpn_tokens:
@@ -73,7 +73,7 @@ class RPNcalculator():
             self.error_msg = 'ERROR: invalid syntax'
         else:
             result = None
-        
+
         return result, self.error_msg
 
 

@@ -6,7 +6,7 @@ from .pycalclib import constants, functions, negative_functions
 
 class Multsignsadder():
     """A model of mult_signs_adder capable of adding implicit multiplications signs in list of tokens"""
-    
+
     def __init__(self, tokens):
         """Initialize mult_signs_adder"""
         self.tokens = tokens
@@ -52,7 +52,7 @@ class Multsignsadder():
         for index in range(len(self.tokens)-1):
             self.extended_tokens.append(self.tokens[index])
             if (self.is_number(self.tokens[index]) and ((self.tokens[index+1] in self.constants)
-                                                        or (self.tokens[index+1] in self.functions) 
+                                                        or (self.tokens[index+1] in self.functions)
                                                         or (self.tokens[index+1] == '('))):
                 self.extended_tokens.append('*')
                 continue
@@ -68,7 +68,7 @@ class Multsignsadder():
 
 
 if __name__ == '__main__':
-    print("""This module contains class that allows to insert multiplications signs to where they where supposed 
+    print("""This module contains class that allows to insert multiplications signs to where they where supposed
     to be in a list with math tokens. For example: \n""")
     test_tokens = ['-0.1', 'tan', '+', '23', '*', '-sin', '(', '3', ')', '/', '.12', 'e']
     mult_signs_adder = Multsignsadder(test_tokens)

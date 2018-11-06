@@ -7,7 +7,7 @@ from .pycalclib import functions, negative_functions
 
 class RPN():
     """A model of rpn capable of converting infix to postfix (RPN) notation"""
-    
+
     def __init__(self, tokens):
         """Initialize rpn"""
         self.tokens = tokens
@@ -36,7 +36,7 @@ class RPN():
             return True
         except ValueError:
             return False
-            
+
     def convert2rpn(self):
         """Converts list of tokens in infix notation into RPN"""
         counter = 0
@@ -99,7 +99,7 @@ class RPN():
                     self.output_queue.append(remaining_operator)
                 else:
                     self.error_msg = 'ERROR: brackets are not balanced'
-                    
+
         return self.output_queue, self.error_msg
 
 
@@ -111,6 +111,6 @@ tokens in RPN. For example: \n""")
     rpn = RPN(test_tokens)
     rpn_tokens, error_msg = rpn.convert2rpn()
     if not error_msg:
-        print('RPN tokens: ', rpn_tokens) 
+        print('RPN tokens: ', rpn_tokens)
     else:
         print(error_msg)

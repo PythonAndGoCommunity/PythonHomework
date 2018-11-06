@@ -1,6 +1,6 @@
 """This module contains a class that allows to find and extract tokens from the user's mathematical expression"""
 
-# general import 
+# general import
 import re
 # import from pycalc self library
 from .pycalclib import r_strings, operators, constants
@@ -59,7 +59,7 @@ class Tokenizer():
     def extract_tokens(self):
         """Extracts tokens from string math expression"""
         got_token = False  # flag that switches to True every time some token has been found
-        
+
         while len(self.user_expr) != 0:
             for r_string in self.r_strings:
                 search_result = re.search(r''.join(r_string), self.user_expr)
@@ -87,13 +87,13 @@ class Tokenizer():
         return self.tokens, self.error_msg
 
 
-if __name__ == '__main__':     
+if __name__ == '__main__':
     print("This module contains class that allows to extract tokens from math strings. For example: \n")
     test_string = '1---1*-5-sin(-3)'
     print("Math string: ", test_string)
     tokenizer = Tokenizer(test_string)
     tokens, error_msg = tokenizer.extract_tokens()
     if not error_msg:
-        print('Extracted tokes: ', tokens) 
+        print('Extracted tokes: ', tokens)
     else:
         print(error_msg)
