@@ -8,14 +8,7 @@ OPERATORS = {'+': operator.add,
              '^': operator.pow,
              '%': operator.mod }
 
-FUNCTIONS = ['abs',
-             'sin',
-             'cos',
-             'log10',
-             'log']
-
-
-def searchFunc(expr):
+'''def searchFunc(expr):
     if symbol in FUNCTIONS:
         start = expr.find(symbol)
         if start != -1:
@@ -32,7 +25,7 @@ def searchFunc(expr):
                 count+=1
             newExpr = newExpr[:count]
             searchFunc(newExpr)
-        else 
+        else '''
 
 def checkBrackets(expression):
     bracketsAmount=0           
@@ -89,6 +82,7 @@ def convertExpr(expr):
             
 
 def pycalc(expr):
+    expr=RevPolNot(convertExpr(expr))
     stack = [0]
     for token in expr.split(' '):
         if token in OPERATORS:
