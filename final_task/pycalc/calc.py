@@ -51,6 +51,7 @@ def fix_missing_zero(expression):
     Returns:
         The return fixed string
     """
+    print(expression)
     match = re.split(r'(?<=\W)(?=\.\d)|(?<=^)(?=\.\d)', expression)
     return '0'.join(match)
 
