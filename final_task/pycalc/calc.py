@@ -44,6 +44,22 @@ comparison_operators = {
 }
 
 
+def insert(regex, expression, token):
+    """Inserts token in expression
+    Args:
+        regex: pattern to find position
+        expression: input string with math expression
+        token: token to insert
+    Returns:
+        The return fixed string
+    """
+    find = re.search(regex, expression)
+    while find:
+        position = re.search(regex, expression).end()
+        expression = token.join([expression[:position], expression[position:]])
+        find = re.search(regex, expression)
+    return expression
+
 def fix_missing_zero(expression):
     """Inserts a zero in the number of the construction .number: .3 -> 0.3
     Args:
@@ -51,9 +67,16 @@ def fix_missing_zero(expression):
     Returns:
         The return fixed string
     """
-    print(expression)
-    match = re.split(r'(?<=\W)(?=\.\d)|(?<=^)(?=\.\d)', expression)
-    return '0'.join(match)
+    token = '0'
+    regex = r'(?<=\W)(?=\.\d)|(?<=^)(?=\.\d)'
+    find = re.search(regex, expression)
+    if not find:
+        res = expression
+    else:
+        res = insert(regex, expression, token)
+        # match = re.split(regex, expression)
+        # res = '0'.join(match)
+    return res
 
 
 def match_negative_value(expression):
@@ -63,8 +86,16 @@ def match_negative_value(expression):
     Returns:
         The return string with correct negative value
     """
-    match = re.split(r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])', expression)
-    return '1'.join(match)
+    token = '1'
+    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])'
+    find = re.search(regex, expression)
+    if not find:
+        res = expression
+    else:
+        res = insert(regex, expression, token)
+        # match = re.split(regex, expression)
+        # res = '1'.join(match)
+    return res
 
 
 def insert_multiplication(expression):
@@ -74,9 +105,16 @@ def insert_multiplication(expression):
     Returns:
         The return string with correct multiplication
     """
+    token = '*'
     regex = r'(?<=\))(?=\w+)|(?<=\))(?=\()|(?<=[^a-z][^a-z]\d)(?=\()|(?<=^\d)(?=\()|(?<=\d)(?=e|[a-z][a-z])'
-    match = re.split(regex, expression)
-    return '*'.join(match)
+    find = re.search(regex, expression)
+    if not find:
+        res = expression
+    else:
+        res = insert(regex, expression, token)
+        # match = re.split(regex, expression)
+        # res = '*'.join(match)
+    return res
 
 
 def correct_expression(expression):
@@ -299,3 +337,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
