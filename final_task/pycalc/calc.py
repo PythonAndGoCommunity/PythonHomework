@@ -54,6 +54,7 @@ def fix_multi_operations(expression):
         mul_operators = re.search(r'\+\+|\-\-|\+\-|-\+', expression)
     return expression
 
+
 def insert(regex, expression, token):
     """Inserts token in expression
     Args:
@@ -138,8 +139,8 @@ def correct_expression(expression):
     if '()' in expression:
         raise CalcError('ERROR: invalid bracket expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
-    regex = r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|(?<=\()-\d+. \
-            \d+|(?<=\()-\d+|\//|\/|\d+\.\d+|\d+|\W|\w+)'
+    regex = re.compile(r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|' 
+            r'(?<=\()\-\d+.\d+|(?<=\()\-\d+|\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
     return re_expr
@@ -346,6 +347,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
 
