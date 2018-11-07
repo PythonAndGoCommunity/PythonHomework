@@ -98,7 +98,7 @@ def match_negative_value(expression):
         The return string with correct negative value
     """
     token = '1'
-    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])'
+    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\W\-)(?=[a-z])'
     find = re.search(regex, expression)
     if not find:
         res = expression
@@ -138,8 +138,8 @@ def correct_expression(expression):
     if '()' in expression:
         raise CalcError('ERROR: invalid bracket expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
-    regex = r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\()-\d+.' \
-            r'\d+|(?<=\()-\d+|\//|\d+\.\d+|\d+|\W|\w+)'
+    regex = r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|(?<=\()-\d+. \
+            \d+|(?<=\()-\d+|\//|\/|\d+\.\d+|\d+|\W|\w+)'
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
     return re_expr
@@ -310,8 +310,6 @@ def to_postfix(expression):
                 ops_bracket.pop()
                 res.append(i)
         elif i in binary_operations:
-            if item + 1 >= len(expression) or expression[item + 1] in binary_operations:
-                raise CalcError('ERROR: invalid operator "{0}"'.format(expression[:item + 1]))
             if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] > binary_operations[i]:
                 while stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i]:
                     res.append(stack.pop())
