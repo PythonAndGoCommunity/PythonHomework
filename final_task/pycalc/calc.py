@@ -139,8 +139,9 @@ def correct_expression(expression):
     if '()' in expression:
         raise CalcError('ERROR: invalid bracket expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
-    regex = re.compile(r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|' 
-            r'(?<=\()\-\d+.\d+|(?<=\()\-\d+|\//|\/|\d+\.\d+|\d+|\W|\w+)')
+    regex = re.compile(r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|'
+                       r'(?<=\()\-\d+.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+.\d+|(?<=[a-z]\W)\-\d+|'
+                       r'\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
     return re_expr
@@ -158,7 +159,7 @@ def get_arguments(expression):
     arg = []
     point = 1
     while expression:
-        if expression[0] == ',':
+        if expression[0] == ',' and point == 1:
             res.append(arg.copy())
             arg.clear()
         elif expression[0] == ')':
@@ -258,14 +259,14 @@ def calc_iteration(expression):
             arg = []
             ops, arg0 = get_arguments(expression)
             while arg0:
-                arg.append(calc_iteration(arg0.pop()))
+                arg.append(calc_iteration(arg0.pop(0)))
             try:
                 if ops == 'round':
                     stack.append(round(*arg))
                 elif ops == 'abs':
                     stack.append(abs(*arg))
                 else:
-                    stack.append(getattr(math, ops)(*reversed(arg)))
+                    stack.append(getattr(math, ops)(*arg))
             except ValueError:
                 raise CalcError('ERROR: invalid argument for function {0}'.format(ops))
             except TypeError:
@@ -347,4 +348,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
