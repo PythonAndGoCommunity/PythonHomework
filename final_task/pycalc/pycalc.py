@@ -229,6 +229,8 @@ def pol(input_str):
             stack.append(x)
         else:
             stack.append(float(token))
+    if len(stack) > 1:
+        raise Exception('invalid input')
     return stack.pop()
 
 
