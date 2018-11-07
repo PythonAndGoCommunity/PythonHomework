@@ -44,6 +44,16 @@ comparison_operators = {
 }
 
 
+def fix_multi_operations(expression):
+    mul_operators = re.search(r'\+\+|\-\-|\+\-|-\+', expression)
+    while mul_operators:
+        expression = expression.replace('++', '+')
+        expression = expression.replace('--', '+')
+        expression = expression.replace('+-', '-')
+        expression = expression.replace('-+', '-')
+        mul_operators = re.search(r'\+\+|\-\-|\+\-|-\+', expression)
+    return expression
+
 def insert(regex, expression, token):
     """Inserts token in expression
     Args:
@@ -59,6 +69,7 @@ def insert(regex, expression, token):
         expression = token.join([expression[:position], expression[position:]])
         find = re.search(regex, expression)
     return expression
+
 
 def fix_missing_zero(expression):
     """Inserts a zero in the number of the construction .number: .3 -> 0.3
@@ -126,7 +137,7 @@ def correct_expression(expression):
     """
     if '()' in expression:
         raise CalcError('ERROR: invalid bracket expression')
-    expression = insert_multiplication(match_negative_value(fix_missing_zero(expression)))
+    expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
     regex = r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\()-\d+.' \
             r'\d+|(?<=\()-\d+|\//|\d+\.\d+|\d+|\W|\w+)'
     re_expr = re.split(regex, expression)
@@ -301,7 +312,7 @@ def to_postfix(expression):
         elif i in binary_operations:
             if item + 1 >= len(expression) or expression[item + 1] in binary_operations:
                 raise CalcError('ERROR: invalid operator "{0}"'.format(expression[:item + 1]))
-            if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i]:
+            if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] > binary_operations[i]:
                 while stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i]:
                     res.append(stack.pop())
                 stack.append(i)
@@ -337,5 +348,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
