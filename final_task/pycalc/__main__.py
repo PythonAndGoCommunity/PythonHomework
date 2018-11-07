@@ -6,6 +6,7 @@ HELP = 'usage: pycalc [-h] EXPRESSION\nPure-python command-line calculator.\npos
 
 
 def main():
+    print(sys.argv)
     try:
         if sys.argv[1] == '--help':
             print(HELP)
