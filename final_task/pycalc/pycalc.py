@@ -63,6 +63,7 @@ def shunting_yard(input_str):
     while i < len(input_str):
         token = input_str[i]
         if token == ' ':
+            output_str += ' '
             i += 1
             continue
 
