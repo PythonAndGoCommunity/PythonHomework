@@ -89,7 +89,7 @@ def correct_expression(expression):
         raise CalcError('ERROR: invalid bracket expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(expression)))
     regex = r'(<=|==|!=|>=|log10|log2|log1p|expm1|atan2|^-\d+.\d+|^-\d+|(?<=\()-\d+.' \
-            '\d+|(?<=\()-\d+|\//|\d+\.\d+|\d+|\W|\w+)'
+            r'\d+|(?<=\()-\d+|\//|\d+\.\d+|\d+|\W|\w+)'
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
     return re_expr
