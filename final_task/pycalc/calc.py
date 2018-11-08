@@ -99,7 +99,7 @@ def match_negative_value(expression):
         The return string with correct negative value
     """
     token = '1'
-    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\^\-)(?=[a-z])|(?<=\*\-)(?=[a-z])|(?<=\/\-)(?=[a-z])'
+    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\^\-)(?=[a-z])|(?<=\*\-)(?=[a-z])|(?<=\/\-)(?=[a-z])|(?<=\s\-)(?=[a-z])'
     find = re.search(regex, expression)
     if not find:
         res = expression
@@ -317,8 +317,6 @@ def to_postfix(expression):
                 ops_bracket.pop()
                 res.append(i)
         elif i in binary_operations:
-            if item + 1 >= len(expression) or expression[item + 1] in binary_operations:
-                raise CalcError('ERROR: invalid operator "{0}"'.format(expression[:item + 1]))
             if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[
                 i] and i != '^':
                 while stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i]:
