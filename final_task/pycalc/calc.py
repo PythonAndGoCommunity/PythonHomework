@@ -271,7 +271,7 @@ def calc_iteration(expression):
                     stack.append(a ** b)
             else:
                 stack.append(i)
-            expression.remove((i))
+            expression.remove(i)
         if i in ops_list:
             arg = []
             ops, arg0 = get_arguments(expression)
@@ -332,8 +332,8 @@ def to_postfix(expression):
                 ops_bracket.pop()
                 res.append(i)
         elif i in binary_operations:
-            if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[
-                i] and i != '^':
+            if stack and stack[-1] in binary_operations and \
+                    binary_operations[stack[-1]] >= binary_operations[i] and i != '^':
                 while stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i]:
                     res.append(stack.pop())
                 stack.append(i)
