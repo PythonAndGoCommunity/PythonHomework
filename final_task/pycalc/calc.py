@@ -220,6 +220,8 @@ def calc_iteration(expression):
             inv = -1
             expression.remove(i)
         elif i in comparison_operators:
+            if len(expression) < 3:
+                raise CalcError('ERROR: invalid input')
             operator = expression.pop(0)
             a = stack.pop()
             b = calc_iteration(expression)
