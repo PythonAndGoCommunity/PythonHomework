@@ -47,6 +47,12 @@ comparison_operators = {
 
 
 def fix_multi_operations(expression):
+    """Fix multiple operation with '+' and '-'
+    Args:
+        expression: input string with math expression
+    Returns:
+        The return fixed string
+    """
     mul_operators = re.search(r'\+\+|\-\-|\+\-|-\+', expression)
     while mul_operators:
         expression = expression.replace('++', '+')
@@ -99,7 +105,8 @@ def match_negative_value(expression):
         The return string with correct negative value
     """
     token = '1'
-    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\^\-)(?=[a-z])|(?<=\*\-)(?=[a-z])|(?<=\/\-)(?=[a-z])|(?<=\s\-)(?=[a-z])'
+    regex = re.compile(r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\^\-)(?=[a-z])|(?<=\*\-)(?=[a-z])|'
+                       r'(?<=\/\-)(?=[a-z])|(?<=\s\-)(?=[a-z])')
     find = re.search(regex, expression)
     if not find:
         res = expression
@@ -137,6 +144,8 @@ def correct_expression(expression):
     """
     if '()' in expression:
         raise CalcError('ERROR: invalid bracket expression')
+    elif expression == '':
+        raise CalcError('ERROR: empty expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
     regex = re.compile(r'(<=|==|!=|>=|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|'
                        r'(?<=\()\-\d+\.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+\.\d+|(?<=[a-z]\W)\-\d+|(?<=\))\-|'
@@ -154,6 +163,8 @@ def get_arguments(expression):
         The return list of arguments
     """
     ops = expression.pop(0)
+    if not expression:
+        raise CalcError('ERROR: invalid input')
     res = []
     arg = []
     point = 1
@@ -276,6 +287,8 @@ def calc_iteration(expression):
                 raise CalcError('ERROR: invalid argument for function {0}'.format(ops))
             except TypeError:
                 raise CalcError('ERROR: invalid number of arguments for function {0}'.format(ops))
+    if len(stack) > 1 or not is_float(stack[-1]):
+        raise CalcError('ERROR: invalid expression')
     return stack.pop()
 
 
@@ -301,8 +314,8 @@ def to_postfix(expression):
                 res.append(stack.pop())
             res.append(i)
         elif i == '(':
-            if expression[item + 1] in binary_operations:
-                raise CalcError('ERROR: invalid operator "{0}"'.format(expression[item + 1]))
+            if item + 1 >= len(expression) or expression[item + 1] in binary_operations:
+                raise CalcError('ERROR: invalid operator')
             if res and res[-1] in ops_list:
                 ops_bracket.append(i)
             stack.append(i)
@@ -338,6 +351,12 @@ def to_postfix(expression):
 
 
 def evaluate(expression):
+    """Evaluate expression
+    Args:
+        expression: input string with math expression
+    Returns:
+        The return result of evaluate
+    """
     return calc_iteration(to_postfix(expression))
 
 
