@@ -19,6 +19,8 @@ binary_operations = {
     "^": 2,
 }
 
+unary_operation = ['~']
+
 ops_list = {'abs', 'pow', 'round', 'log', 'log10', 'sqrt', 'sin', 'asin', 'cos', 'acos', 'hypot', 'tan', 'atan',
             'copysign', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'ldexp', 'fsum', 'isfinite', 'isinf',
             'isnan', 'modf', 'trunc', 'exp', 'expm1', 'log1p', 'log2', 'degrees', 'radians', 'cosh', 'sinh',
@@ -86,8 +88,6 @@ def fix_missing_zero(expression):
         res = expression
     else:
         res = insert(regex, expression, token)
-        # match = re.split(regex, expression)
-        # res = '0'.join(match)
     return res
 
 
@@ -104,10 +104,11 @@ def match_negative_value(expression):
     if not find:
         res = expression
     else:
-        res = insert(regex, expression, token)
-        # match = re.split(regex, expression)
-        # res = '1'.join(match)
-    return res
+        while find:
+            position = re.search(regex, expression).end()
+            expression = '~'.join([expression[:position - 1], expression[position:]])
+            find = re.search(regex, expression)
+    return expression
 
 
 def insert_multiplication(expression):
@@ -124,8 +125,6 @@ def insert_multiplication(expression):
         res = expression
     else:
         res = insert(regex, expression, token)
-        # match = re.split(regex, expression)
-        # res = '*'.join(match)
     return res
 
 
@@ -140,7 +139,7 @@ def correct_expression(expression):
         raise CalcError('ERROR: invalid bracket expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
     regex = re.compile(r'(<=|==|!=|>=|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|'
-                       r'(?<=\()\-\d+\.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+\.\d+|(?<=[a-z]\W)\-\d+|'
+                       r'(?<=\()\-\d+\.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+\.\d+|(?<=[a-z]\W)\-\d+|(?<=\))\-|'
                        r'\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
@@ -199,11 +198,15 @@ def calc_iteration(expression):
     Returns:
         The return result of calculation
     """
+    inv = 1
     stack = []
     while expression:
         i = expression[0]
         if is_float(i):
             stack.append(float(i))
+            expression.remove(i)
+        elif i in unary_operation:
+            inv = -1
             expression.remove(i)
         elif i in comparison_operators:
             operator = expression.pop(0)
@@ -223,7 +226,8 @@ def calc_iteration(expression):
                 res = a > b
             stack.append(res)
         elif i in constants:
-            stack.append(getattr(math, i))
+            stack.append(getattr(math, i) * inv)
+            inv = 1
             expression.remove(i)
         elif i in binary_operations:
             if len(stack) > 1 and isinstance(stack[-1], (int, float)) and isinstance(stack[-2], (int, float)):
@@ -262,11 +266,12 @@ def calc_iteration(expression):
                 arg.append(calc_iteration(arg0.pop(0)))
             try:
                 if ops == 'round':
-                    stack.append(round(*arg))
+                    stack.append(round(*arg) * inv)
                 elif ops == 'abs':
-                    stack.append(abs(*arg))
+                    stack.append(abs(*arg) * inv)
                 else:
-                    stack.append(getattr(math, ops)(*arg))
+                    stack.append(getattr(math, ops)(*arg) * inv)
+                inv = 1
             except ValueError:
                 raise CalcError('ERROR: invalid argument for function {0}'.format(ops))
             except TypeError:
@@ -289,7 +294,7 @@ def to_postfix(expression):
         raise CalcError('ERROR: invalid operator "{0}"'.format(expression[0]))
     for item in range(len(expression)):
         i = expression[item]
-        if is_float(i) or i in ops_list or i in constants:
+        if is_float(i) or i in ops_list or i in constants or i in unary_operation:
             res.append(i)
         elif i in comparison_operators:
             while stack:
@@ -314,7 +319,8 @@ def to_postfix(expression):
         elif i in binary_operations:
             if item + 1 >= len(expression) or expression[item + 1] in binary_operations:
                 raise CalcError('ERROR: invalid operator "{0}"'.format(expression[:item + 1]))
-            if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i] and i != '^':
+            if stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[
+                i] and i != '^':
                 while stack and stack[-1] in binary_operations and binary_operations[stack[-1]] >= binary_operations[i]:
                     res.append(stack.pop())
                 stack.append(i)
@@ -350,4 +356,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-#print(to_postfix("2+3*5>=10+12/2"))
