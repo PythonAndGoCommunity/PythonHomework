@@ -1,16 +1,16 @@
 """Unittests for calculator."""
 
 import unittest
-import validator
-import calculator
+from .validator import Validator
+from .calculator import Calculator
 
 
 class CalculatorTester(unittest.TestCase):
     """Handles all testing operation."""
 
     def test_calculate(self):
-        val = validator.Validator()
-        calc = calculator.Calculator(val)
+        val = Validator()
+        calc = Calculator(val)
 
         self.assertEqual(calc.calc_start('2'), 2)
         self.assertEqual(calc.calc_start('-2'), -2)
