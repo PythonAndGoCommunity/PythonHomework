@@ -99,7 +99,7 @@ def match_negative_value(expression):
         The return string with correct negative value
     """
     token = '1'
-    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\W\-)(?=[a-z])'
+    regex = r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\^\-)(?=[a-z])|(?<=\*\-)(?=[a-z])|(?<=\/\-)(?=[a-z])'
     find = re.search(regex, expression)
     if not find:
         res = expression
