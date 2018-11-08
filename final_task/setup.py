@@ -8,6 +8,6 @@ setup(
     description="Simple pure-Python calculator with custom modules support.",
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['pycalc = pycalc.__main__:main']
+        'console_scripts': ['pycalc = pycalc:main']
     }
 )
