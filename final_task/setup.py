@@ -8,4 +8,9 @@ setup(
     author="Mikhailov Anton",
     author_email="delta.99@mail.ru",
     packages=find_packages(),
+    entry_points={
+        'console_scripts': [
+            'pycalc = pycalc:main'
+        ]
+    }
 )
