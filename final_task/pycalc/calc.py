@@ -142,16 +142,23 @@ def correct_expression(expression):
     Returns:
         The return list of tokens
     """
+    res = []
     if '()' in expression:
         raise CalcError('ERROR: invalid bracket expression')
     elif expression == '':
         raise CalcError('ERROR: empty expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
-    regex = re.compile(r'(<=|==|!=|>=|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|'
+    regex = re.compile(r'(<=|==|!=|>=|e|pi|tau|inf|nan|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|'
                        r'(?<=\()\-\d+\.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+\.\d+|(?<=[a-z]\W)\-\d+|(?<=\))\-|'
                        r'\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
+    for i in reversed(range(len(re_expr))):
+        if i > 0:
+            if re_expr[i] == '(' and is_float(re_expr[i - 1]):
+                re_expr.insert(i, '*')
+            elif re_expr[i] in constants and re_expr[i - 1] in constants:
+                re_expr.insert(i, '*')
     return re_expr
 
 
