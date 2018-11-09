@@ -8,12 +8,15 @@ operations_2 = {"-": operator.sub, "+": operator.add, "*": operator.mul, "^": op
                 "/": operator.truediv, "//": operator.floordiv, "%": operator.mod,
                 "log": math.log}
 operations_1 = {"exp": math.exp, "log2": math.log2, "log10": math.log10, "sin": math.sin,
-                "cos": math.cos, "tan": math.tan, "asin": math.asin, "acos" : math.acos,
+                "cos": math.cos, "tan": math.tan, "asin": math.asin, "acos": math.acos,
                 "atan": math.atan, "abs": abs, "neg": operator.neg}
+constants = {"pi": math.pi, "e": math.e}
 my_operations_2 = mydict.MyDict(operations_2)
 my_operations_1 = mydict.MyDict(operations_1)
+my_constants = mydict.MyDict(constants)
 del operations_1
 del operations_2
+del constants
 
 
 def calculate_expression(expression):
@@ -52,8 +55,12 @@ def calculate_expression(expression):
                     return """ERROR: it seems there is a mistake in expression.
                     For example: 2 adjoining operators."""
                 continue
+            if my_constants[token_list[i]] != -1:
+                operands_stack.append(my_constants[token_list[i]])
+                continue
         except ZeroDivisionError:
             return """ERROR: number cannot be divided by 0."""
     answer = operands_stack.pop()
+    if len(operands_stack) != 0:
+        return "ERROR: missing operator somewhere."
     return answer
-

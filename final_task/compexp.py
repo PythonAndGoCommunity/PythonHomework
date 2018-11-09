@@ -12,22 +12,26 @@ def check_for_comp(expression):
     """This function checks number of comparison operators in our expression."""
     found = False
     split_expression = []
+    tmp_expression = expression
     found_operator = ""
     comparison_operators = comparison_dictionary.keys()
     for op in comparison_operators:
-        tmp_list = expression.split(op)
+        tmp_list = tmp_expression.split(op)
         if len(tmp_list) > 2 or (len(tmp_list) == 2 and found):
             return "ERROR: number of comparison operators is more than 1."
         elif len(tmp_list) == 2:
             found = True
             split_expression = tmp_list
             found_operator = op
-    if found_operator == "":
+            tmp_expression = tmp_expression.replace(op, ' ', 1)
+    if not found:
         answer = expproc.verify_expression(expression)
         return answer
     else:
         answer_list = []
         for expression in split_expression:
+            if expression == "":
+                return "ERROR: one side of inequality is empty."
             answer = expproc.verify_expression(expression)
             if type(answer) == str:
                 return answer

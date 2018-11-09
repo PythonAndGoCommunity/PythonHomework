@@ -9,7 +9,6 @@ parser.add_argument("Expression", action="store", nargs=1, type=str, metavar="EX
 
 def parse_argument(args):
     """Parses expression from command line to string and returns it
-        to our main function for following processing
-    """
+        to our main function for following processing"""
     parsed_exp = parser.parse_args(args)
     return parsed_exp.Expression[0]

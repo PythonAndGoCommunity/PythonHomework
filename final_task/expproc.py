@@ -23,11 +23,14 @@ operations = {"-": 4, "+": 4, "*": 3, "^": 1, "/": 3, "//": 3, "%": 3,
               "atan": 0, "abs": 0, "neg": 2}
 operations_to_stack = mydict.MyDict(operations)
 operations_to_calculate = ["round", "pow"]
-constants = ["PI", "e"]
+constants = ["pi", "e"]
 del operations
 
 
 def verify_expression(expression):
+    """This function converts our infix expression into reverse polish
+    notation and at the same time checks it for brackets' balance and splits
+    it into tokens with spaces"""
     token_list = []
     stack_operations = []
     i = 0
@@ -50,6 +53,7 @@ def verify_expression(expression):
                 continue
         if expression[i] == "(":
             stack_operations.append("(")
+            token_list.append(" ")
             i += 1
             continue
         if expression[i] == ")":
@@ -81,8 +85,10 @@ def verify_expression(expression):
                     token_list.append(" ")
                     size = len(stack_operations)
                     if size != 0:
-                        while operations_to_stack[stack_operations[size - 1]] != -1 and\
-                              operations_to_stack[stack_operations[size - 1]] <= operations_to_stack[token]:
+                        while operations_to_stack[stack_operations[size - 1]] != -1 and (
+                              operations_to_stack[stack_operations[size - 1]] < operations_to_stack[token] or (
+                               operations_to_stack[stack_operations[size - 1]] == operations_to_stack[token] and
+                               token != "^")):
                             token_list.append(stack_operations.pop())
                             token_list.append(" ")
                             size -= 1
@@ -107,10 +113,14 @@ def verify_expression(expression):
             continue
         for x in constants:
             if expression[i:i+len(x)] == x:
+                found = True
                 token_list.append(x)
                 token_list.append(" ")
                 i += len(x)
                 break
+        if found:
+            continue
+        return "ERROR: Unknown symbol found. Position - {0}".format(i)
     token_list.append(" ")
     while len(stack_operations) != 0:
         tmp = stack_operations.pop()
@@ -120,6 +130,7 @@ def verify_expression(expression):
         token_list.append(tmp)
         token_list.append(" ")
     reverse_expression = ''.join(token_list)
+    print(reverse_expression)
     answer = calcexp.calculate_expression(reverse_expression)
     return answer
 

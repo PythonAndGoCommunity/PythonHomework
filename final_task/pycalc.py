@@ -9,6 +9,9 @@ def main():
     """Main function of our python calculator"""
     args = sys.argv[1:]
     expression = parse.parse_argument(args)
+    if expression == "":
+        print("ERROR: empty string cannot be passed as argument.")
+        sys.exit(1)
     answer = compexp.check_for_comp(expression)
     if type(answer) == str:
         print(answer)
