@@ -1,5 +1,5 @@
 import sys
-from .pycalc import pol, shunting_yard
+from .pycalc import postfix_eval_alg, shunting_yard_alg
 
 HELP = 'usage: pycalc [-h] EXPRESSION\nPure-python command-line calculator.\npositional arguments:' \
        '\n  EXPRESSION            expression string to evaluate'
@@ -10,7 +10,7 @@ def main():
         if sys.argv[2] == '--help':
             print(HELP)
         else:
-            print(pol(shunting_yard(sys.argv[2])))
+            print(postfix_eval_alg(shunting_yard_alg(sys.argv[2])))
     except Exception as err:
         print('ERROR:', err)
 

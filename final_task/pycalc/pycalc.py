@@ -1,13 +1,10 @@
 import math
 import sys
+from string import ascii_letters, digits
 
 STR_DIGITS = '0123456789'
-STR_OPERATOR = '^*/%+-<=>!'
-MATH_CONST = ['pi', 'e', 'tau', 'inf', 'nan']
-ACCURACY = 1e-100
 PREFIX_CONST = '#C'
 PREFIX_FUNC = '#F'
-
 PRIORITY_DICT = {
     '^': 5,
     '+-': 5,
@@ -51,7 +48,7 @@ def stack_push(stack, token):
     return buf_str
 
 
-def shunting_yard(input_str):
+def shunting_yard_alg(input_str):
     if len(input_str) == 0:
         raise Exception('empty input')
     stack = []
@@ -62,36 +59,20 @@ def shunting_yard(input_str):
     i = 0
     while i < len(input_str):
         token = input_str[i]
+
         if token == ' ':
             output_str += ' '
-            i += 1
-            continue
+            token = last_token
 
-        if ((token >= 'A') & (token <= 'Z')) \
-                or ((token >= 'a') & (token <= 'z')):
+        elif token in ascii_letters \
+                or token == '_':
             func_buf += token
-            last_token = token
-            i += 1
-            continue
-        elif func_buf:
-            if token in STR_OPERATOR + ')':
-                output_str += PREFIX_CONST + func_buf
-                func_buf = ''
-            elif token == '(':
-                stack.append(PREFIX_FUNC + func_buf)
-                func_buf = ''
-                stack.append('(')
-                last_token = token
-                i += 1
-                continue
-            else:
-                func_buf += token
-                last_token = token
-                i += 1
-                continue
 
-        if token in STR_DIGITS:
-            output_str += token
+        elif token in digits:
+            if func_buf:
+                func_buf += token
+            else:
+                output_str += token
 
         elif token == '.':
             output_str += '.'
@@ -99,37 +80,44 @@ def shunting_yard(input_str):
         elif token == ',':
             count_args += 1
             output_str += ' '
-            token = stack[-1]
-            while token != '(':
+            opr = stack[-1]
+            while opr != '(':
                 output_str += ' ' + stack.pop() + ' '
-                token = stack[-1]
+                opr = stack[-1]
 
         elif token == '(':
+            if func_buf:
+                stack.append(PREFIX_FUNC + func_buf)
+                func_buf = ''
             stack.append('(')
 
         elif token == ')':
-            token = stack[-1]
-            while token != '(':
+            if func_buf:
+                output_str += PREFIX_CONST + func_buf
+                func_buf = ''
+            opr = stack[-1]
+            while opr != '(':
                 output_str += ' ' + stack.pop() + ' '
                 if len(stack) != 0:
-                    token = stack[-1]
+                    opr = stack[-1]
                 else:
                     raise Exception('unpaired brackets')
-            else:
-                stack.pop()
-                if len(stack) != 0:
-                    if PREFIX_FUNC in stack[-1]:
-                        output_str += ' ' + str(count_args) + stack.pop()
-                        count_args = 1
-                token = ')'
+            stack.pop()
+            if len(stack) != 0:
+                if PREFIX_FUNC in stack[-1]:
+                    output_str += ' ' + str(count_args) + stack.pop()
+                    count_args = 1
 
-        elif token in STR_OPERATOR:
+        elif token in ascii_letters:
+            if func_buf:
+                output_str += PREFIX_CONST + func_buf
+                func_buf = ''
+
             next_token = input_str[i + 1]
             output_str += ' '
-
-            if (token == '-') & (last_token in STR_OPERATOR + '('):
+            if (token == '-') & (last_token in ascii_letters + '('):
                 output_str += stack_push(stack, '+-')
-            elif (token == '+') & (last_token in STR_OPERATOR):
+            elif (token == '+') & (last_token in ascii_letters):
                 pass
             elif (token in ['<', '>', '!', '=']) & (next_token == '='):
                 token += next_token
@@ -162,7 +150,7 @@ def shunting_yard(input_str):
     return output_str
 
 
-def pol(input_str):
+def postfix_eval_alg(input_str):
     stack = []
     input_list = input_str.split(' ')
     for token in input_list:
@@ -220,14 +208,15 @@ def pol(input_str):
         elif PREFIX_CONST in token:
             stack.append(getattr(math, token[2:]))
         elif PREFIX_FUNC in token:
+            pos = token.find(PREFIX_FUNC)
             args_list = []
-            for i in range(int(token[0])):
+            for i in range(int(token[:pos])):
                 args_list.append(stack.pop())
-            if token[3:] in FUNCTION_DICT:
-                x = FUNCTION_DICT[token[3:]](*args_list[::-1])
+            if token[pos + len(PREFIX_FUNC):] in FUNCTION_DICT:
+                res = FUNCTION_DICT[token[3:]](*args_list[::-1])
             else:
-                x = getattr(math, token[3:])(*args_list[::-1])
-            stack.append(x)
+                res = getattr(math, token[3:])(*args_list[::-1])
+            stack.append(res)
         else:
             stack.append(float(token))
     if len(stack) > 1:
@@ -236,4 +225,4 @@ def pol(input_str):
 
 
 if __name__ == '__main__':
-    print(pol(shunting_yard(sys.argv[1])))
+    print(postfix_eval_alg(shunting_yard_alg(sys.argv[1])))
