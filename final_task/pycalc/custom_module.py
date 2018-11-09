@@ -1,6 +1,4 @@
-"""
-    About.
-"""
+"""Custom module is created to test custom function support feature."""
 
 
 def cube_volume(arg1):

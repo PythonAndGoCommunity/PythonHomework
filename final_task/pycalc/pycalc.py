@@ -15,7 +15,7 @@ def main():
     modules = args.modules
     result = calc.calc_start(expression, modules)
 
-    print(result)  # :)
+    print(result)
 
 
 if __name__ == "__main__":

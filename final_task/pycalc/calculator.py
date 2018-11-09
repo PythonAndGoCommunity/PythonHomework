@@ -10,8 +10,8 @@ class Calculator:
 
     BINARIES = (
         ('^', lambda a, b: a ** b),  # **
-        ('/', lambda a, b: a / b),
         ('//', lambda a, b: a // b),
+        ('/', lambda a, b: a / b),
         ('*', lambda a, b: a * b),
         ('%', lambda a, b: a % b),
         ('+', lambda a, b: a + b),
@@ -72,6 +72,9 @@ class Calculator:
 
         pattern = r'([0-9\[\]\.\-]|(e\+)|(e\-))+$'
         num = re.search(pattern, expression[:sign_pos])
+        if num is None:
+            print("ERROR: please, check your expression.")
+            exit(1)
         return num.group(0)
 
     def find_right_num(self, expression, sign_pos):
@@ -79,7 +82,10 @@ class Calculator:
         None if it doesn't exist."""
 
         pattern = r'^([0-9\[\]\.\-]|(e\+)|(e\-))+'
-        num = re.search(pattern, expression[sign_pos+1:])
+        num = re.search(pattern, expression[sign_pos + 1:])
+        if num is None:
+            print("ERROR: please, check your expression.")
+            exit(1)
         return num.group(0)
 
     def calculate(self, expression=None):
@@ -97,8 +103,8 @@ class Calculator:
                     spos = expression.rfind(sign)
                 elif sign == '+':
                     spos = expression.find(sign)
-                    while spos != -1 and expression[spos-1] == 'e':
-                        spos = expression[spos+2:].find(sign)
+                    while spos != -1 and expression[spos - 1] == 'e':
+                        spos = expression[spos + 2:].find(sign)
                 else:
                     spos = expression.find(sign)
 
@@ -136,7 +142,8 @@ class Calculator:
 
             func, is_callable = self.get_func_or_const_by_name(func_name)
             if func is None:
-                raise TypeError("no such function " + func_name)
+                print("ERROR: no such function " + func_name + ".")
+                exit(1)
 
             if is_callable is False:
                 continue
@@ -144,11 +151,16 @@ class Calculator:
             fpos = expression.rfind(func_name)
             args, arg_end = self.get_func_args(expression, func_name, fpos)
 
-            if args is not None:
-                converted_args = self.convert_arguments(args)
-                result = func(*converted_args)
-            else:
-                result = func()
+            result = ''
+            try:
+                if args is not None:
+                    converted_args = self.convert_arguments(args)
+                    result = func(*converted_args)
+                else:
+                    result = func()
+            except TypeError:
+                print("ERROR: please, check function " + func_name + ".")
+                exit(1)
 
             expression = expression.replace(
                 expression[fpos:arg_end], '(' + str(result) + ')', 1
@@ -281,7 +293,13 @@ class Calculator:
 
         args = list(re.sub(r'[\[\]]', '', a) for a in args)
         args = list(self.handle_extra_signs(a) for a in args)
-        converted_args = list(self.convert(a) for a in args)
+
+        converted_args = []
+        try:
+            converted_args = list(self.convert(a) for a in args)
+        except ValueError:
+            print("ERROR: please, check your expression.")
+            exit(1)
 
         self._validator.check(operation, *converted_args)
         for o, func in self.BINARIES:
