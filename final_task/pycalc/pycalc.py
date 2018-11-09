@@ -2,7 +2,7 @@ import math
 import sys
 from string import ascii_letters, digits
 
-STR_DIGITS = '0123456789'
+STR_OPERATOR = '+-*^/%<>=!'
 PREFIX_CONST = '#C'
 PREFIX_FUNC = '#F'
 PRIORITY_DICT = {
@@ -108,16 +108,16 @@ def shunting_yard_alg(input_str):
                     output_str += ' ' + str(count_args) + stack.pop()
                     count_args = 1
 
-        elif token in ascii_letters:
+        elif token in STR_OPERATOR:
             if func_buf:
                 output_str += PREFIX_CONST + func_buf
                 func_buf = ''
 
             next_token = input_str[i + 1]
             output_str += ' '
-            if (token == '-') & (last_token in ascii_letters + '('):
+            if (token == '-') & (last_token in STR_OPERATOR + '('):
                 output_str += stack_push(stack, '+-')
-            elif (token == '+') & (last_token in ascii_letters):
+            elif (token == '+') & (last_token in STR_OPERATOR):
                 pass
             elif (token in ['<', '>', '!', '=']) & (next_token == '='):
                 token += next_token
