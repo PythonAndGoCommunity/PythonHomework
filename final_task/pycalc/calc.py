@@ -159,6 +159,8 @@ def correct_expression(expression):
                 re_expr.insert(i, '*')
             elif re_expr[i] in constants and re_expr[i - 1] in constants:
                 re_expr.insert(i, '*')
+            elif (re_expr[i] in constants or re_expr[i] in ops_list) and is_float(re_expr[i - 1]):
+                re_expr.insert(i, '*')
     return re_expr
 
 
