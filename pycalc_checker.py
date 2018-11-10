@@ -33,6 +33,9 @@ FUNCTIONS_AND_CONSTANTS = {
     "log10(100)": log10(100),
     "sin(pi/2)*111*6": sin(pi/2)*111*6,
     "2*sin(pi/2)": 2*sin(pi/2),
+    "pow(2, 3)": pow(2, 3),
+    "abs(-5)": abs(-5),
+    "round(123.4567890)": round(123.4567890),
 }
 
 ASSOCIATIVE = {
@@ -72,7 +75,6 @@ ERROR_CASES = [
     "+",
     "1-",
     "1 2",
-    "ee",
     "==7",
     "1 + 2(3 * 4))",
     "((1+2)",
