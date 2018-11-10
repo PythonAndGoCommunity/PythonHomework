@@ -148,7 +148,8 @@ def correct_expression(expression):
     elif expression == '':
         raise CalcError('ERROR: empty expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
-    regex = re.compile(r'(<=|==|!=|>=|e|pi|tau|inf|nan|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|(?<=\W\W)\-\d+|'
+    regex = re.compile(r'(<=|==|!=|>=|(?<=[^a-z])e|e|pi|tau|inf|nan|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|'
+                       r'(?<=\W\W)\-\d+|'
                        r'(?<=\()\-\d+\.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+\.\d+|(?<=[a-z]\W)\-\d+|(?<=\))\-|'
                        r'\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
