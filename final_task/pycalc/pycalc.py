@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Main module, that takes the command line argument and sends it on its way to verify and calculate."""
 import sys
-import parse
-import compexp
+import pycalc.parse as parse
+import pycalc.compexp as compexp
 
 
 def main():
@@ -16,7 +16,6 @@ def main():
     if type(answer) == str:
         print(answer)
         sys.exit(1)
-    print(expression)
     print(answer)
 
 

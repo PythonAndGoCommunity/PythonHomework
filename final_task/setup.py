@@ -7,10 +7,10 @@ setup(
     description="Pure-python command-line calculator.",
     author="Mikhailov Anton",
     author_email="delta.99@mail.ru",
-    packages=find_packages(),
+    packages=['pycalc'],
     entry_points={
         'console_scripts': [
-            'pycalc = pycalc.py:main'
+            'pycalc = pycalc.pycalc:main'
         ]
     }
 )

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Module, that first verifies the expression, splits it into tokens and then, if it's valid,
  sends it to calculate_expression for calculation"""
-import calcexp
-import mydict
+import pycalc.calcexp as calcexp
+import pycalc.mydict as mydict
 
 
 class VerifyException(Exception):
@@ -20,11 +20,14 @@ class VerifyException(Exception):
 operations = {"-": 4, "+": 4, "*": 3, "^": 1, "/": 3, "//": 3, "%": 3,
               "exp": 0, "log": 0, "log2": 0, "log10": 0, "sin": 0,
               "cos": 0, "tan": 0, "cot": 0, "asin": 0, "acos": 0,
-              "atan": 0, "abs": 0, "neg": 2}
+              "atan": 0, "abs": 0, "neg": 2, "pos": 2}
+unary_operations = {"-": "neg", "+": "pos"}
+my_unary_operations = mydict.MyDict(unary_operations)
 operations_to_stack = mydict.MyDict(operations)
 operations_to_calculate = ["round", "pow"]
 constants = ["pi", "e"]
 del operations
+del unary_operations
 
 
 def verify_expression(expression):
@@ -42,13 +45,13 @@ def verify_expression(expression):
                 token_list.append(" ")
             i += 1
             continue
-        if expression[i] == "-":
+        if my_unary_operations[expression[i]] != -1:
             if i == 0:
-                stack_operations.append("neg")
+                stack_operations.append(my_unary_operations[expression[i]])
                 i += 1
                 continue
             elif not expression[i - 1].isdigit():
-                stack_operations.append("neg")
+                stack_operations.append(my_unary_operations[expression[i]])
                 i += 1
                 continue
         if expression[i] == "(":
@@ -130,7 +133,6 @@ def verify_expression(expression):
         token_list.append(tmp)
         token_list.append(" ")
     reverse_expression = ''.join(token_list)
-    print(reverse_expression)
     answer = calcexp.calculate_expression(reverse_expression)
     return answer
 

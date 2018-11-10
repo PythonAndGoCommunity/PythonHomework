@@ -3,7 +3,7 @@
 
 import argparse
 
-parser = argparse.ArgumentParser(description="Pyre=python command-line calculator.")
+parser = argparse.ArgumentParser(description="Pyre-python command-line calculator.")
 parser.add_argument("Expression", action="store", nargs=1, type=str, metavar="EXPRESSION")
 
 
