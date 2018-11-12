@@ -1,4 +1,5 @@
 import math
+import argparse
 from string import ascii_letters, digits
 
 
@@ -234,3 +235,14 @@ The function calculates the mathematical expression written in postfix notation.
     if len(stack) > 1:
         raise Exception('invalid input')
     return stack.pop()
+
+def main():
+    """Entry point"""
+
+    parser = argparse.ArgumentParser(add_help=True, description="Pure-python command-line calculator.")
+    parser.add_argument("EXPRESSION", type=str, help="expression string to evaluate")
+    args = parser.parse_args()
+    try:
+        print(postfix_eval(shunting_yard_alg(args.EXPRESSION)))
+    except Exception as err:
+        print('ERROR:', err)
