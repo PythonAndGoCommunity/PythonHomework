@@ -1,5 +1,5 @@
 import sys
-from .pycalc import postfix_eval_alg, shunting_yard_alg
+from .pycalc import postfix_eval, shunting_yard_alg
 
 HELP = 'usage: pycalc [-h] EXPRESSION\nPure-python command-line calculator.\npositional arguments:' \
        '\n  EXPRESSION            expression string to evaluate'
