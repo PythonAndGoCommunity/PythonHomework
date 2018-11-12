@@ -2,7 +2,6 @@ import math
 import argparse
 from string import ascii_letters, digits
 
-
 STR_OPERATOR = '+-*^/%<>=!'
 PREFIX_CONST = '#C'
 PREFIX_FUNC = '#F'
@@ -235,6 +234,7 @@ The function calculates the mathematical expression written in postfix notation.
     if len(stack) > 1:
         raise Exception('invalid input')
     return stack.pop()
+
 
 def main():
     """Entry point"""
