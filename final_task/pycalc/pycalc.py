@@ -1,6 +1,6 @@
 import math
-import sys
 from string import ascii_letters, digits
+
 
 STR_OPERATOR = '+-*^/%<>=!'
 PREFIX_CONST = '#C'
@@ -24,31 +24,39 @@ BOOL_DICT = {'True': True, 'False': False}
 FUNCTION_DICT = {'abs': abs, 'pow': pow, 'round': round}
 
 
-def stack_push(stack, token):
+def stack_push(stack, opr):
+    """stack_push(stack, opr)
+
+This function is part of the shunting yard algorithm"""
+
     buf_str = ''
-    if token == '^' or token == '+-':
-        for i in range(len(stack)):
-            if stack[-1] == '(':
+    if opr == '^' or opr == '+-':
+        for opr2 in stack[::-1]:
+            if opr2 == '(':
                 break
-            elif PRIORITY_DICT[token] < PRIORITY_DICT[stack[-1]]:
+            elif PRIORITY_DICT[opr] < PRIORITY_DICT[opr2]:
                 buf_str += stack.pop() + ' '
             else:
                 break
-        stack.append(token)
+        stack.append(opr)
 
     else:
-        for i in range(len(stack)):
-            if stack[-1] == '(':
+        for opr2 in stack[::-1]:
+            if opr2 == '(':
                 break
-            elif PRIORITY_DICT[token] <= PRIORITY_DICT[stack[-1]]:
+            elif PRIORITY_DICT[opr] <= PRIORITY_DICT[opr2]:
                 buf_str += stack.pop() + ' '
             else:
                 break
-        stack.append(token)
+        stack.append(opr)
     return buf_str
 
 
 def shunting_yard_alg(input_str):
+    """shunting_yard_alg(input_str)
+
+The function converts a mathematical expression written in infix notation into postfix notation."""
+
     if len(input_str) == 0:
         raise Exception('empty input')
     stack = []
@@ -150,7 +158,11 @@ def shunting_yard_alg(input_str):
     return output_str
 
 
-def postfix_eval_alg(input_str):
+def postfix_eval(input_str):
+    """postfix_eval(input_str)
+
+The function calculates the mathematical expression written in postfix notation.
+    """
     stack = []
     input_list = input_str.split(' ')
     for token in input_list:
@@ -222,7 +234,3 @@ def postfix_eval_alg(input_str):
     if len(stack) > 1:
         raise Exception('invalid input')
     return stack.pop()
-
-
-if __name__ == '__main__':
-    print(postfix_eval_alg(shunting_yard_alg(sys.argv[1])))

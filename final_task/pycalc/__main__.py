@@ -10,7 +10,7 @@ def main():
         if sys.argv[2] == '--help':
             print(HELP)
         else:
-            print(postfix_eval_alg(shunting_yard_alg(sys.argv[2])))
+            print(postfix_eval(shunting_yard_alg(sys.argv[2])))
     except Exception as err:
         print('ERROR:', err)
 
