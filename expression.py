@@ -13,6 +13,10 @@ class BracketsAreNotBalanced(BaseExpressionException):
     pass
 
 
+class DoubleOperationException(BaseExpressionException):
+    pass
+
+
 class Element:
 
     def __init__(self, expression):
@@ -67,6 +71,11 @@ class Element:
     def value(self):
         new_expression = []
         operation = None
+        first_negative = False
+
+        if self._expression[0] == "-":
+            first_negative = True
+            del self._expression[0]
 
         # Calculate high priority math operations
         for i in self._expression:
@@ -83,6 +92,9 @@ class Element:
                     new_expression[-1] //= i
                 operation = None
             else:
+                if first_negative:
+                    i = -i
+                    first_negative = False
                 new_expression.append(i)
 
         self._expression = new_expression
@@ -94,6 +106,11 @@ class Element:
 
         for i in self._expression:
             if i in ("+", "-",):
+                if action:
+                    raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                        so=i,
+                        fo=action
+                    ))
                 action = i
             elif action:
                 if action == "+":
@@ -107,9 +124,9 @@ class Element:
 
 
 if __name__ == '__main__':
-    expr = Element("-9/2+5*2")
+    expr = Element("-9+2")
 
     print(str(expr))
     print(expr.value())
-    print(str(expr))
-    print(expr.value())
+    # print(str(expr))
+    # print(expr.value())
