@@ -1,7 +1,7 @@
 import importlib
 from argparse import ArgumentParser
 
-from calculator import CONSTANTS, FUNCS, PREFIX, Calculator
+from .calculator import CONSTANTS, FUNCS, PREFIX, Calculator
 
 
 def parse_args():
