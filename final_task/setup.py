@@ -8,6 +8,6 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     entry_points={
         'console_scripts': [
-            'pycalc=pycalc:main'
+            'pycalc=pycalc.__main__:main'
         ]
     })
