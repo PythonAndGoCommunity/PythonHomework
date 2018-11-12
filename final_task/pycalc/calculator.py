@@ -29,7 +29,8 @@ FUNCS = {k: v for k, v in math.__dict__.items()
          if not k.startswith('__') and callable(v)}
 
 FUNCS.update({'abs': lambda x: abs(x),
-              'round': lambda x: round(x)})
+              'round': lambda x: round(x),
+              'pow': pow})
 
 PREFIX = list(UNARY_OPERATORS.keys()) + list(FUNCS.keys())
 
