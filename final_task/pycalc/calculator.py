@@ -80,7 +80,11 @@ class Calculator:
                     for _ in range(int(res.pop())):
                         args.append(res.pop())
                     args.reverse()
-                    res.append(FUNCS[r](*args))
+                    try:
+                        res.append(FUNCS[r](*args))
+                    except TypeError:
+                        args = [int(n) for n in args]
+                        res.append(FUNCS[r](*args))
                 elif r in UNARY_OPERATORS:
                     res.append(UNARY_OPERATORS[r](res.pop()))
                 elif r in BINARY_OPERATORS:
