@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name='pycalc',
-    version='1.0'
+    version='1.0',
     author='Vlada Garavaya',
     author_email='vl.garavaya@gmail.com',
     packages=find_packages(),

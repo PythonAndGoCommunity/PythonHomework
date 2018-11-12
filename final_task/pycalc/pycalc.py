@@ -69,7 +69,7 @@ def convertExpr(expr):
             iter = 0
         i += 1
     return out.strip()
-            
+
 
 def calc(expr):
     stack = [0]
