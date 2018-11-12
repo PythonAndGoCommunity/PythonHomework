@@ -14,21 +14,24 @@ FUNCTIONS = ['abs',
              'log10',
              'log']
 
+
 def checkBrackets(expression):
-    bracketsAmount = 0           
+    bracketsAmount = 0
     for symbol in expression:
-        if bracketsAmount == -1:  
-            return False        
-        if symbol == '(':         
+        if bracketsAmount == -1:
+            return False
+        if symbol == '(':
             bracketsAmount += 1
-        elif symbol == ')':       
+        elif symbol == ')':
             bracketsAmount -= 1
-    if bracketsAmount != 0:       
-        return False            
+    if bracketsAmount != 0:
+        return False
     return True
 
-def allowedNums(): 
+
+def allowedNums():
     return '0123456789.'
+
 
 def convertExpr(expr):
     iter = 0
@@ -49,7 +52,7 @@ def convertExpr(expr):
         elif symbol == ')' and expr[i+1] in allowedNums():
             out += ' ) * '
             iter += 1
-        elif symbol == ')' :
+        elif symbol == ')':
             out += ' )'
             iter += 1
         if symbol == '(' and iter == 0:
@@ -73,10 +76,11 @@ def calc(expr):
     for token in expr.split(' '):
         if token in OPERATORS:
             op2, op1 = stack.pop(), stack.pop()
-            stack.append(OPERATORS[token](op1,op2))
+            stack.append(OPERATORS[token](op1, op2))
         elif token:
             stack.append(float(token))
     return stack.pop()
+
 
 def RevPolNot(expr):
     operators = {'+': 1,
@@ -106,11 +110,13 @@ def RevPolNot(expr):
             while not op == '(':
                 RevPN.append(op)
                 op = stack.pop()
-        else: RevPN.append(token)
+        else:
+            RevPN.append(token)
     while stack:
         RevPN.append(stack.pop())
     return ' '.join(RevPN)
-                
+
+
 def main():
     """Entry point"""
 
