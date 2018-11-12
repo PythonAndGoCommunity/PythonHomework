@@ -5,6 +5,6 @@ setuptools.setup(
     version='1.0',
     author='Vlada Garavaya',
     author_email='vl.garavaya@gmail.com',
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
     entry_points={'console_scripts': ['pycalc=pycalc.pycalc:main']},
 )
