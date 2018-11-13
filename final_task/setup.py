@@ -1,3 +1,5 @@
+"""Setup for pycalc."""
+
 import setuptools
 
 setuptools.setup(
