@@ -134,15 +134,13 @@ class Calculator:
                 while s != '(':
                     rpn.append(s)
                     s = stack.pop()
-                if args and len(args) == len(
-                        list(filter(lambda x: x in FUNCS, stack))):
+                if args and len(args) == len(list(filter(lambda x: x in FUNCS, stack))):
                     rpn.append(args.pop())
             elif e in BINARY_OPERATORS:
                 open_bracket = False
                 if stack:
                     s = stack[-1]
-                    while (
-                            s in PREFIX or PRIORITY[s] >= PRIORITY[e]) and e != '^':
+                    while (s in PREFIX or PRIORITY[s] >= PRIORITY[e]) and e != '^':
                         s = stack.pop()
                         rpn.append(s)
                         if not stack:
@@ -165,34 +163,30 @@ class Calculator:
             '.', '').isdigit() and e[0] == '.' else e for e in expression]
         # take adjacent elements to find places to insert implicit mult
         for i, (cur, next) in enumerate(zip(expression, expression[1:])):
-            if (
-                cur == ')' and next == '(') or (
-                cur == ')' and isnumber(next)) or (
-                isnumber(cur) and next == '(') or (
-                isnumber(cur) and next in PREFIX) or (
-                    cur in PREFIX and isnumber(next)) or (
-                        cur == ')' and next in PREFIX):
+            if ((cur == ')' and next == '(') or
+                (cur == ')' and isnumber(next)) or
+                (isnumber(cur) and next == '(') or
+                (isnumber(cur) and next in PREFIX) or
+                (cur in PREFIX and isnumber(next)) or
+                    (cur == ')' and next in PREFIX)):
                 places_to_indent_mult.append(i + 1)
         # insert implicit mult
         for i, p in enumerate(places_to_indent_mult):
             expression.insert(i + p, '*')
         for s in ['-', '+']:
             try:
-                if expression[0] == s and (
-                    isnumber(
-                        expression[1]) or expression[1] in PREFIX or expression[1] in [
-                        '-',
-                        '+']):
+                if (expression[0] == s and
+                        (isnumber(expression[1]) or expression[1] in PREFIX or expression[1] in ['-', '+'])):
                     expression[0] = '{}{}'.format(s, s)
             except (IndexError):
                 raise Exception('ERROR: where your expression?')
         # insert unary + or -
         for i, (cur, next) in enumerate(zip(expression, expression[1:])):
-            if ((cur == '--' or cur == '++' or cur in BINARY_OPERATORS) and next == '-') or \
-                    (cur == '(' and next == '-'):
+            if (((cur == '--' or cur == '++' or cur in BINARY_OPERATORS) and next == '-') or
+                    (cur == '(' and next == '-')):
                 expression[i + 1] = '--'
-            if ((cur == '--' or cur == '++' or cur in BINARY_OPERATORS) and next == '+') or \
-                    (cur == '(' and next == '+'):
+            if (((cur == '--' or cur == '++' or cur in BINARY_OPERATORS) and next == '+') or
+                    (cur == '(' and next == '+')):
                 expression[i + 1] = '++'
         return expression
 
@@ -204,11 +198,7 @@ class Calculator:
             raise Exception('ERROR: brackets are not balanced')
 
         if any([c in COMPARATORS for c in self.expression]):
-            if len(
-                list(
-                    filter(
-                        lambda x: x in COMPARATORS,
-                        self.expression))) > 1:
+            if len(list(filter(lambda x: x in COMPARATORS, self.expression))) > 1:
                 raise Exception('ERROR: two or more comparasion operators')
             i = self.expression.index(
                 [c for c in self.expression if c in COMPARATORS][0])
