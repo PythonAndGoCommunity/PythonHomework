@@ -25,6 +25,7 @@ def calculate_expression(expression):
     into tokens(with help of our verify function) and then calculates it."""
     token_list = expression.split(" ")
     operands_stack = []
+    print(token_list)
     size = len(token_list)
     for i in range(size):
         if token_list[i] == "":

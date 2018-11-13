@@ -60,8 +60,8 @@ def verify_expression(expression):
         if my_unary_operations[expression[i]] != -1:
             if i == 0:
                 stack_operations.append(my_unary_operations[expression[i]])
-                i += 1
                 prev_token = expression[i]
+                i += 1
                 continue
             elif not prev_token.isdigit() and\
                     prev_token != "pi" and\
@@ -138,8 +138,6 @@ def verify_expression(expression):
                               operations_to_stack[stack_operations[size - 1]] < operations_to_stack[token] or (
                                operations_to_stack[stack_operations[size - 1]] == operations_to_stack[token] and
                                token != "^")):
-                            token_list.append(" ")
-                            size -= 1
                             tmp_op = stack_operations.pop()
                             if tmp_op in multifuncs_basic:
                                 if len(multifunc_flags) == 0:
@@ -147,6 +145,8 @@ def verify_expression(expression):
                                 token_list.append(my_multifuncs_table[(tmp_op, multifunc_flags.pop())])
                             else:
                                 token_list.append(tmp_op)
+                            token_list.append(" ")
+                            size -= 1
                             if size == 0:
                                 break
                     stack_operations.append(token)
