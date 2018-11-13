@@ -27,6 +27,7 @@ class Element:
 
         bracket_level = 0
         item = []
+        act = None
 
         for i in expression:
             if i == "(":
@@ -46,13 +47,17 @@ class Element:
                 item.append(i)
             else:
                 if i in ["+", "-", "*", "/", "%", "^"]:
+                    if i in ("/", "*",):
+                        if act == i:
+                            del self._expression[-1]
+                            i = i * 2
+                        act = i
                     if item:
                         self._expression.append(float("".join(item)))
                         item.clear()
                     self._expression.append(i)
                 else:
                     item.append(i)
-
         if item:
             self._expression.append(float("".join(item)))
 
@@ -79,9 +84,16 @@ class Element:
 
         # Calculate high priority math operations
         for i in self._expression:
-            if i in ("*", "/", "%", "//",):
+            if i in ("*", "/", "%", "//", "**",):
+                if operation:
+                    raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                        so=i,
+                        fo=operation
+                    ))
                 operation = i
             elif operation:
+                if isinstance(i, Element):
+                    i = i.value()
                 if operation == "*":
                     new_expression[-1] *= i
                 elif operation == "/":
@@ -90,6 +102,8 @@ class Element:
                     new_expression[-1] %= i
                 elif operation == "//":
                     new_expression[-1] //= i
+                elif operation == "**":
+                    new_expression[-1] **= i
                 operation = None
             else:
                 if first_negative:
@@ -124,7 +138,7 @@ class Element:
 
 
 if __name__ == '__main__':
-    expr = Element("-9+2")
+    expr = Element("-2//3+7")
 
     print(str(expr))
     print(expr.value())
