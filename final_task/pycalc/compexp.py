@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Module for processing expression with comparison operators"""
-import pycalc.expproc as expproc
+import expproc
 import operator
 
 comparison_dictionary = {">=": operator.ge, "<=": operator.le,

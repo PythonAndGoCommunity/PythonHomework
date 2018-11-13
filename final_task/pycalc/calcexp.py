@@ -2,14 +2,15 @@
 """Module, that calculates our expression"""
 import math
 import operator
-import pycalc.mydict as mydict
+import mydict
 
 operations_2 = {"-": operator.sub, "+": operator.add, "*": operator.mul, "^": operator.pow,
                 "/": operator.truediv, "//": operator.floordiv, "%": operator.mod,
-                "log": math.log}
+                "log": math.log, "pow": math.pow, "round2": round}
 operations_1 = {"exp": math.exp, "log2": math.log2, "log10": math.log10, "sin": math.sin,
                 "cos": math.cos, "tan": math.tan, "asin": math.asin, "acos": math.acos,
-                "atan": math.atan, "abs": abs, "neg": operator.neg, "pos": operator.pos}
+                "atan": math.atan, "abs": abs, "neg": operator.neg, "pos": operator.pos,
+                "round1": round, "loge": math.log}
 constants = {"pi": math.pi, "e": math.e}
 my_operations_2 = mydict.MyDict(operations_2)
 my_operations_1 = mydict.MyDict(operations_1)
