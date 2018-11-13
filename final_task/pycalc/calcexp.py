@@ -2,7 +2,7 @@
 """Module, that calculates our expression"""
 import math
 import operator
-import mydict
+import pycalc.mydict as mydict
 
 operations_2 = {"-": operator.sub, "+": operator.add, "*": operator.mul, "^": operator.pow,
                 "/": operator.truediv, "//": operator.floordiv, "%": operator.mod,

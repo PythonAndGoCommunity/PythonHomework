@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Module, that first verifies the expression, splits it into tokens and then, if it's valid,
  sends it to calculate_expression for calculation"""
-import calcexp
-import mydict
+import pycalc.calcexp as calcexp
+import pycalc.mydict as mydict
 
 
 class VerifyException(Exception):
@@ -25,10 +25,10 @@ operations = {"-": 4, "+": 4, "*": 3, "^": 1, "/": 3, "//": 3, "%": 3,
 unary_operations = {"-": "neg", "+": "pos"}
 multifuncs_basic = ["round", "log", "pow"]
 multifuncs_table = {("round", True): "round2", ("round", False): "round1", ("log", True): "log",
-              ("log", False): "loge", ("pow", True): "pow"}
+                    ("log", False): "loge", ("pow", True): "pow"}
 my_unary_operations = mydict.MyDict(unary_operations)
 operations_to_stack = mydict.MyDict(operations)
-my_multifuncs_table = mydict.MyDict(multifuncs_table);
+my_multifuncs_table = mydict.MyDict(multifuncs_table)
 constants = ["pi", "e"]
 del operations
 del unary_operations
@@ -100,7 +100,7 @@ def verify_expression(expression):
             try:
                 token_list.append(" ")
                 if not multifunc_flags.pop():
-                    multifunc_flags.append(True);
+                    multifunc_flags.append(True)
                 else:
                     raise VerifyException("""ERROR: there is a comma sitting lonely...""", i)
                 prev_token = ","
@@ -129,7 +129,7 @@ def verify_expression(expression):
                 if operations_to_stack[token] == 0:
                     stack_operations.append(token)
                     if token in multifuncs_basic:
-                        multifunc_flags.append(False);
+                        multifunc_flags.append(False)
                 else:
                     token_list.append(" ")
                     size = len(stack_operations)
