@@ -1,3 +1,8 @@
+"""Test suite for pycalc.
+
+Unit tests go in "TestCalculator".
+"""
+
 import unittest
 from math import *
 

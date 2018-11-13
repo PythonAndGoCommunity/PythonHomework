@@ -5,6 +5,7 @@ from .calculator import CONSTANTS, FUNCS, PREFIX, Calculator
 
 
 def parse_args():
+    """Parse an arguments from command line"""
     parser = ArgumentParser(description='Pure-python command-line calculator')
     parser.add_argument(
         'expression',
@@ -24,6 +25,7 @@ def parse_args():
 
 
 def import_modules():
+    """Import modules provided by --use-modules arg im command line"""
     if parse_args().use_modules:
         for m in parse_args().use_modules:
             try:

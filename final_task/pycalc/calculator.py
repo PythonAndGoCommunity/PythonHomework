@@ -1,3 +1,5 @@
+"""This module provides a tools for calculate a math expression"""
+
 import io
 import math
 import tokenize
@@ -39,6 +41,7 @@ CONSTANTS = {k: v for k, v in math.__dict__.items()
 
 
 def isnumber(n):
+    """Return true if 'n' is float or a int number"""
     try:
         float(n)
         return True
