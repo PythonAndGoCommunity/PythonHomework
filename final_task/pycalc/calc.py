@@ -216,7 +216,7 @@ def is_func(value):
     Returns:
         The return True, if value is function and False if not
     """
-    if value[0].isalpha or value[0] == '_':
+    if value[0].isalpha() or value[0] == '_':
         return True
     else:
         return False
@@ -245,7 +245,7 @@ def calc_iteration(expression, mod_list):
                 raise CalcError('ERROR: invalid input')
             operator = expression.pop(0)
             a = stack.pop()
-            b = calc_iteration(expression)
+            b = calc_iteration(expression, mod_list)
             if operator == '<':
                 res = a < b
             elif operator == '<=':
@@ -366,7 +366,7 @@ def to_postfix(expression):
                 res.append(stack.pop())
             res.append(i)
         elif is_float(i) or is_func(i) or i in unary_operation:
-              res.append(i)
+            res.append(i)
         else:
             raise CalcError('ERROR: input invalid token "{0}"'.format(i))
     for i in reversed(stack):
@@ -405,7 +405,7 @@ def main():
     """Calc main function"""
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     parser.add_argument("-m", "--use-modules", dest='MODULE', nargs='+',
-                        required=False, default='', help="additional modules to use")
+                        required=False, default=None, help="additional modules to use")
     parser.add_argument("EXPRESSION", help="expression string to evaluate")
     args = parser.parse_args()
     try:
@@ -416,4 +416,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
