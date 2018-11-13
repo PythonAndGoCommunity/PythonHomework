@@ -27,14 +27,14 @@ error explanation **with "ERROR: " prefix** and exit with non-zero exit code:
 ```shell
 $ pycalc '15(25+1'
 ERROR: brackets are not balanced
-$ pycalc 'sin(-Pi/4)**1.5'
-ERROR: negative number cannot be raised to a fractional power
+$ pycalc 'func'
+ERROR: unknown function 'func'
 ```
 
 ### Mathematical operations calculator must support
 * Arithmetic (`+`, `-`, `*`, `/`, `//`, `%`, `^`) (`^` is a power).
 * Comparison (`<`, `<=`, `==`, `!=`, `>=`, `>`).
-* 3 built-in python functions: `abs`, `pow`, `round`.
+* 2 built-in python functions: `abs` and `round`.
 * All functions and constants from standard python module `math` (trigonometry, logarithms, etc.).
 
 
@@ -89,9 +89,9 @@ These requirements are not mandatory for implementation, but you can get more po
   ```shell
   $ pycalc 'sin(pi/2)'
   1.0
-  $ pycalc -m my_module 'sin(pi/2)'
+  $ pycalc 'sin(pi/2)' -m my_module
   42
-  $ pycalc -m time 'time()/3600/24/365'
+  $ pycalc 'time()/3600/24/365' -m time
   48.80147332327218
   ```
 
