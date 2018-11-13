@@ -313,6 +313,8 @@ def calc_iteration(expression, mod_list):
                 raise CalcError('ERROR: invalid argument for function {0}'.format(ops))
             except TypeError:
                 raise CalcError('ERROR: invalid number of arguments for function {0}'.format(ops))
+            except AttributeError:
+                raise CalcError('ERROR: module "math" has no attribute {0}'.format(ops))
     if len(stack) > 1 or not is_float(stack[-1]):
         raise CalcError('ERROR: invalid expression')
     return stack.pop()
@@ -419,3 +421,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
