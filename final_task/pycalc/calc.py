@@ -395,10 +395,13 @@ def get_func(module_list, func_name):
     Returns:
         The return function
     """
-    for mod in module_list:
-        imported = importlib.import_module(mod)
-        if hasattr(imported, func_name):
-            return getattr(imported, func_name)
+    try:
+        for mod in module_list:
+            imported = importlib.import_module(mod)
+            if hasattr(imported, func_name):
+                return getattr(imported, func_name)
+    except Exception:
+        pass
 
 
 def main():
