@@ -224,6 +224,53 @@ def is_func(value):
         return False
 
 
+def process_binary(i, stack):
+    if len(stack) > 1 and isinstance(stack[-1], (int, float)) and isinstance(stack[-2], (int, float)):
+        b = stack.pop()
+        a = stack.pop()
+        if i == '+':
+            stack.append(a + b)
+        elif i == '-':
+            stack.append(a - b)
+        elif i == '*':
+            stack.append(a * b)
+        elif i == '/':
+            try:
+                stack.append(a / b)
+            except ZeroDivisionError:
+                raise CalcError('ERROR: division by zero')
+        elif i == '//':
+            try:
+                stack.append(a // b)
+            except ZeroDivisionError:
+                raise CalcError('ERROR: floor division by zero')
+        elif i == '%':
+            try:
+                stack.append(a % b)
+            except ZeroDivisionError:
+                raise CalcError('ERROR: modulus by zero')
+        elif i == '^':
+            stack.append(a ** b)
+    else:
+        stack.append(i)
+
+
+def process_comparison(operator, a, b):
+    if operator == '<':
+        res = a < b
+    elif operator == '<=':
+        res = a <= b
+    elif operator == '==':
+        res = a == b
+    elif operator == '!=':
+        res = a != b
+    elif operator == '>=':
+        res = a >= b
+    elif operator == '>':
+        res = a > b
+    return res
+
+
 def calc_iteration(expression, mod_list):
     """Calculate math expression
     Args:
@@ -248,52 +295,13 @@ def calc_iteration(expression, mod_list):
             operator = expression.pop(0)
             a = stack.pop()
             b = calc_iteration(expression, mod_list)
-            if operator == '<':
-                res = a < b
-            elif operator == '<=':
-                res = a <= b
-            elif operator == '==':
-                res = a == b
-            elif operator == '!=':
-                res = a != b
-            elif operator == '>=':
-                res = a >= b
-            elif operator == '>':
-                res = a > b
-            stack.append(res)
+            stack.append(process_comparison(operator, a, b))
         elif i in constants:
             stack.append(getattr(math, i) * inv)
             inv = 1
             expression.remove(i)
         elif i in binary_operations:
-            if len(stack) > 1 and isinstance(stack[-1], (int, float)) and isinstance(stack[-2], (int, float)):
-                b = stack.pop()
-                a = stack.pop()
-                if i == '+':
-                    stack.append(a + b)
-                elif i == '-':
-                    stack.append(a - b)
-                elif i == '*':
-                    stack.append(a * b)
-                elif i == '/':
-                    try:
-                        stack.append(a / b)
-                    except ZeroDivisionError:
-                        raise CalcError('ERROR: division by zero')
-                elif i == '//':
-                    try:
-                        stack.append(a // b)
-                    except ZeroDivisionError:
-                        raise CalcError('ERROR: floor division by zero')
-                elif i == '%':
-                    try:
-                        stack.append(a % b)
-                    except ZeroDivisionError:
-                        raise CalcError('ERROR: modulus by zero')
-                elif i == '^':
-                    stack.append(a ** b)
-            else:
-                stack.append(i)
+            process_binary(i, stack)
             expression.remove(i)
         else:
             arg = []
