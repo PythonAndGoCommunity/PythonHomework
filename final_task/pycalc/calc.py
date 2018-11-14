@@ -61,11 +61,8 @@ def fix_multi_operations(expression):
         expression = expression.replace('+-', '-')
         expression = expression.replace('-+', '-')
         mul_operators = re.search(r'\+\+|\-\-|\+\-|-\+', expression)
-    try:
-        if expression[0] == '+':
-            expression = expression[1:]
-    except IndexError:
-        raise CalcError('ERROR: empty expression')
+    if expression and expression[0] == '+':
+        expression = expression[1:]
     return expression
 
 
@@ -154,6 +151,8 @@ def correct_expression(expression):
                        r'(?<=\))\-|\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
+    if expression == '':
+        raise CalcError('ERROR: empty expression')
     if expression[0] in binary_operations:
         raise CalcError('ERROR: invalid operator "{0}"'.format(expression[0]))
     for i in reversed(range(len(re_expr))):
