@@ -61,6 +61,11 @@ def fix_multi_operations(expression):
         expression = expression.replace('+-', '-')
         expression = expression.replace('-+', '-')
         mul_operators = re.search(r'\+\+|\-\-|\+\-|-\+', expression)
+    try:
+        if expression[0] == '+':
+            expression = expression[1:]
+    except IndexError:
+        raise CalcError('ERROR: empty expression')
     return expression
 
 
@@ -143,14 +148,14 @@ def correct_expression(expression):
         The return list of tokens
     """
     res = []
-    if expression == '':
-        raise CalcError('ERROR: empty expression')
     expression = insert_multiplication(match_negative_value(fix_missing_zero(fix_multi_operations(expression))))
     regex = re.compile(r'(<=|==|!=|>=|(?<=[^a-z])e|e|pi|tau|inf|nan|log1p|^-\d+\.\d+|^-\d+|(?<=\W\W)\-\d+\.\d+|'
                        r'(?<=\W\W)\-\d+|(?<=\()\-\d+\.\d+|(?<=\()\-\d+|(?<=[a-z]\W)\-\d+\.\d+|(?<=[a-z]\W)\-\d+|'
                        r'(?<=\))\-|\//|\/|\d+\.\d+|\d+|\W|\w+)')
     re_expr = re.split(regex, expression)
     re_expr = [x for x in re_expr if x and x != ' ']
+    if expression[0] in binary_operations:
+        raise CalcError('ERROR: invalid operator "{0}"'.format(expression[0]))
     for i in reversed(range(len(re_expr))):
         if i > 0:
             if re_expr[i] == '(' and is_float(re_expr[i - 1]):
@@ -331,8 +336,7 @@ def to_postfix(expression):
     stack = []
     ops_bracket = []
     expression = correct_expression(expression)
-    if expression[0] in binary_operations:
-        raise CalcError('ERROR: invalid operator "{0}"'.format(expression[0]))
+
     for item in range(len(expression)):
         i = expression[item]
         if i in comparison_operators:
