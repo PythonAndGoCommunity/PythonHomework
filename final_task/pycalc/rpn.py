@@ -22,7 +22,8 @@ class RPN:
         self.functions = functions
         self.negative_functions = negative_functions
 
-    def is_left_associative(self, operator):
+    @staticmethod
+    def is_left_associative(operator):
         """Determines whether operator is left associative"""
         if operator in ['^', '**']:
             return False
