@@ -3,6 +3,7 @@
 # import
 import re
 from .pycalclib import r_strings, operators, constants
+from .utils import is_number
 
 
 class Tokenizer:
@@ -16,16 +17,8 @@ class Tokenizer:
         self.error_msg = None
         self.tokens = []
 
-    def is_number(self, token):
-        """Determines whether token is a number"""
-        try:
-            float(token)
-            return True
-        except ValueError:
-            return False
-
     def consider_sub_signs(self, tokens):
-        """Considers and replaces several subtraction signs when they follow each other"""
+        """Considers and replaces several subtraction and addition signs when they follow each other"""
         index = 0
         while True:
             if tokens[index] == '-' and (tokens[index+1] == '-' or tokens[index+1] == '+'):
@@ -47,8 +40,8 @@ class Tokenizer:
     def check_first_tokens(self, tokens):
         """Check whether first two tokens are a negative number (negative constant)
         and replaces them by negative number if so"""
-        if tokens[0] == '-' and (self.is_number(tokens[1]) or tokens[1] in self.constants):
-            if self.is_number(tokens[1]):
+        if tokens[0] == '-' and (is_number(tokens[1]) or tokens[1] in self.constants):
+            if is_number(tokens[1]):
                 first_neg_token = str(float(tokens[1])*-1)
             else:
                 first_neg_token = '-{}'.format(tokens[1])

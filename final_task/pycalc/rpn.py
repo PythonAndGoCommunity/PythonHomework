@@ -3,6 +3,7 @@
 # import
 from .pycalclib import constants, negative_constants, operators, comparison_operators, precedence
 from .pycalclib import functions, negative_functions
+from .utils import is_number
 
 
 class RPN:
@@ -30,20 +31,12 @@ class RPN:
         else:
             return True
 
-    def is_number(self, token):
-        """Determines whether token is a number"""
-        try:
-            float(token)
-            return True
-        except ValueError:
-            return False
-
     def convert2rpn(self):
         """Converts list of tokens in infix notation into RPN"""
         counter = 0
         while counter != (len(self.tokens)):
             current_token = self.tokens[counter]
-            if self.is_number(current_token) or (current_token in (self.constants + self.negative_constants)):
+            if is_number(current_token) or (current_token in (self.constants + self.negative_constants)):
                 self.output_queue.append(current_token)
                 counter += 1
             elif current_token in self.functions or current_token in self.negative_functions:

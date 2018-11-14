@@ -2,6 +2,7 @@
 
 # import
 from .pycalclib import constants, functions, negative_functions
+from .utils import is_number
 
 
 class Multsignsadder:
@@ -14,14 +15,6 @@ class Multsignsadder:
         self.constants = constants
         self.functions = functions
         self.negative_functions = negative_functions
-
-    def is_number(self, token):
-        """Determines whether token is a number"""
-        try:
-            float(token)
-            return True
-        except ValueError:
-            return False
 
     def consider_neg_functions(self, tokens):
         """Replaces negative functions tokens by '-1*function' tokens"""
@@ -51,9 +44,9 @@ class Multsignsadder:
         """Adds implicit multiplication signs in list of math tokens to where they are supposed to be"""
         for index in range(len(self.tokens)-1):
             self.extended_tokens.append(self.tokens[index])
-            if (self.is_number(self.tokens[index]) and ((self.tokens[index+1] in self.constants)
-                                                        or (self.tokens[index+1] in self.functions)
-                                                        or (self.tokens[index+1] == '('))):
+            if (is_number(self.tokens[index]) and ((self.tokens[index+1] in self.constants)
+                                                   or (self.tokens[index+1] in self.functions)
+                                                   or (self.tokens[index+1] == '('))):
                 self.extended_tokens.append('*')
                 continue
             elif self.tokens[index] == ')' and self.tokens[index+1] == '(':
