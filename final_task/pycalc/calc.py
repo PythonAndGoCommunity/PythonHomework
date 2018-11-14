@@ -22,13 +22,6 @@ binary_operations = {
 
 unary_operation = ['~']
 
-ops_list = {'abs', 'pow', 'round', 'log', 'log10', 'sqrt', 'sin', 'asin', 'cos', 'acos', 'hypot', 'tan', 'atan',
-            'copysign', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'ldexp', 'fsum', 'isfinite', 'isinf',
-            'isnan', 'modf', 'trunc', 'exp', 'expm1', 'log1p', 'log2', 'degrees', 'radians', 'cosh', 'sinh',
-            'tanh', 'acosh', 'asinh', 'atanh', 'erf', 'erfc', 'gamma', 'lgamma', 'inv', 'gcd', 'isclose',
-            'isdexp', 'atan2', 'ceil',
-            }
-
 constants = {
     "pi",
     "e",
@@ -159,7 +152,7 @@ def correct_expression(expression):
                 re_expr.insert(i, '*')
             elif re_expr[i] in constants and re_expr[i - 1] in constants:
                 re_expr.insert(i, '*')
-            elif (re_expr[i] in constants or re_expr[i] in ops_list) and is_float(re_expr[i - 1]):
+            elif (re_expr[i] in constants or is_func(re_expr[i])) and is_float(re_expr[i - 1]):
                 re_expr.insert(i, '*')
     return re_expr
 
@@ -189,7 +182,7 @@ def get_arguments(expression):
                 return ops, res
             else:
                 arg.append(expression[0])
-        elif expression[0] in ops_list:
+        elif is_func(expression[0]) and expression[0] not in constants:
             point += 1
             arg.append(expression[0])
         else:
