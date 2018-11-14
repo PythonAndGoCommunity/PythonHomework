@@ -44,12 +44,12 @@ class Multsignsadder:
         """Adds implicit multiplication signs in list of math tokens to where they are supposed to be"""
         for index in range(len(self.tokens)-1):
             self.extended_tokens.append(self.tokens[index])
-            if (is_number(self.tokens[index]) and ((self.tokens[index+1] in self.constants)
-                                                   or (self.tokens[index+1] in self.functions)
-                                                   or (self.tokens[index+1] == '('))):
+            if ((is_number(self.tokens[index]) or self.tokens[index] in self.constants)
+                    and ((self.tokens[index+1] in self.constants) or (self.tokens[index+1] in self.functions)
+                         or (self.tokens[index+1] == '('))):
                 self.extended_tokens.append('*')
                 continue
-            elif self.tokens[index] == ')' and self.tokens[index+1] == '(':
+            elif self.tokens[index] == ')' and (self.tokens[index+1] == '(' or self.tokens[index+1] in self.functions):
                 self.extended_tokens.append('*')
                 continue
         self.extended_tokens.append(self.tokens[-1])
