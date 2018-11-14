@@ -224,38 +224,51 @@ def is_func(value):
         return False
 
 
-def process_binary(i, stack):
+def process_binary(item, stack):
+    """Process binary operation
+    Args:
+        item: binary operation
+        stack: list for add result of operation
+    """
     if len(stack) > 1 and isinstance(stack[-1], (int, float)) and isinstance(stack[-2], (int, float)):
         b = stack.pop()
         a = stack.pop()
-        if i == '+':
+        if item == '+':
             stack.append(a + b)
-        elif i == '-':
+        elif item == '-':
             stack.append(a - b)
-        elif i == '*':
+        elif item == '*':
             stack.append(a * b)
-        elif i == '/':
+        elif item == '/':
             try:
                 stack.append(a / b)
             except ZeroDivisionError:
                 raise CalcError('ERROR: division by zero')
-        elif i == '//':
+        elif item == '//':
             try:
                 stack.append(a // b)
             except ZeroDivisionError:
                 raise CalcError('ERROR: floor division by zero')
-        elif i == '%':
+        elif item == '%':
             try:
                 stack.append(a % b)
             except ZeroDivisionError:
                 raise CalcError('ERROR: modulus by zero')
-        elif i == '^':
+        elif item == '^':
             stack.append(a ** b)
     else:
-        stack.append(i)
+        stack.append(item)
 
 
 def process_comparison(operator, a, b):
+    """Process comparison operation
+    Args:
+        operator: comparison operation
+        a: first value to compare
+        b: second value to compare
+    Returns:
+        The return result of comparison operation
+    """
     if operator == '<':
         res = a < b
     elif operator == '<=':
@@ -282,27 +295,27 @@ def calc_iteration(expression, mod_list):
     inv = 1
     stack = []
     while expression:
-        i = expression[0]
-        if is_float(i):
-            stack.append(float(i))
-            expression.remove(i)
-        elif i in unary_operation:
+        item = expression[0]
+        if is_float(item):
+            stack.append(float(item))
+            expression.remove(item)
+        elif item in unary_operation:
             inv = -1
             expression.remove(i)
-        elif i in comparison_operators:
+        elif item in comparison_operators:
             if len(expression) < 3:
                 raise CalcError('ERROR: invalid input')
             operator = expression.pop(0)
             a = stack.pop()
             b = calc_iteration(expression, mod_list)
             stack.append(process_comparison(operator, a, b))
-        elif i in constants:
-            stack.append(getattr(math, i) * inv)
+        elif item in constants:
+            stack.append(getattr(math, item) * inv)
             inv = 1
-            expression.remove(i)
-        elif i in binary_operations:
-            process_binary(i, stack)
-            expression.remove(i)
+            expression.remove(item)
+        elif item in binary_operations:
+            process_binary(item, stack)
+            expression.remove(item)
         else:
             arg = []
             ops, arg0 = get_arguments(expression)
