@@ -153,8 +153,6 @@ def correct_expression(expression):
     re_expr = [x for x in re_expr if x and x != ' ']
     if expression == '':
         raise CalcError('ERROR: empty expression')
-    if expression[0] in binary_operations:
-        raise CalcError('ERROR: invalid operator "{0}"'.format(expression[0]))
     for i in reversed(range(len(re_expr))):
         if i > 0:
             if re_expr[i] == '(' and is_float(re_expr[i - 1]):
@@ -335,7 +333,8 @@ def to_postfix(expression):
     stack = []
     ops_bracket = []
     expression = correct_expression(expression)
-
+    if expression[0] in binary_operations:
+        raise CalcError('ERROR: invalid operator "{0}"'.format(expression[0]))
     for item in range(len(expression)):
         i = expression[item]
         if i in comparison_operators:
