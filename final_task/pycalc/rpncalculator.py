@@ -1,10 +1,10 @@
 """This module contains a class that allows to evaluate math expression in RPN"""
 
-# import from pycalc self library
+# import
 from .pycalclib import operators_dict, functions_dict
 
 
-class RPNcalculator():
+class RPNcalculator:
     """A model of RPN math expression evaluator"""
 
     def __init__(self, rpn_tokens):

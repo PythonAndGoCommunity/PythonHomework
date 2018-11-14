@@ -1,10 +1,8 @@
 #! /usr/bin/python3
-# -*- coding: UTF-8 -*-
 
-# general import
+# import
 import argparse
 import sys
-# import from pycalc self library
 from .tokenizer import Tokenizer
 from .addmultsigns import Multsignsadder
 from .rpn import RPN
@@ -12,7 +10,7 @@ from .constsreplacer import Constsreplacer
 from .rpncalculator import RPNcalculator
 
 
-def createparser():
+def create_parser():
     """Creates parser with one positional argument 'expression' to parse user's mathematical expression"""
     parser = argparse.ArgumentParser(prog='pycalc', description='pure Python command line calculator',
                                      epilog="""Anton Charnichenka for EPAM: Introduction to Python
@@ -25,7 +23,7 @@ def createparser():
 
 def main():
     """Calculate user's expression"""
-    parser = createparser()
+    parser = create_parser()
     namespace = parser.parse_args(sys.argv[1:])
     user_expr = namespace.expression
 

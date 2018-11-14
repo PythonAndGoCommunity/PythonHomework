@@ -1,12 +1,11 @@
 """This module contains a class that allows to find and extract tokens from the user's mathematical expression"""
 
-# general import
+# import
 import re
-# import from pycalc self library
 from .pycalclib import r_strings, operators, constants
 
 
-class Tokenizer():
+class Tokenizer:
     """A model of tokenizer capable of finding and extracting tokens from string math expression"""
     def __init__(self, user_expr):
         """Initialize tokenizer"""

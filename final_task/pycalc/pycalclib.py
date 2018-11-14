@@ -1,6 +1,6 @@
 """This module contains lists and dictionaries of data that are used in other pycalc modules """
 
-# general import
+# import
 import math
 import operator
 

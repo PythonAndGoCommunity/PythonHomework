@@ -1,10 +1,10 @@
 """This module contains a class that allows to take into account implicit multiplication signs"""
 
-# import from pycalc self library
+# import
 from .pycalclib import constants, functions, negative_functions
 
 
-class Multsignsadder():
+class Multsignsadder:
     """A model of mult_signs_adder capable of adding implicit multiplications signs in list of tokens"""
 
     def __init__(self, tokens):
