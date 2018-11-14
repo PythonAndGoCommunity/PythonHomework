@@ -301,7 +301,7 @@ def calc_iteration(expression, mod_list):
             expression.remove(item)
         elif item in unary_operation:
             inv = -1
-            expression.remove(i)
+            expression.remove(item)
         elif item in comparison_operators:
             if len(expression) < 3:
                 raise CalcError('ERROR: invalid input')
