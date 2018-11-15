@@ -9,6 +9,7 @@ from .addmultsigns import Multsignsadder
 from .rpn import RPN
 from .constsreplacer import Constsreplacer
 from .rpncalculator import RPNcalculator
+from .utils import is_number
 
 
 # Tests of 'Tokenizer' class from 'tokenizer' module
@@ -106,15 +107,6 @@ class TokenizerTestCase(unittest.TestCase):
         self.assertEqual(tokens, ['-1.0', '-', '2', '-', '3', '+', '4', '-', '2'])
         self.assertEqual(error_msg, None)
 
-    def test_is_number_method(self):
-        """Does 'is_number' method distinguish tokens which are numbers from ones which are not?"""
-        tokens = ['.3', '-0.3', '7', 'tan']
-        tokenizer = Tokenizer(user_expr='')
-        is_numbers = []
-        for token in tokens:
-            is_numbers.append(tokenizer.is_number(token))
-        self.assertEqual(is_numbers, [True, True, True, False])
-
     def test_extract_tokens_error_msg(self):
         """Is error_message created?"""
         user_expr = "2+shikaka(3)"
@@ -127,22 +119,13 @@ class TokenizerTestCase(unittest.TestCase):
 class MultsignsadderTestCase(unittest.TestCase):
     """Tests for Multsignsadder class"""
 
-    def test_is_number_method(self):
-        """Does 'is_number' method distinguish tokens which are numbers from ones which are not?"""
-        tokens = ['2.3', '-0.6', '5', 'sin', 'exp']
-        mult_signs_adder = Multsignsadder(tokens)
-        is_numbers = []
-        for token in tokens:
-            is_numbers.append(mult_signs_adder.is_number(token))
-        self.assertEqual(is_numbers, [True, True, True, False, False])
-
     def test_addmultsigns_add_mult_signs(self):
         """Are multiplication signs added to where they implicit were to be in expression?"""
-        tokens = ['5', 'tau', '-', '4', 'sin', '(', '7', ')', '-', '9', '(', '1', '+', '10', ')']
+        tokens = ['5', 'tau', '-', '4', 'sin', '(', '7', ')', 'sin', '(', '3', ')', '-', '9', '(', '1', '+', '10', ')']
         mult_signs_adder = Multsignsadder(tokens)
         extd_tokens = mult_signs_adder.addmultsigns()
-        self.assertEqual(extd_tokens, ['5', '*', 'tau', '-', '4', '*', 'sin', '(', '7', ')', '-',
-                                       '9', '*', '(', '1', '+', '10', ')'])
+        self.assertEqual(extd_tokens, ['5', '*', 'tau', '-', '4', '*', 'sin', '(', '7', ')', '*', 'sin', '(', '3', ')',
+                                       '-', '9', '*', '(', '1', '+', '10', ')'])
 
     def test_addmultsigns_dont_add_mult_signs(self):
         """Aren't multiplication signs added if it's not needed?"""
@@ -159,7 +142,7 @@ class MultsignsadderTestCase(unittest.TestCase):
         self.assertEqual(mult_signs_adder.tokens, ['2', '*', '-1', '*', 'sin', '(', '2', ')'])
 
     def test_consider_log_args_method(self):
-        """Is 'e' added as a base for log functions if last was entered with one argument?"""
+        """Is 'e' added as a base for log function if last was entered with one argument?"""
         tokens = ['log', '(', '33', ')']
         mult_signs_adder = Multsignsadder(tokens)
         mult_signs_adder.consider_log_args(mult_signs_adder.tokens)
@@ -178,15 +161,6 @@ class RPNTestCase(unittest.TestCase):
         for token in tokens:
             is_left_associative.append(rpn.is_left_associative(token))
         self.assertEqual(is_left_associative, [False, False, True, True])
-
-    def test_is_number_method(self):
-        """Does 'is_number' method distinguish tokens which are numbers from ones which are not?"""
-        tokens = ['1.3', '-0.5', '/', '%', '9']
-        rpn = RPN(tokens)
-        is_numbers = []
-        for token in tokens:
-            is_numbers.append(rpn.is_number(token))
-        self.assertEqual(is_numbers, [True, True, False, False, True])
 
     def test_convert2rpn_method(self):
         """Does 'convert2rpn' method work correctly?"""
@@ -261,6 +235,19 @@ class RPNcalculatorTestCase(unittest.TestCase):
         rpncalculator = RPNcalculator(rpn_tokens)
         result, error_msg = rpncalculator.evaluate()
         self.assertEqual(error_msg, "ERROR: invalid syntax")
+
+
+# Tests of 'is_number' function from 'utils' module
+class IsNumberTestCase(unittest.TestCase):
+    """Test for 'is_number' function"""
+
+    def test_is_number_function(self):
+        """Does 'is_number' function distinguish tokens which are numbers from ones which are not?"""
+        tokens = ['.3', '-0.3', '7', 'tan']
+        is_numbers = []
+        for token in tokens:
+            is_numbers.append(is_number(token))
+        self.assertEqual(is_numbers, [True, True, True, False])
 
 
 if __name__ == '__main__':
