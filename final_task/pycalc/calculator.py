@@ -253,7 +253,8 @@ class Calculator:
             if func_name == requested_name:
                 return func
 
-    def convert(self, a):
+    @staticmethod
+    def convert(a):
         """Converts an argument to int, bool or float."""
 
         if not isinstance(a, str):
@@ -356,7 +357,8 @@ class Calculator:
 
         return expression
 
-    def get_nested(self, expression):
+    @staticmethod
+    def get_nested(expression):
         """Finds and returns nested expression (with no nested inside it) if
          it exists, else returns None."""
 
