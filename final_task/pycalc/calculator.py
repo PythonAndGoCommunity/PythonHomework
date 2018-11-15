@@ -23,23 +23,27 @@ class Calculator:
         ('==', lambda a, b: a == b)
     )
 
-    FUNCTIONS = (
+    BUILTINS = (
         ('pow', lambda a, b, c: pow(a, b)),
         ('abs', lambda a: abs(a)),
         ('round', lambda a: round(a)),
         ('ctan', lambda a: 1 / math.tan(a))
     )
 
-    def __init__(self, validator):
+    def __init__(self, validator, modules=None):
+        """Initializes validator and user modules."""
+
         self._validator = validator
         self._modules = [math]
+        self.import_modules(modules)
+        self._constants = self.get_reserved(c=False)
+        self._functions = self.get_reserved(c=True)
 
-    def calc_start(self, expression, modules=None):
+    def calc_start(self, expression):
         """Entry point of calculating. Validates, transforms and finally
         calculates given expression. Returns calculating result."""
 
         self._validator.validate(expression)
-        self.import_modules(modules)
 
         expression = self.transform(expression)
         expression = self.replace_constants(expression)
@@ -98,7 +102,7 @@ class Calculator:
 
         for sign, func in self.BINARIES:
             while True:
-                sign_pos = self.find_sign(expression, sign)
+                sign_pos = self.find_sign_pos(expression, sign)
                 if sign_pos == -1:
                     break
 
@@ -119,7 +123,7 @@ class Calculator:
 
         return expression.strip('[]')
 
-    def find_sign(self, expression, sign):
+    def find_sign_pos(self, expression, sign):
         """Returns a position of given sign in the
         expression (-1 if not found)."""
 
@@ -147,9 +151,8 @@ class Calculator:
             if func_name in ('False', 'True'):
                 continue
 
-            functions = self.get_reserved(c=True)
             func = None
-            if func_name in functions:
+            if func_name in self._functions:
                 func = self.get_reserved_by_name(func_name)
             else:
                 self._validator.assert_error(
@@ -204,7 +207,7 @@ class Calculator:
                     result.append(d)
 
         if c:
-            for func_name, _ in self.FUNCTIONS:
+            for func_name, _ in self.BUILTINS:
                 result.append(func_name)
 
         # Sort here is used to prevent replacing
@@ -215,8 +218,8 @@ class Calculator:
     def replace_constants(self, expression):
         """Finds constants in imported and user modules and builtins."""
 
-        const_pattern = '|'.join(self.get_reserved(c=False))
-        func_pattern = '|'.join(self.get_reserved(c=True))
+        const_pattern = '|'.join(self._constants)
+        func_pattern = '|'.join(self._functions)
         pattern = r'[A-Za-z_]+[A-Za-z0-9_]*'
 
         cases = re.finditer(pattern, expression)
@@ -249,7 +252,7 @@ class Calculator:
                 obj = getattr(m, requested_name)
                 return obj
 
-        for func_name, func in self.FUNCTIONS:
+        for func_name, func in self.BUILTINS:
             if func_name == requested_name:
                 return func
 

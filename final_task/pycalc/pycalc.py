@@ -8,12 +8,12 @@ from .validator import Validator
 def main():
     argparser = Argparser()
     validator = Validator()
-    calc = Calculator(validator)
 
     args = argparser.parse_input()
     expression = args.expression[0]
     modules = args.modules
-    result = calc.calc_start(expression, modules)
+    calc = Calculator(validator, modules)
+    result = calc.calc_start(expression)
 
     print(result)
 
