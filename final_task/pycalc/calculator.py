@@ -1,4 +1,5 @@
 """Main module of the calculator."""
+# TODO: set custom module's higher priority than included (math)
 
 import math
 import re
@@ -15,7 +16,6 @@ class Calculator:
         ('*', lambda a, b: a * b),
         ('%', lambda a, b: a % b),
         ('+', lambda a, b: a + b),
-        # ('-', lambda a, b: a - b),
         ('<=', lambda a, b: a <= b),
         ('>=', lambda a, b: a >= b),
         ('<', lambda a, b: a < b),
@@ -25,7 +25,7 @@ class Calculator:
     )
 
     FUNCTIONS = (
-        ('pow', lambda a, b: pow(a, b)),
+        ('pow', lambda a, b, c: pow(a, b)),
         ('abs', lambda a: abs(a)),
         ('round', lambda a: round(a)),
         ('ctan', lambda a: 1 / math.tan(a))
@@ -37,22 +37,25 @@ class Calculator:
 
     def calc_start(self, expression, modules=None):
         """Entry point of calculating. Validates, transforms and finally
-        calculates given expression."""
+        calculates given expression. Returns calculating result."""
 
         self._validator.validate(expression)
+        self.import_modules(modules)
         expression = self.transform(expression)
-
-        if modules is not None:
-            for m in modules:
-                new_module = __import__(m)
-                self._modules.append(new_module)
-
         expression = self.replace_constants(expression)
         expression = self.calculate_functions(expression)
         expression = self.handle_implicit_multiplication(expression)
 
         result = self.calculate(expression)
         return self.convert(result)
+
+    def import_modules(self, modules):
+        """Imports all modules from given list."""
+
+        if modules is not None:
+            for m in modules:
+                new_module = __import__(m)
+                self._modules.append(new_module)
 
     def transform(self, expression):
         """Transforms the expression into Calculator friendly form."""
@@ -73,8 +76,8 @@ class Calculator:
         pattern = r'([0-9\[\]\.\-]|(e\+)|(e\-))+$'
         num = re.search(pattern, expression[:sign_pos])
         if num is None:
-            print("ERROR: please, check your expression.")
-            exit(1)
+            self._validator.assert_error(
+                "ERROR: please, check your expression.")
         return num.group(0)
 
     def find_right_num(self, expression, sign_pos):
@@ -84,8 +87,8 @@ class Calculator:
         pattern = r'^([0-9\[\]\.\-]|(e\+)|(e\-))+'
         num = re.search(pattern, expression[sign_pos + 1:])
         if num is None:
-            print("ERROR: please, check your expression.")
-            exit(1)
+            self._validator.assert_error(
+                "ERROR: please, check your expression.")
         return num.group(0)
 
     def calculate(self, expression=None):
@@ -97,36 +100,42 @@ class Calculator:
 
         for sign, func in self.BINARIES:
             while True:
-
-                spos = None
-                if sign == '^':
-                    spos = expression.rfind(sign)
-                elif sign == '+':
-                    spos = expression.find(sign)
-                    while spos != -1 and expression[spos - 1] == 'e':
-                        spos = expression[spos + 2:].find(sign)
-                else:
-                    spos = expression.find(sign)
-
-                if spos == -1:
+                sign_pos = self.find_sign(expression, sign)
+                if sign_pos == -1:
                     break
 
                 if sign == '^':
-                    left = self.find_left_num(expression, spos)
+                    left = self.find_left_num(expression, sign_pos)
                     if left.find(']') == -1:
                         left = left.replace('-', '')
                 else:
-                    left = self.find_left_num(expression, spos)
+                    left = self.find_left_num(expression, sign_pos)
 
                 slen = len(sign) - 1
-                right = self.find_right_num(expression, spos + slen)
+                right = self.find_right_num(expression, sign_pos + slen)
 
                 result = self.calculate_elementary(
-                    expression[spos:spos + slen + 1], left, right)
+                    expression[sign_pos:sign_pos + slen + 1], left, right)
                 expression = expression.replace(
                     left + sign + right, str(result), 1)
 
         return expression.strip('[]')
+
+    def find_sign(self, expression, sign):
+        """Returns a position of given sign in the
+        expression (-1 if not found)."""
+
+        sign_pos = None
+        if sign == '^':
+            sign_pos = expression.rfind(sign)
+        elif sign == '+':
+            sign_pos = expression.find(sign)
+            while sign_pos != -1 and expression[sign_pos - 1] == 'e':
+                sign_pos = expression[sign_pos + 2:].find(sign)
+        else:
+            sign_pos = expression.find(sign)
+
+        return sign_pos
 
     def calculate_functions(self, expression):
         """Calculates all founded functions and returns an expression that
@@ -142,8 +151,8 @@ class Calculator:
 
             func, is_callable = self.get_func_or_const_by_name(func_name)
             if func is None:
-                print("ERROR: no such function " + func_name + ".")
-                exit(1)
+                self._validator.assert_error(
+                    "ERROR: no such function " + func_name + ".")
 
             if is_callable is False:
                 continue
@@ -159,8 +168,8 @@ class Calculator:
                 else:
                     result = func()
             except TypeError:
-                print("ERROR: please, check function " + func_name + ".")
-                exit(1)
+                self._validator.assert_error(
+                    "ERROR: please, check function " + func_name + ".")
 
             expression = expression.replace(
                 expression[fpos:arg_end], '(' + str(result) + ')', 1
@@ -298,8 +307,8 @@ class Calculator:
         try:
             converted_args = list(self.convert(a) for a in args)
         except ValueError:
-            print("ERROR: please, check your expression.")
-            exit(1)
+            self._validator.assert_error(
+                "ERROR: please, check your expression.")
 
         self._validator.check(operation, *converted_args)
         for o, func in self.BINARIES:
