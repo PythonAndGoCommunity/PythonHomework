@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import pdb
+
 
 class BaseExpressionException(Exception):
     pass
@@ -42,7 +44,6 @@ class Element:
                         self._expression.append(Element("".join(item)))
                         item.clear()
                     continue
-
             if bracket_level > 0:
                 item.append(i)
             else:
@@ -51,18 +52,18 @@ class Element:
                         if act == i:
                             del self._expression[-1]
                             i = i * 2
-                        act = i
+                    act = i
                     if item:
                         self._expression.append(float("".join(item)))
                         item.clear()
                     self._expression.append(i)
                 else:
                     item.append(i)
-        if item:
-            self._expression.append(float("".join(item)))
-
         if bracket_level != 0:
             raise BracketsAreNotBalanced()
+
+        if item:
+            self._expression.append(float("".join(item)))
 
     def __str__(self):
         result = []
@@ -84,6 +85,9 @@ class Element:
 
         # Calculate high priority math operations
         for i in self._expression:
+            if isinstance(i, Element):
+                i = i.value()
+                print(i)
             if i in ("*", "/", "%", "//", "**",):
                 if operation:
                     raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
@@ -92,8 +96,6 @@ class Element:
                     ))
                 operation = i
             elif operation:
-                if isinstance(i, Element):
-                    i = i.value()
                 if operation == "*":
                     new_expression[-1] *= i
                 elif operation == "/":
@@ -119,6 +121,8 @@ class Element:
         action = None
 
         for i in self._expression:
+            if isinstance(i, Element):
+                i = i.value()
             if i in ("+", "-",):
                 if action:
                     raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
@@ -138,9 +142,9 @@ class Element:
 
 
 if __name__ == '__main__':
-    expr = Element("-2//3+7")
-
+    expr = Element("((14/7)+2)*(3+5)")
+    # expr = Element()
     print(str(expr))
     print(expr.value())
-    # print(str(expr))
-    # print(expr.value())
+    print(str(expr))
+    print(expr.value())
