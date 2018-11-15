@@ -1,7 +1,5 @@
 #!/usr/bin/python3
 
-import pdb
-
 
 class BaseExpressionException(Exception):
     pass
@@ -19,7 +17,12 @@ class DoubleOperationException(BaseExpressionException):
     pass
 
 
+class ExpressionFormatException(BaseExpressionException):
+    pass
+
+
 class Element:
+    MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
 
     def __init__(self, expression):
         if not expression:
@@ -30,8 +33,15 @@ class Element:
         bracket_level = 0
         item = []
         act = None
+        bracket_closed = False
 
         for i in expression:
+            if bracket_closed:
+                if i not in self.MATH_ACTIONS and i != ")":
+                    raise ExpressionFormatException("After bracket closed 'math sign' or "
+                                                    "another bracket close are expected")
+                bracket_closed = False
+
             if i == "(":
                 bracket_level += 1
                 if bracket_level == 1:
@@ -39,6 +49,7 @@ class Element:
 
             elif i == ")":
                 bracket_level -= 1
+                bracket_closed = True
                 if bracket_level == 0:
                     if item:
                         self._expression.append(Element("".join(item)))
@@ -47,7 +58,7 @@ class Element:
             if bracket_level > 0:
                 item.append(i)
             else:
-                if i in ["+", "-", "*", "/", "%", "^"]:
+                if i in self.MATH_ACTIONS:
                     if i in ("/", "*",):
                         if act == i:
                             del self._expression[-1]
@@ -87,7 +98,6 @@ class Element:
         for i in self._expression:
             if isinstance(i, Element):
                 i = i.value()
-                print(i)
             if i in ("*", "/", "%", "//", "**",):
                 if operation:
                     raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
@@ -138,13 +148,5 @@ class Element:
                 action = None
             else:
                 value = i
+
         return value
-
-
-if __name__ == '__main__':
-    expr = Element("((14/7)+2)*(3+5)")
-    # expr = Element()
-    print(str(expr))
-    print(expr.value())
-    print(str(expr))
-    print(expr.value())
