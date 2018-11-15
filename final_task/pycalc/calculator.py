@@ -1,5 +1,4 @@
 """Main module of the calculator."""
-# TODO: set custom module's higher priority than included (math)
 
 import math
 import re
@@ -41,10 +40,10 @@ class Calculator:
 
         self._validator.validate(expression)
         self.import_modules(modules)
+
         expression = self.transform(expression)
         expression = self.replace_constants(expression)
         expression = self.calculate_functions(expression)
-        expression = self.handle_implicit_multiplication(expression)
 
         result = self.calculate(expression)
         return self.convert(result)
@@ -76,8 +75,7 @@ class Calculator:
         pattern = r'([0-9\[\]\.\-]|(e\+)|(e\-))+$'
         num = re.search(pattern, expression[:sign_pos])
         if num is None:
-            self._validator.assert_error(
-                "ERROR: please, check your expression.")
+            self._validator.assert_error("please, check your expression.")
         return num.group(0)
 
     def find_right_num(self, expression, sign_pos):
@@ -87,8 +85,7 @@ class Calculator:
         pattern = r'^([0-9\[\]\.\-]|(e\+)|(e\-))+'
         num = re.search(pattern, expression[sign_pos + 1:])
         if num is None:
-            self._validator.assert_error(
-                "ERROR: please, check your expression.")
+            self._validator.assert_error("please, check your expression.")
         return num.group(0)
 
     def calculate(self, expression=None):
@@ -96,6 +93,7 @@ class Calculator:
         right and left parts and whole result."""
 
         expression = self.calculate_nested(expression)
+        expression = self.handle_implicit_multiplication(expression)
         expression = self.handle_extra_signs(expression)
 
         for sign, func in self.BINARIES:
@@ -149,13 +147,13 @@ class Calculator:
             if func_name in ('False', 'True'):
                 continue
 
-            func, is_callable = self.get_func_or_const_by_name(func_name)
-            if func is None:
+            functions = self.get_reserved(c=True)
+            func = None
+            if func_name in functions:
+                func = self.get_reserved_by_name(func_name)
+            else:
                 self._validator.assert_error(
-                    "ERROR: no such function " + func_name + ".")
-
-            if is_callable is False:
-                continue
+                    "no such function " + func_name + ".")
 
             fpos = expression.rfind(func_name)
             args, arg_end = self.get_func_args(expression, func_name, fpos)
@@ -169,7 +167,7 @@ class Calculator:
                     result = func()
             except TypeError:
                 self._validator.assert_error(
-                    "ERROR: please, check function " + func_name + ".")
+                    "please, check function " + func_name + ".")
 
             expression = expression.replace(
                 expression[fpos:arg_end], '(' + str(result) + ')', 1
@@ -178,7 +176,8 @@ class Calculator:
         return expression
 
     def get_func_args(self, expression, func_name, func_pos):
-        """Finds all the arguments of the function, located on the func_pos."""
+        """Finds all the arguments of the function,
+        located on the func_pos (including nested ones)."""
 
         arg_start = func_pos + len(func_name)
         arg_end = arg_start + expression[arg_start:].find(')')
@@ -194,41 +193,65 @@ class Calculator:
 
         return argument_list, arg_end
 
+    def get_reserved(self, c=False):
+        """Returns a list of all the constants found in imported modules."""
+
+        result = []
+        for m in self._modules:
+            for d in dir(m):
+                obj = getattr(m, d)
+                if callable(obj) is c and not d.startswith('_'):
+                    result.append(d)
+
+        if c:
+            for func_name, _ in self.FUNCTIONS:
+                result.append(func_name)
+
+        # Sort here is used to prevent replacing
+        # letters of long reserved names
+        result.sort(key=lambda a: len(a), reverse=True)
+        return result
+
     def replace_constants(self, expression):
         """Finds constants in imported and user modules and builtins."""
 
+        const_pattern = '|'.join(self.get_reserved(c=False))
+        func_pattern = '|'.join(self.get_reserved(c=True))
         pattern = r'[A-Za-z_]+[A-Za-z0-9_]*'
-        names = re.findall(pattern, expression)
 
-        for n in names:
-            obj, is_callable = self.get_func_or_const_by_name(n)
-            if is_callable or obj is None:
-                continue
+        cases = re.finditer(pattern, expression)
+        for case in cases:
+            c_str = case.group()
+            c_pos = case.start()
 
-            # Parentheses are used to prevent mixing numbers
-            # with replaced constants.
-            expression = expression.replace(n, '(' + str(obj) + ')')
+            # Upper is used to prevent replacing
+            # letters in functions (e. g. "eexp(e)")
+            replaced = c_str
+            funcs = re.findall(func_pattern, replaced)
+            for f in funcs:
+                replaced = re.sub(f, f.upper(), replaced)
 
-        return expression
+            constants = re.findall(const_pattern, c_str)
+            for const in constants:
+                obj = self.get_reserved_by_name(const)
+                replaced = replaced.replace(const, '(' + str(obj) + ')')
 
-    def get_func_or_const_by_name(self, requested_name):
-        """Finds by name and returns a function if it exists, else
-        returns None."""
+            expression = expression[:c_pos] \
+                + expression[c_pos:].replace(c_str, replaced, 1)
 
-        result = None, None
-        for fname, obj in self.FUNCTIONS:
-            if fname == requested_name:
-                result = obj, True
+        return expression.lower()
+
+    def get_reserved_by_name(self, requested_name):
+        """Finds a function or constant by name."""
 
         for m in self._modules:
             if hasattr(m, requested_name):
                 obj = getattr(m, requested_name)
-                if callable(obj):
-                    result = obj, True
-                else:
-                    result = obj, False
+                return obj
 
-        return result
+        for func_name, func in self.FUNCTIONS:
+            if func_name == requested_name:
+                return func
 
     def convert(self, a):
         """Converts an argument to int, bool or float."""
@@ -252,7 +275,7 @@ class Calculator:
 
         converted_args = []
         for a in args:
-            result_a = self.calculate(a)
+            result_a = self.calc_start(a)
             converted_args.append(self.convert(result_a))
 
         return converted_args
@@ -271,7 +294,10 @@ class Calculator:
     def handle_implicit_multiplication(self, expression):
         """Replaces all implicit multiplication cases with obvious ones."""
 
-        patterns = (r'[0-9][A-Za-z][^\-+]', r'\)[0-9]', r'[0-9]\(', r'\)\(')
+        patterns = (
+            r'[0-9][A-Za-z][^\-+]', r'[\)\]][0-9]',
+            r'[0-9][\[\(]', r'\)\(|\]\['
+        )
         for p in patterns:
             cases = re.findall(p, expression)
             for c in cases:
@@ -307,8 +333,7 @@ class Calculator:
         try:
             converted_args = list(self.convert(a) for a in args)
         except ValueError:
-            self._validator.assert_error(
-                "ERROR: please, check your expression.")
+            self._validator.assert_error("please, check your expression.")
 
         self._validator.check(operation, *converted_args)
         for o, func in self.BINARIES:
@@ -327,7 +352,7 @@ class Calculator:
                 break
             nested_result = self.calculate(nested[1:-1])
             expression = expression.replace(
-                nested, '[' + str(nested_result) + ']')
+                nested, '[' + str(nested_result) + ']', 1)
 
         return expression
 
