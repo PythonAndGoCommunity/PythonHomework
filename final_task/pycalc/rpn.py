@@ -1,27 +1,26 @@
 """This module contains a class that allows to transform infix notation math tokens into RPN"""
 
 # import
-from .pycalclib import constants, negative_constants, operators, comparison_operators, precedence
-from .pycalclib import functions, negative_functions
 from .utils import is_number
+from .pycalclib import Pycalclib
 
 
 class RPN:
     """A model of rpn capable of converting infix to postfix (RPN) notation"""
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, pycalclib):
         """Initialize rpn"""
         self.tokens = tokens
         self.operators_stack = []
         self.output_queue = []
         self.error_msg = None
-        self.constants = constants
-        self.negative_constants = negative_constants
-        self.operators = operators
-        self.comparison_operators = comparison_operators
-        self.precedence = precedence
-        self.functions = functions
-        self.negative_functions = negative_functions
+        self.constants = pycalclib.constants
+        self.negative_constants = pycalclib.negative_constants
+        self.operators = pycalclib.operators
+        self.comparison_operators = pycalclib.comparison_operators
+        self.precedence = pycalclib.precedence
+        self.functions = pycalclib.functions
+        self.negative_functions = pycalclib.negative_functions
 
     @staticmethod
     def is_left_associative(operator):
@@ -99,10 +98,11 @@ class RPN:
 
 if __name__ == '__main__':
     print("""This module contains class that allows to transform a list of math tokens in infix notation into list of
-tokens in RPN. For example: \n""")
+    tokens in RPN. For example: \n""")
     test_tokens = ['-pi', '*', 'round', '(', '2.23', ')', '//', '5', '*', 'pow', '(', '2', '3', ')']
     print("Infix_tokens: ", test_tokens)
-    rpn = RPN(test_tokens)
+    pycalclib = Pycalclib(user_module='')
+    rpn = RPN(test_tokens, pycalclib)
     rpn_tokens, error_msg = rpn.convert2rpn()
     if not error_msg:
         print('RPN tokens: ', rpn_tokens)

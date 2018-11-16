@@ -1,23 +1,23 @@
 """This module contains a class that allows to take into account implicit multiplication signs"""
 
 # import
-from .pycalclib import constants, functions, negative_functions
 from .utils import is_number
+from .pycalclib import Pycalclib
 
 
 class Multsignsadder:
     """A model of mult_signs_adder capable of adding implicit multiplications signs in list of tokens"""
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, pycalclib):
         """Initialize mult_signs_adder"""
         self.tokens = tokens
         self.extended_tokens = []
-        self.constants = constants
-        self.functions = functions
-        self.negative_functions = negative_functions
+        self.constants = pycalclib.constants
+        self.functions = pycalclib.functions
+        self.negative_functions = pycalclib.negative_functions
 
     def consider_neg_functions(self, tokens):
-        """Replaces negative functions tokens by '-1*function' tokens"""
+        """Replaces negative functions tokens with '-1*function' tokens"""
         index = 0
         while index != len(tokens)-1:
             if tokens[index] in self.negative_functions:
@@ -64,7 +64,8 @@ if __name__ == '__main__':
     print("""This module contains class that allows to insert multiplications signs to where they where supposed
     to be in a list with math tokens. For example: \n""")
     test_tokens = ['-0.1', 'tan', '+', '23', '*', '-sin', '(', '3', ')', '/', '.12', 'e']
-    mult_signs_adder = Multsignsadder(test_tokens)
+    pycalclib = Pycalclib(user_module='')
+    mult_signs_adder = Multsignsadder(test_tokens, pycalclib)
     extended_tokens = mult_signs_adder.addmultsigns()
     print('Original tokens: ', test_tokens)
     print('Extended tokens: ', extended_tokens)
