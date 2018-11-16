@@ -1,5 +1,6 @@
 """This module contains test user functions"""
 
+
 def five(param1):
     """Returns 5"""
     return 5
