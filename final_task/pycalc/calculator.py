@@ -24,11 +24,12 @@ class Calculator:
     )
 
     BUILTINS = (
-        ('pow', lambda a, b, c: pow(a, b)),
         ('abs', lambda a: abs(a)),
-        ('round', lambda a: round(a)),
-        ('ctan', lambda a: 1 / math.tan(a))
+        ('round', lambda a: round(a))
     )
+
+    IMPLICIT_MUL_PATTERNS = (
+        r'[0-9][A-Za-z][^\-+]', r'[\)\]][0-9]', r'[0-9][\[\(]', r'\)\(|\]\[')
 
     def __init__(self, validator, modules=None):
         """Initializes validator and user modules."""
@@ -36,8 +37,8 @@ class Calculator:
         self._validator = validator
         self._modules = [math]
         self.import_modules(modules)
-        self._constants = self.get_reserved(c=False)
-        self._functions = self.get_reserved(c=True)
+        self._constants = self.get_reserved(_callable=False)
+        self._functions = self.get_reserved(_callable=True)
 
     def calc_start(self, expression):
         """Entry point of calculating. Validates, transforms and finally
@@ -46,6 +47,7 @@ class Calculator:
         self._validator.validate(expression)
 
         expression = self.transform(expression)
+        expression = self.handle_subtraction(expression)
         expression = self.replace_constants(expression)
         expression = self.calculate_functions(expression)
 
@@ -68,7 +70,6 @@ class Calculator:
         expression = expression.strip('"')
         expression = expression.replace(' ', '')
         expression = expression.replace('**', '^')
-        expression = self.handle_subtraction(expression)
 
         return expression
 
@@ -76,6 +77,7 @@ class Calculator:
         """Returns a number that lays left from the sign_pos (or
         None if it doesn't exist."""
 
+        # Any number (including exponential ones), near the end of the string
         pattern = r'([0-9\[\]\.\-]|(e\+)|(e\-))+$'
         num = re.search(pattern, expression[:sign_pos])
         if num is None:
@@ -86,13 +88,14 @@ class Calculator:
         """Returns a number that lays right from the sign_pos (or
         None if it doesn't exist."""
 
+        # Any number (including exponential ones) near the start of the string
         pattern = r'^([0-9\[\]\.\-]|(e\+)|(e\-))+'
         num = re.search(pattern, expression[sign_pos + 1:])
         if num is None:
             self._validator.assert_error("please, check your expression.")
         return num.group(0)
 
-    def calculate(self, expression=None):
+    def calculate(self, expression):
         """Recursive function that divides the expression, calculates its
         right and left parts and whole result."""
 
@@ -106,12 +109,9 @@ class Calculator:
                 if sign_pos == -1:
                     break
 
-                if sign == '^':
-                    left = self.find_left_num(expression, sign_pos)
-                    if left.find(']') == -1:
-                        left = left.replace('-', '')
-                else:
-                    left = self.find_left_num(expression, sign_pos)
+                left = self.find_left_num(expression, sign_pos)
+                if sign == '^' and left.find(']') == -1:
+                    left = left.replace('-', '')
 
                 slen = len(sign) - 1
                 right = self.find_right_num(expression, sign_pos + slen)
@@ -127,7 +127,6 @@ class Calculator:
         """Returns a position of given sign in the
         expression (-1 if not found)."""
 
-        sign_pos = None
         if sign == '^':
             sign_pos = expression.rfind(sign)
         elif sign == '+':
@@ -144,20 +143,14 @@ class Calculator:
         contains only elementary binary operations."""
 
         # List reversion here makes it possible to calculate nested functions
-        pattern = r'[A-Za-z_]+[A-Za-z0-9_]*'
+        pattern = r'[A-Za-z_]+[A-Za-z0-9_]*'  # Any word, may end with a digit
         func_name_list = re.findall(pattern, expression)[::-1]
 
         for func_name in func_name_list:
             if func_name in ('False', 'True'):
                 continue
 
-            func = None
-            if func_name in self._functions:
-                func = self.get_reserved_by_name(func_name)
-            else:
-                self._validator.assert_error(
-                    "no such function " + func_name + ".")
-
+            func = self.get_reserved_by_name(func_name)
             fpos = expression.rfind(func_name)
             args, arg_end = self.get_func_args(expression, func_name, fpos)
 
@@ -173,7 +166,7 @@ class Calculator:
                     "please, check function " + func_name + ".")
 
             expression = expression.replace(
-                expression[fpos:arg_end], '(' + str(result) + ')', 1
+                expression[fpos:arg_end], '[' + str(result) + ']', 1
             )
 
         return expression
@@ -196,22 +189,21 @@ class Calculator:
 
         return argument_list, arg_end
 
-    def get_reserved(self, c=False):
+    def get_reserved(self, _callable=False):
         """Returns a list of all the constants found in imported modules."""
 
         result = []
         for m in self._modules:
             for d in dir(m):
                 obj = getattr(m, d)
-                if callable(obj) is c and not d.startswith('_'):
+                if callable(obj) is _callable and not d.startswith('_'):
                     result.append(d)
 
-        if c:
+        if _callable:
             for func_name, _ in self.BUILTINS:
                 result.append(func_name)
 
-        # Sort here is used to prevent replacing
-        # letters of long reserved names
+        # Sort is used to prevent replacing parts of long reserved names
         result.sort(key=lambda a: len(a), reverse=True)
         return result
 
@@ -227,8 +219,7 @@ class Calculator:
             c_str = case.group()
             c_pos = case.start()
 
-            # Upper is used to prevent replacing
-            # letters in functions (e. g. "eexp(e)")
+            # Upper is used to prevent replacing parts of functions
             replaced = c_str
             funcs = re.findall(func_pattern, replaced)
             for f in funcs:
@@ -252,9 +243,12 @@ class Calculator:
                 obj = getattr(m, requested_name)
                 return obj
 
-        for func_name, func in self.BUILTINS:
-            if func_name == requested_name:
-                return func
+        for name, obj in self.BUILTINS:
+            if name == requested_name:
+                return obj
+
+        self._validator.assert_error(
+            "no such reserved name " + requested_name + ".")
 
     @staticmethod
     def convert(a):
@@ -288,7 +282,7 @@ class Calculator:
         """Modifies subtractions in given expression to make them
         calculator friendly."""
 
-        pattern = r'[0-9\]]\-'
+        pattern = r'[0-9\]]\-'  # Any digit followed my minus
         cases = re.findall(pattern, expression)
         for c in cases:
             expression = expression.replace(c, c[0] + '+' + c[1])
@@ -298,11 +292,7 @@ class Calculator:
     def handle_implicit_multiplication(self, expression):
         """Replaces all implicit multiplication cases with obvious ones."""
 
-        patterns = (
-            r'[0-9][A-Za-z][^\-+]', r'[\)\]][0-9]',
-            r'[0-9][\[\(]', r'\)\(|\]\['
-        )
-        for p in patterns:
+        for p in self.IMPLICIT_MUL_PATTERNS:
             cases = re.findall(p, expression)
             for c in cases:
                 expression = expression.replace(c, c[0] + '*' + c[1])
@@ -312,11 +302,10 @@ class Calculator:
     def handle_extra_signs(self, expression):
         """Gets rid of extra pluses and minuses in given expression."""
 
-        pattern = r'[-+]{2,}'
+        pattern = r'[-+]{2,}'  # Two or more pluses and minuses
         cases = re.findall(pattern, expression)
         for c in cases:
-            minus_count = c.count('-')
-            if minus_count % 2 == 0:
+            if c.count('-') % 2 == 0:
                 expression = expression.replace(c, '+', 1)
             else:
                 expression = expression.replace(c, '-', 1)
@@ -330,7 +319,7 @@ class Calculator:
 
         result = None
 
-        args = list(re.sub(r'[\[\]]', '', a) for a in args)
+        args = list(re.sub(r'[\[\]]', '', a) for a in args)  # Get rid of [ ]
         args = list(self.handle_extra_signs(a) for a in args)
 
         converted_args = []
@@ -363,7 +352,7 @@ class Calculator:
     @staticmethod
     def get_nested(expression):
         """Finds and returns nested expression (with no nested inside it) if
-         it exists, else returns None."""
+        it exists, else returns None."""
 
         # From '(' to ')' blocking any parentheses inside
         nested = re.search(r'\([^()]*\)', expression)

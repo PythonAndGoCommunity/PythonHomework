@@ -15,7 +15,7 @@ class Validator:
         if expression.count('(') != expression.count(')'):
             self.assert_error("brackets are not balanced.")
 
-        pattern = r'[0-9]+\s+[0-9]+'
+        pattern = r'[0-9\.]+\s+[0-9\.]+'
         if re.search(pattern, expression) is not None:
             self.assert_error("ambiguous spaces between numbers.")
 
@@ -34,6 +34,7 @@ class Validator:
                 "negative number cannot be raised to fractional power."
             )
 
-    def assert_error(self, error_text, exitcode=1):
+    @staticmethod
+    def assert_error(error_text, exitcode=1):
         print("ERROR: " + error_text)
         exit(exitcode)

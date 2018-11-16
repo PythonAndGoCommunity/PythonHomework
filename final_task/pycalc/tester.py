@@ -45,9 +45,6 @@ class CalculatorTester(unittest.TestCase):
     def test_calc_start(self):
         """Checks most common calculating cases."""
 
-        val = Validator()
-        calc = Calculator(val)
-
         tests = (
             ('2', 2),
             ('-2', -2),
@@ -101,7 +98,7 @@ class CalculatorTester(unittest.TestCase):
         """Tests function calculating method."""
 
         result = self.calc.calculate_functions('log10(100)*2')
-        self.assertEqual(result, '(2.0)*2')
+        self.assertEqual(result, '[2.0]*2')
 
     def test_get_func_args(self):
         """Tests arguments fonding method."""
