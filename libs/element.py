@@ -21,6 +21,10 @@ class ExpressionFormatException(BaseExpressionException):
     pass
 
 
+class UnsupportedMathematicalOperationException(ExpressionFormatException):
+    pass
+
+
 class Element:
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
 
@@ -147,8 +151,11 @@ class Element:
         for i in self._expression:
             if isinstance(i, Element):
                 i = i.value()
-            if i in ("+", "-",):
-                operation = i
+            if isinstance(i, str):
+                if i in ("+", "-",):
+                    operation = i
+                else:
+                    raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
             elif operation:
                 if operation == "+":
                     value += i
