@@ -111,6 +111,8 @@ class Element:
                 ))
             if i in self.MATH_ACTIONS:
                 last_operation = i
+            else:
+                last_operation = None
 
         # Calculate high priority math operations
         for i in self._expression:
