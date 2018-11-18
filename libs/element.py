@@ -50,6 +50,8 @@ class Element:
             elif i == ")":
                 bracket_level -= 1
                 bracket_closed = True
+                if bracket_level < 0:
+                    raise BracketsAreNotBalanced("Closed non-opened bracket.")
                 if bracket_level == 0:
                     if item:
                         self._expression.append(Element("".join(item)))
@@ -70,6 +72,7 @@ class Element:
                     self._expression.append(i)
                 else:
                     item.append(i)
+                    act = None
         if bracket_level != 0:
             raise BracketsAreNotBalanced()
 
@@ -94,16 +97,22 @@ class Element:
             first_negative = True
             del self._expression[0]
 
+        # Validate mathematical operations
+        last_operation = None
+        for i in self._expression:
+            if last_operation and i in self.MATH_ACTIONS:
+                raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                    so=last_operation,
+                    fo=i
+                ))
+            if i in self.MATH_ACTIONS:
+                last_operation = i
+
         # Calculate high priority math operations
         for i in self._expression:
             if isinstance(i, Element):
                 i = i.value()
             if i in ("*", "/", "%", "//", "**",):
-                if operation:
-                    raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
-                        so=i,
-                        fo=operation
-                    ))
                 operation = i
             elif operation:
                 if operation == "*":
@@ -126,26 +135,20 @@ class Element:
         self._expression = new_expression
 
         # Calculate low priority math operations
-
         value = 0
-        action = None
+        operation = None
 
         for i in self._expression:
             if isinstance(i, Element):
                 i = i.value()
             if i in ("+", "-",):
-                if action:
-                    raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
-                        so=i,
-                        fo=action
-                    ))
-                action = i
-            elif action:
-                if action == "+":
+                operation = i
+            elif operation:
+                if operation == "+":
                     value += i
-                elif action == "-":
+                elif operation == "-":
                     value -= i
-                action = None
+                operation = None
             else:
                 value = i
 
