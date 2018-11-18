@@ -1,9 +1,8 @@
+#!/usr/bin/env python3
+
 from libs.element import Element
 
 if __name__ == '__main__':
-    expr = Element("(14/7)+(-5)-(15//5)")
-    # expr = Element()
-    # print(str(expr))
-    # print(expr.value())
-    print(str(expr))
-    print(expr.value())
+    expression = Element(expression="(-2**4)-5*2*3")
+    print(str(expression))
+    print(expression.value())

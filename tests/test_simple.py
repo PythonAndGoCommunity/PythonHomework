@@ -20,3 +20,15 @@ class TestElementSimple(TestCase):
     def test_math_operator_priority(self):
         expression = Element(expression="5/2+0.1*5")
         self.assertEqual(expression.value(), 3)
+
+    def test_mul(self):
+        expression = Element(expression="5*5-10")
+        self.assertEqual(expression.value(), 15)
+
+    def test_double_mul(self):
+        expression = Element(expression="5*5*4")
+        self.assertEqual(expression.value(), 100)
+
+    def test_modulo(self):
+        expression = Element(expression="5%3**4")
+        self.assertEqual(expression.value(), 16)
