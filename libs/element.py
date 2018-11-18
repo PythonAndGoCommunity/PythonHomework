@@ -32,8 +32,9 @@ class Element:
 
         bracket_level = 0
         item = []
-        act = None
+        last_mathematical_action = None
         bracket_closed = False
+        bracket_content = []
 
         for i in expression:
             if bracket_closed:
@@ -53,26 +54,29 @@ class Element:
                 if bracket_level < 0:
                     raise BracketsAreNotBalanced("Closed non-opened bracket.")
                 if bracket_level == 0:
-                    if item:
-                        self._expression.append(Element("".join(item)))
-                        item.clear()
+                    if bracket_content:
+                        self._expression.append(Element("".join(bracket_content)))
+                        bracket_content.clear()
+                    else:
+                        raise ExpressionFormatException("Empty brackets.")
                     continue
             if bracket_level > 0:
-                item.append(i)
+                bracket_content.append(i)
             else:
                 if i in self.MATH_ACTIONS:
-                    if i in ("/", "*",):
-                        if act == i:
-                            del self._expression[-1]
-                            i = i * 2
-                    act = i
                     if item:
                         self._expression.append(float("".join(item)))
                         item.clear()
-                    self._expression.append(i)
+
+                    # Handle double mathematical operation
+                    if last_mathematical_action == i:
+                        self._expression[-1] += i
+                    else:
+                        self._expression.append(i)
+                    last_mathematical_action = i
                 else:
                     item.append(i)
-                    act = None
+                    last_mathematical_action = None
         if bracket_level != 0:
             raise BracketsAreNotBalanced()
 
