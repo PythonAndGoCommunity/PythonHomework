@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pycalc',
-    version='1.0',
+    version='1.1',
     packages=find_packages(),
     py_modules=['main'],
     entry_points={
