@@ -5,8 +5,8 @@ with the functionality of calculator
 """
 
 import sys
-from core import args
-from core.calculator import calculator
+from pycalc.core import args
+from pycalc.core.calculator import calculator
 
 
 def main():

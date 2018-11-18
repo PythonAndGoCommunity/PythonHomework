@@ -8,8 +8,8 @@ import os
 import re
 import sys
 import operator as op
-from core.calculator_helper import PycalcError
-from core.calculator_helper import (
+from .calculator_helper import PycalcError
+from .calculator_helper import (
     is_number, may_unary_operator, is_unary_operator, check_right_associativity, is_callable,
     check_empty_expression, check_brackets_balance
 )
