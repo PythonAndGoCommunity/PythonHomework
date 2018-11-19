@@ -31,8 +31,7 @@ FUNCS = {k: v for k, v in math.__dict__.items()
          if not k.startswith('__') and callable(v)}
 
 FUNCS.update({'abs': lambda x: abs(x),
-              'round': lambda x: round(x),
-              'pow': pow})
+              'round': lambda x: round(x)})
 
 PREFIX = list(UNARY_OPERATORS.keys()) + list(FUNCS.keys())
 
@@ -83,11 +82,7 @@ class Calculator:
                     for _ in range(int(res.pop())):
                         args.append(res.pop())
                     args.reverse()
-                    try:
-                        res.append(FUNCS[r](*args))
-                    except TypeError:
-                        args = [int(n) for n in args]
-                        res.append(FUNCS[r](*args))
+                    res.append(FUNCS[r](*args))
                 elif r in UNARY_OPERATORS:
                     res.append(UNARY_OPERATORS[r](res.pop()))
                 elif r in BINARY_OPERATORS:
@@ -99,8 +94,9 @@ class Calculator:
             except (OverflowError):
                 raise Exception('ERROR: Overflow')
             except (IndexError, ValueError):
-                raise Exception(
-                    "ERROR: expression is incorrect in '{}'".format(r))
+                raise Exception(f"ERROR: expression is incorrect in '{r}'")
+            except TypeError as e:
+                raise Exception(f"ERROR: {str(e)}")
             except (ZeroDivisionError):
                 raise Exception("ERROR: zero division")
         if len(res) > 1:
