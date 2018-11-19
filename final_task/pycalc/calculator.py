@@ -161,9 +161,6 @@ class Calculator:
         expression = [str(CONSTANTS[e])
                       if e in CONSTANTS else e for e in expression]
         expression = ['^' if e == '**' else e for e in expression]
-        # .1 to 0.1 conversion
-        expression = ['0{}'.format(e) if e.replace(
-            '.', '').isdigit() and e[0] == '.' else e for e in expression]
         # take adjacent elements to find places to insert implicit mult
         for i, (cur, next) in enumerate(zip(expression, expression[1:])):
             if ((cur == ')' and next == '(') or
