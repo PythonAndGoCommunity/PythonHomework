@@ -1,17 +1,20 @@
+import argparse
 import importlib
-from argparse import ArgumentParser
+import sys
 
 from .calculator import CONSTANTS, FUNCS, PREFIX, Calculator
+
+if len(sys.argv) > 1:
+    sys.argv[1] = f'+{sys.argv[1]}'
 
 
 def parse_args():
     """Parse an arguments from command line"""
-    parser = ArgumentParser(description='Pure-python command-line calculator')
+    parser = argparse.ArgumentParser(
+        description='Pure-python command-line calculator')
     parser.add_argument(
         'expression',
         metavar='EXPRESSION',
-        nargs='?',
-        type=str,
         help='expression string to evaluate')
     parser.add_argument(
         '-m', '--use-modules',
@@ -26,8 +29,9 @@ def parse_args():
 
 def import_modules():
     """Import modules provided by --use-modules arg im command line"""
-    if parse_args().use_modules:
-        for m in parse_args().use_modules:
+    args = parse_args()
+    if args.use_modules:
+        for m in args.use_modules:
             try:
                 module = importlib.import_module(m)
             except (ModuleNotFoundError):
