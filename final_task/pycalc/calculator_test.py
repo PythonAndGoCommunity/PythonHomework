@@ -105,7 +105,7 @@ class TestCalculator(unittest.TestCase):
             self.assertEqual(Calculator(t).calc(), TEST_CASES['Comparison'][t])
 
     def test_common(self):
-        for t in TEST_CASES['Common'][]:
+        for t in TEST_CASES['Common']:
             self.assertEqual(Calculator(t).calc(), TEST_CASES['Common'][t])
 
     def test_implicit(self):
