@@ -6,7 +6,7 @@ Unit tests go in "TestCalculator".
 import unittest
 from math import *
 
-from .calculator import Calculator, isnumber
+from calculator import Calculator, isnumber
 
 TEST_CASES = {
     "Unary": {
@@ -49,7 +49,7 @@ TEST_CASES = {
         "(2.0^(pi/pi+e/e+2.0^0.0))^(1.0/3.0)": (2.0**(pi/pi+e/e+2.0**0.0))**(1.0/3.0),
         "sin(pi/2^1) + log(1*4+2^2+1, 3^2)": sin(pi/2**1) + log(1*4+2**2+1, 3**2),
         "10*e^0*log10(.4 -5/ -0.1-10) - -abs(-53/10) + -5": 10*e**0*log10(.4 - 5 / -0.1-10) - -abs(-53/10) + -5,
-        "sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0))))" +
+        "sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0))))+" +
         "cos(sin(sin(34.0-2.0 ^ 2.0))))--cos(1.0)--cos(0.0) ^ 3.0)":
         sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0)))) +
                  cos(sin(sin(34.0-2.0**2.0))))--cos(1.0)--cos(0.0)**3.0),
@@ -105,7 +105,7 @@ class TestCalculator(unittest.TestCase):
             self.assertEqual(Calculator(t).calc(), TEST_CASES['Comparison'][t])
 
     def test_common(self):
-        for t in TEST_CASES['Common']:
+        for t in TEST_CASES['Common'][]:
             self.assertEqual(Calculator(t).calc(), TEST_CASES['Common'][t])
 
     def test_implicit(self):

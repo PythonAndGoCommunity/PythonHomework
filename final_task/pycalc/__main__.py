@@ -4,9 +4,6 @@ import sys
 
 from .calculator import CONSTANTS, FUNCS, PREFIX, Calculator
 
-if len(sys.argv) > 1:
-    sys.argv[1] = f'+{sys.argv[1]}'
-
 
 def parse_args():
     """Parse an arguments from command line"""
