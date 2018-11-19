@@ -166,7 +166,7 @@ The function converts a mathematical expression written in infix notation into p
         if token == '(':
             raise Exception('unpaired brackets')
         output_str += ' ' + token
-    print(output_str)
+    
     return output_str
 
 
