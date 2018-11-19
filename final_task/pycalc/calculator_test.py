@@ -6,7 +6,7 @@ Unit tests go in "TestCalculator".
 import unittest
 from math import *
 
-from calculator import Calculator, isnumber
+from .calculator import Calculator, isnumber
 
 TEST_CASES = {
     "Unary": {
