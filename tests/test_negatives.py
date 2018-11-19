@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from libs.element import Element, NoExpressionException, ExpressionFormatException, BracketsAreNotBalanced, \
-    DoubleOperationException
+    DoubleOperationException, ExpressionFormatException, UnsupportedMathematicalOperationException
 
 
 class TestNegativesElementSimple(TestCase):
@@ -26,7 +26,17 @@ class TestNegativesElementSimple(TestCase):
             expression = Element(expression="(3*2)-/6+2")
             expression.value()
 
-    def test_first_negative_value(self):
+    def test_empty_bracket(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="(2+4)/()")
+            expression.value()
+
+    def test_unsupported_operation(self):
+        with self.assertRaises(UnsupportedMathematicalOperationException):
+            expression = Element(expression="10--4*3")
+            expression.value()
+
+    def test_brackets_are_not_balanced_second(self):
         with self.assertRaises(BracketsAreNotBalanced):
-            expression = Element(expression="(-2)**4)-5*2")
-            self.assertEqual(expression.value(), -26)
+            expression = Element(expression="8-3)//5*2")
+            expression.value()

@@ -123,7 +123,7 @@ class Element:
             if isinstance(i, Element):
                 i = i.value()
             if i in ("*", "/", "%", "//", "**",):
-                operation = i
+                    operation = i
             elif operation:
                 if operation == "*":
                     new_expression[-1] *= i
@@ -166,3 +166,5 @@ class Element:
                 value = i
 
         return value
+
+

@@ -30,5 +30,23 @@ class TestElementSimple(TestCase):
         self.assertEqual(expression.value(), 100)
 
     def test_modulo(self):
-        expression = Element(expression="5%3**4")
-        self.assertEqual(expression.value(), 16)
+        expression = Element(expression="5%3")
+        self.assertEqual(expression.value(), 2)
+
+    def test_first_negative_value(self):
+        expression = Element(expression="-2*4-6/2")
+        self.assertEqual(expression.value(), -11)
+
+    def test_exponentiation(self):
+        expression = Element(expression="2**3//4")
+        self.assertEqual(expression.value(), 2)
+
+    def test_nesting_of_elements(self):
+        expression = Element(expression="2+(3*((5-1)-2))")
+        self.assertEqual(expression.value(), 8)
+
+    def test_str(self):
+        expression = Element(expression="2+3*((5-1)-2)")
+        self.assertTrue(str(expression), 8)
+
+   
