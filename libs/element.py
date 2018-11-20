@@ -26,9 +26,17 @@ class UnsupportedMathematicalOperationException(ExpressionFormatException):
 
 
 class Element:
+    """
+    Base class for parsing and calculation the mathematical expression.
+    """
+
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
 
     def __init__(self, expression):
+        """
+        Class constructor
+        :param expression: mathematical expression as string
+        """
         if not expression:
             raise NoExpressionException("The expression was not passed")
 
@@ -40,6 +48,11 @@ class Element:
         bracket_closed = False
         bracket_content = []
 
+        """
+        Check the expression for the number of brackets. Perform the transformation of the expression,
+        depending on the number of brackets. If brackets an odd number raise exception. Parse the expression into
+        the components, separate mathematical operations and numbers. And create new expression.
+        """
         for i in expression:
             if bracket_closed:
                 if i not in self.MATH_ACTIONS and i != ")":
@@ -64,6 +77,7 @@ class Element:
                     else:
                         raise ExpressionFormatException("Empty brackets.")
                     continue
+
             if bracket_level > 0:
                 bracket_content.append(i)
             else:
@@ -88,6 +102,10 @@ class Element:
             self._expression.append(float("".join(item)))
 
     def __str__(self):
+        """
+        String representation of the class
+        :return: string representation of the class
+        """
         result = []
         for i in self._expression:
             result.append(str(i))
@@ -97,33 +115,37 @@ class Element:
         )
 
     def value(self):
+        """
+        Method for expression calculation
+        :return:
+        """
         new_expression = []
         operation = None
         first_negative = False
+
+        # Validate mathematical operations and calculate nested expressions
+        last_operation = None
+        for i, v in enumerate(self._expression):
+            if isinstance(v, Element):
+                self._expression[i] = v.value()
+            if last_operation and v in self.MATH_ACTIONS:
+                raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                    so=last_operation,
+                    fo=v
+                ))
+            if v in self.MATH_ACTIONS:
+                last_operation = v
+            else:
+                last_operation = None
 
         if self._expression[0] == "-":
             first_negative = True
             del self._expression[0]
 
-        # Validate mathematical operations
-        last_operation = None
-        for i in self._expression:
-            if last_operation and i in self.MATH_ACTIONS:
-                raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
-                    so=last_operation,
-                    fo=i
-                ))
-            if i in self.MATH_ACTIONS:
-                last_operation = i
-            else:
-                last_operation = None
-
         # Calculate high priority math operations
         for i in self._expression:
-            if isinstance(i, Element):
-                i = i.value()
             if i in ("*", "/", "%", "//", "**",):
-                    operation = i
+                operation = i
             elif operation:
                 if operation == "*":
                     new_expression[-1] *= i
@@ -149,8 +171,6 @@ class Element:
         operation = None
 
         for i in self._expression:
-            if isinstance(i, Element):
-                i = i.value()
             if isinstance(i, str):
                 if i in ("+", "-",):
                     operation = i
@@ -166,5 +186,3 @@ class Element:
                 value = i
 
         return value
-
-

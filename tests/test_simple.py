@@ -49,4 +49,4 @@ class TestElementSimple(TestCase):
         expression = Element(expression="2+3*((5-1)-2)")
         self.assertTrue(str(expression), 8)
 
-   
+
