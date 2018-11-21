@@ -58,7 +58,7 @@ def _const_separator(const, stack, module_func_dict):
         return const
     for module in module_func_dict:
         if const in module_func_dict[module]:
-            return str(getattr(module, const))
+            return ' ' + str(getattr(module, const))
     else:
         i = 0
         l_const = ''
@@ -67,7 +67,7 @@ def _const_separator(const, stack, module_func_dict):
             r_const = const[i+1:]
             for module in module_func_dict:
                 if l_const in module_func_dict[module]:
-                    return str(getattr(module, l_const)) + ' ' + _stack_push(stack, '*') \
+                    return ' ' + str(getattr(module, l_const)) + ' ' + _stack_push(stack, '*') \
                            + _const_separator(r_const, stack, module_func_dict)
             i += 1
         else:
@@ -87,19 +87,35 @@ The function converts a mathematical expression written in infix notation into p
     output_str = ''
     func_buf = ''
     last_token = ''
+    buf_opr = ''
     count_args = list()
     for token in input_str:
-        if token != '=' and last_token in ['<', '>', '!', '=']\
-                or token != '/' and last_token == '/':
-            output_str += _stack_push(stack, last_token)
+        if buf_opr in ['=', '<', '>', '!']:
+            if token == '=':
+                output_str += _stack_push(stack, buf_opr+token)
+                buf_opr = ''
+                continue
+            else:
+                raise Exception('unknown operator: "="')
+        elif buf_opr == '/':
+            if token == '/':
+                output_str += _stack_push(stack, '//')
+                buf_opr = ''
+                continue
+            else:
+                output_str += _stack_push(stack, '/')
+                buf_opr = ''
 
         if token == ' ':
             output_str += ' '
+            token = last_token
 
         elif token in LIST_LETTERS \
                 or token == '_':
             if last_token == ')':
                 output_str += ' '
+                output_str += _stack_push(stack, '*')
+            if last_token in LIST_DIGITS:
                 output_str += _stack_push(stack, '*')
             func_buf += token
 
@@ -157,16 +173,8 @@ The function converts a mathematical expression written in infix notation into p
                 output_str += _stack_push(stack, '+-')
             elif (token == '+') & (last_token in LIST_OPERATOR):
                 pass
-            elif token in ['<', '>', '!']:
-                pass
-            elif token == '=':
-                if last_token in ['<', '>', '!', '=']:
-                    token = last_token+token
-                    output_str += _stack_push(stack, token)
-            elif token == '/':
-                if last_token == '/':
-                    token = '//'
-                    output_str += _stack_push(stack, token)
+            elif token in ['=', '<', '>', '!', '/']:
+                buf_opr = token
             else:
                 output_str += _stack_push(stack, token)
 
@@ -192,7 +200,6 @@ def postfix_eval(input_str, modules=tuple()):
 The function calculates the mathematical expression written in postfix notation.
 
     """
-
     module_func_dict = {module: dir(module) for module in modules}
     stack = []
     input_list = input_str.split(' ')
