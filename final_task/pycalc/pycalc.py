@@ -5,7 +5,6 @@ from string import ascii_letters, digits
 LIST_OPERATOR = ['+', '-', '*', '^', '/', '%', '<', '>', '=', '!']
 LIST_DIGITS = list(digits)
 LIST_LETTERS = list(ascii_letters)
-PREFIX_CONST = '#C'
 PREFIX_FUNC = '#F'
 PRIORITY_DICT = {
     '^': 5,
@@ -26,7 +25,7 @@ BOOL_DICT = {'True': True, 'False': False}
 FUNCTION_DICT = {'abs': abs, 'pow': pow, 'round': round}
 
 
-def stack_push(stack, opr):
+def _stack_push(stack, opr):
     """stack_push(stack, opr)
 
 This function is part of the shunting yard algorithm"""
@@ -54,30 +53,58 @@ This function is part of the shunting yard algorithm"""
     return buf_str
 
 
-def shunting_yard_alg(input_str):
+def _const_separator(const, stack, module_func_dict):
+    if const in BOOL_DICT:
+        return const
+    for module in module_func_dict:
+        if const in module_func_dict[module]:
+            return str(getattr(module, const))
+    else:
+        i = 0
+        l_const = ''
+        while i < len(const):
+            l_const += const[i]
+            r_const = const[i+1:]
+            for module in module_func_dict:
+                if l_const in module_func_dict[module]:
+                    return str(getattr(module, l_const)) + ' ' + _stack_push(stack, '*') \
+                           + _const_separator(r_const, stack, module_func_dict)
+            i += 1
+        else:
+            raise Exception('unknown constant {}'.format(const))
+
+
+def shunting_yard_alg(input_str, modules=list()):
     """shunting_yard_alg(input_str)
 
-The function converts a mathematical expression written in infix notation into postfix notation."""
+The function converts a mathematical expression written in infix notation into postfix notation.
 
+"""
+    module_func_dict = {module: dir(module) for module in modules}
     if len(input_str) == 0:
         raise Exception('empty input')
     stack = []
     output_str = ''
     func_buf = ''
     last_token = ''
-    count_args = 1
-    i = 0
-    while i < len(input_str):
-        token = input_str[i]
-        if token == ' ':
+    count_args = list()
+    for token in input_str:
+        if token == '=' and last_token in ['<', '>', '!', '=']:
+            output_str += _stack_push(stack, last_token+token)
+        elif last_token == '/':
+            if token == '/':
+                output_str += _stack_push(stack, '//')
+            else:
+                output_str += _stack_push(stack, '/')
+        elif token == ' ':
             output_str += ' '
             token = last_token
 
         elif token in LIST_LETTERS \
                 or token == '_':
-            if last_token in LIST_DIGITS or last_token == ')':
+            if last_token == ')':
                 output_str += ' '
-                output_str += stack_push(stack, '*')
+                output_str += _stack_push(stack, '*')
             func_buf += token
 
         elif token in LIST_DIGITS:
@@ -90,7 +117,7 @@ The function converts a mathematical expression written in infix notation into p
             output_str += '.'
 
         elif token == ',':
-            count_args += 1
+            count_args[-1] += 1
             output_str += ' '
             opr = stack[-1]
             while opr != '(':
@@ -99,67 +126,52 @@ The function converts a mathematical expression written in infix notation into p
 
         elif token == '(':
             if func_buf:
-                stack.append(PREFIX_FUNC + func_buf)
+                stack.append(func_buf)
+                count_args.append(1)
                 func_buf = ''
             elif last_token == ')' or last_token in LIST_DIGITS:
                 output_str += ' '
-                output_str += stack_push(stack, '*')
+                output_str += _stack_push(stack, '*')
             stack.append('(')
 
         elif token == ')':
             if last_token == '(':
-                count_args = 0
+                count_args[-1] = 0
             if func_buf:
-                output_str += ' ' + PREFIX_CONST + func_buf
+                output_str += _const_separator(func_buf, stack, module_func_dict)
                 func_buf = ''
-            if stack:
-                opr = stack[-1]
-                while opr != '(':
+            for opr in stack[::-1]:
+                if opr == '(':
+                    stack.pop()
+                    break
+                else:
                     output_str += ' ' + stack.pop() + ' '
-                    if len(stack) != 0:
-                        opr = stack[-1]
-                    else:
-                        raise Exception('unpaired brackets')
-                stack.pop()
             else:
                 raise Exception('unpaired brackets')
             if stack:
-                if PREFIX_FUNC in stack[-1]:
-                    output_str += ' ' + str(count_args) + stack.pop()
-                    count_args = 1
+                if stack[-1] not in LIST_OPERATOR and stack[-1] != '(':
+                    output_str += ' ' + str(count_args.pop()) + PREFIX_FUNC + stack.pop()
 
         elif token in LIST_OPERATOR:
             if func_buf:
-                output_str += PREFIX_CONST + func_buf
+                output_str += _const_separator(func_buf, stack, module_func_dict)
                 func_buf = ''
-
-            next_token = input_str[i + 1]
             output_str += ' '
             if (token == '-') & (last_token in LIST_OPERATOR or last_token in ['', '(']):
-                output_str += stack_push(stack, '+-')
+                output_str += _stack_push(stack, '+-')
             elif (token == '+') & (last_token in LIST_OPERATOR):
                 pass
-            elif (token in ['<', '>', '!', '=']) & (next_token == '='):
-                token += next_token
-                output_str += stack_push(stack, token)
-                i += 1
-            elif token == '=':
-                raise Exception('unknown operator: "="')
-            elif (token == '/') & (next_token == '/'):
-                token += next_token
-                output_str += stack_push(stack, token)
-                i += 1
+            elif token in ['<', '>', '!', '=', '/']:
+                pass
             else:
-                output_str += stack_push(stack, token)
+                output_str += _stack_push(stack, token)
 
         else:
             raise Exception('unknown operator: "{}"'.format(token))
-
         last_token = token
-        i += 1
 
     if func_buf:
-        output_str += PREFIX_CONST + func_buf
+        output_str += _const_separator(func_buf, stack, module_func_dict)
 
     while stack:
         token = stack.pop()
@@ -174,8 +186,10 @@ def postfix_eval(input_str, modules=tuple()):
     """postfix_eval(input_str)
 
 The function calculates the mathematical expression written in postfix notation.
+
     """
 
+    print(input_str)
     module_func_dict = {module: dir(module) for module in modules}
     stack = []
     input_list = input_str.split(' ')
@@ -229,17 +243,8 @@ The function calculates the mathematical expression written in postfix notation.
             if token == '!=':
                 val2 = stack.pop()
                 stack.append(stack.pop() != val2)
-        elif token[2:] in BOOL_DICT:
-            stack.append(BOOL_DICT[token[2:]])
-        elif PREFIX_CONST in token:
-            pos = token.find(PREFIX_CONST)
-            const_name = token[pos + len(PREFIX_CONST):]
-            for module in module_func_dict:
-                if const_name in module_func_dict[module]:
-                    stack.append(getattr(module, const_name))
-                    break
-            else:
-                raise Exception('unknown constant {}'.format(const_name))
+        elif token in BOOL_DICT:
+            stack.append(BOOL_DICT[token])
         elif PREFIX_FUNC in token:
             pos = token.find(PREFIX_FUNC)
             args_list = []
@@ -248,7 +253,7 @@ The function calculates the mathematical expression written in postfix notation.
             func_name = token[pos + len(PREFIX_FUNC):]
             for module in module_func_dict:
                 if func_name in module_func_dict[module]:
-                    res = getattr(module, token[3:])(*args_list[::-1])
+                    res = getattr(module, func_name)(*args_list[::-1])
                     break
             else:
                 if func_name in FUNCTION_DICT:
@@ -277,7 +282,7 @@ def main():
         args.MODULE = ['math']
     modules = [importlib.import_module(module) for module in args.MODULE]
     try:
-        print(postfix_eval(shunting_yard_alg(args.EXPRESSION), modules))
+        print(postfix_eval(shunting_yard_alg(args.EXPRESSION, modules), modules))
     except Exception as err:
         print('ERROR:', err)
 
