@@ -2,32 +2,43 @@
 
 
 class BaseExpressionException(Exception):
+    """ Common base class for all exceptions """
     pass
 
 
 class NoExpressionException(BaseExpressionException):
+    """ Class exception for no expression. """
     pass
 
 
 class BracketsAreNotBalanced(BaseExpressionException):
+    """ Class exception for expression when brackets are not balanced. """
     pass
 
 
 class DoubleOperationException(BaseExpressionException):
+    """ Class exception for expression with double operation. """
     pass
 
 
 class ExpressionFormatException(BaseExpressionException):
+    """ Class exception for expression with not correct format. """
     pass
 
 
 class UnsupportedMathematicalOperationException(ExpressionFormatException):
+    """ Class exception for expression with not correct mathematical operations. """
     pass
 
 
 class Element:
     """
-    Base class for parsing and calculation the mathematical expression.
+    Base class for parsing and calculation the mathematical expression. Check the expression for the number of brackets.
+    Perform the transformation of the expression, depending on the number of brackets. If brackets an odd number raise
+    exception. Parse the expression into the components, separate mathematical operations and numbers. And create new
+    expression. Validate format expression. Validate first negative numbers in expression. Validate mathematical
+    operations and calculate nested expressions. Calculate high priority math operations.Calculate low priority math
+    operations.
     """
 
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
@@ -37,6 +48,7 @@ class Element:
         Class constructor
         :param expression: mathematical expression as string
         """
+        # Validate on expression and raise exception if not true
         if not expression:
             raise NoExpressionException("The expression was not passed")
 
@@ -48,11 +60,7 @@ class Element:
         bracket_closed = False
         bracket_content = []
 
-        """
-        Check the expression for the number of brackets. Perform the transformation of the expression,
-        depending on the number of brackets. If brackets an odd number raise exception. Parse the expression into
-        the components, separate mathematical operations and numbers. And create new expression.
-        """
+        # Validate format expression and raise exception if it is not valid
         for i in expression:
             if bracket_closed:
                 if i not in self.MATH_ACTIONS and i != ")":
@@ -60,6 +68,7 @@ class Element:
                                                     "another bracket close are expected")
                 bracket_closed = False
 
+            # Validate  and count brackets
             if i == "(":
                 bracket_level += 1
                 if bracket_level == 1:
@@ -78,6 +87,7 @@ class Element:
                         raise ExpressionFormatException("Empty brackets.")
                     continue
 
+            # Check number brackets and add value, if bracket_level above zero we are inside brackets
             if bracket_level > 0:
                 bracket_content.append(i)
             else:
@@ -98,6 +108,7 @@ class Element:
         if bracket_level != 0:
             raise BracketsAreNotBalanced()
 
+        # Add item after parsing
         if item:
             self._expression.append(float("".join(item)))
 
@@ -117,7 +128,7 @@ class Element:
     def value(self):
         """
         Method for expression calculation
-        :return:
+        :return: calculate value
         """
         new_expression = []
         operation = None
@@ -138,6 +149,7 @@ class Element:
             else:
                 last_operation = None
 
+        # Validate first negative numbers in expression
         if self._expression[0] == "-":
             first_negative = True
             del self._expression[0]

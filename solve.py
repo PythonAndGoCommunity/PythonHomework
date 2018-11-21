@@ -3,6 +3,6 @@
 from libs.element import Element
 
 if __name__ == '__main__':
-    expression = Element(expression="2+3*((5-1)-(-2))")
+    expression = Element(expression="sin(5-1)")
     print(str(expression))
     print(expression.value())

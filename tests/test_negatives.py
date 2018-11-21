@@ -40,3 +40,8 @@ class TestNegativesElementSimple(TestCase):
         with self.assertRaises(BracketsAreNotBalanced):
             expression = Element(expression="8-3)//5*2")
             expression.value()
+
+    def test_first_negative_value_bad_format(self):
+        with self.assertRaises(UnsupportedMathematicalOperationException):
+            expression = Element(expression="--2*4-6/2")
+            expression.value()

@@ -41,9 +41,7 @@ class TestElementSimple(TestCase):
         expression = Element(expression="2**3//4")
         self.assertEqual(expression.value(), 2)
 
-    def test_nesting_of_elements(self):
-        expression = Element(expression="2+(3*((5-1)-2))")
-        self.assertEqual(expression.value(), 8)
+
 
     def test_str(self):
         expression = Element(expression="2+3*((5-1)-2)")
