@@ -189,7 +189,6 @@ The function calculates the mathematical expression written in postfix notation.
 
     """
 
-    print(input_str)
     module_func_dict = {module: dir(module) for module in modules}
     stack = []
     input_list = input_str.split(' ')
