@@ -89,16 +89,12 @@ The function converts a mathematical expression written in infix notation into p
     last_token = ''
     count_args = list()
     for token in input_str:
-        if token == '=' and last_token in ['<', '>', '!', '=']:
-            output_str += _stack_push(stack, last_token+token)
-        elif last_token == '/':
-            if token == '/':
-                output_str += _stack_push(stack, '//')
-            else:
-                output_str += _stack_push(stack, '/')
-        elif token == ' ':
+        if token != '=' and last_token in ['<', '>', '!', '=']\
+                or token != '/' and last_token == '/':
+            output_str += _stack_push(stack, last_token)
+
+        if token == ' ':
             output_str += ' '
-            token = last_token
 
         elif token in LIST_LETTERS \
                 or token == '_':
@@ -161,8 +157,16 @@ The function converts a mathematical expression written in infix notation into p
                 output_str += _stack_push(stack, '+-')
             elif (token == '+') & (last_token in LIST_OPERATOR):
                 pass
-            elif token in ['<', '>', '!', '=', '/']:
+            elif token in ['<', '>', '!']:
                 pass
+            elif token == '=':
+                if last_token in ['<', '>', '!', '=']:
+                    token = last_token+token
+                    output_str += _stack_push(stack, token)
+            elif token == '/':
+                if last_token == '/':
+                    token = '//'
+                    output_str += _stack_push(stack, token)
             else:
                 output_str += _stack_push(stack, token)
 
