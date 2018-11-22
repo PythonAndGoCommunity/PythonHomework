@@ -1,4 +1,4 @@
-import calc.functions as f
+import functions as f
 
 import argparse
 
@@ -83,3 +83,4 @@ def main():
     if z == True:
         print(decide_expression(inp_s))
 
+main()

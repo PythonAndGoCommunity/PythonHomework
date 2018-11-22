@@ -1,4 +1,4 @@
-from calc.math_functions import decide_func as d_f
+from math_functions import decide_func as d_f
 
 def finding_elements(s):
     """Select the individual elements of our expression: various operations, function names, numbers.
