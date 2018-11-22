@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
         name='pycalc',
-        version='0.1',
+        version='0.2',
         description='Decide different expressions',
         long_description='No fake',
         classifiers=[
