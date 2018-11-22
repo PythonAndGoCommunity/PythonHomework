@@ -72,7 +72,7 @@ class Test(unittest.TestCase):
         )
 
     def test_check_for_negativ_and_constants(self):
-        self.assertEqual(convert_num_and_const_to_float(['(', '-1', '+', '5', '+', 'pi', ')']),
+        self.assertEqual(convert_num_and_const_to_float(['(', '-1', '+', '5,0', '+', 'pi', ')']),
                          ['(', -1.0, '+', 5.0, '+', math.pi,  ')'])
 
     def test_split_by_comparison(self):

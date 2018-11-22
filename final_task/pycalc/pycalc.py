@@ -87,7 +87,8 @@ def get_token(expression='', result_lst=None):
     if result_lst is None:
         expression = expression.lower().replace(' ', '')
         result_lst = []
-    el = re.match(r'\)|\(|-\d+\.?\d*|\d+\.\d+|(--)|-\w*|[-+*/,^]|\.\d+|\w+|(\W{1,2})|[^\d]\w+|\d+|\D+', expression)
+    el = re.match(r'\)|\(|-\d+\.?\d*|\d+\.\d+|(--)|-\w*|[-+*/,^]|\.\d+|\w+|(\W{1,2})|[^\d]\w+|\d+|\D+',
+                  expression)
     try:
         el.group()
     except:
@@ -140,20 +141,20 @@ def verify_to_elements_operator(expression):
 
 
 def check_space_between_operands(expression=''):
-    '''
+    """
 
     get expression and verify it has space between 2 operands
 
     :param expression:
     :return:
-    '''
+    """
     expression = expression.rstrip().lstrip()
     for index, el in enumerate(expression):
         if el == ' ':
             try:
                 prev = float(expression[index - 1])
                 next_ = float(expression[index + 1])
-            except Exception as e:
+            except Exception:
                 continue
             if prev and next_:
                 raise SpaceBetweenOperands('ERROR: space between operands')
@@ -213,7 +214,7 @@ def calculate_expression(expression):
                 elif func[2] == 2:
                     try:
                         operands = (stack.pop(-2), stack.pop(-1))
-                    except:
+                    except Exception:
                         operands = (stack.pop(-1),)
                     stack.append(func[1](*operands))
         if len(stack) == 1:
@@ -300,11 +301,9 @@ def parse_to_reverse_polish_notation(tokens, postfix_expression=None, stack=None
                 else:
                     tmp = stack[-1]
                     if tmp in operators:
-                        # if (token in operators) and (operators[token][0] <= operators[tmp][0]):
-                        #     postfix_expression.append(stack.pop())
-                        if ((operators[token][0] <= operators[tmp][0]) and (token != '^')):
+                        if (operators[token][0] <= operators[tmp][0]) and (token != '^'):
                             postfix_expression.append(stack.pop())
-                        elif (operators[token][0] > operators[tmp][0]):
+                        elif operators[token][0] > operators[tmp][0]:
                             stack.append(tokens.pop(0))
                             break
                         else:
@@ -348,7 +347,7 @@ def split_by_comparison(expression):
     :return: tuple contains parts of expression after splitting and list of comp. operators
     """
     expression = re.sub(r'\s', '', expression)
-    exp = re.split(r'<=|>=|\!\=|==|<|>', expression)
+    exp = re.split(r'<=|>=|!=|==|<|>', expression)
     comparisons_operator = re.findall(r'<=|>=|!=|==|<|>', expression)
     return exp, comparisons_operator
 
@@ -407,7 +406,7 @@ def main():
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     parser.add_argument('EXPRESSION', action="store", help="expression string to evaluate")
     args = parser.parse_args()
-    if (args.EXPRESSION) is not None:
+    if args.EXPRESSION is not None:
         try:
             expression = args.EXPRESSION
             verify_to_elements_operator(expression)
