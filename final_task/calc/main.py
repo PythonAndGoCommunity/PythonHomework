@@ -1,4 +1,4 @@
-import functions as f
+import calc.functions as f
 
 import argparse
 
@@ -26,14 +26,15 @@ def decide_expression(inp_s):
         # print(steck_nums[0])
         return steck_nums[0]
     except:
-        print('error')
-        exit()
+        print('ERROR: ...')
+        exit(RuntimeError)
+
+
 
 def main():
 
     parser = argparse.ArgumentParser(description='Takes only string')
-    parser.add_argument('s')
-
+    parser.add_argument('string')
     inp_s = parser.parse_args().s
     j = 0
     inp_s += ' '

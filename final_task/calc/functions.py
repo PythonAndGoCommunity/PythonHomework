@@ -1,4 +1,4 @@
-from math_functions import decide_func as d_f
+from calc.math_functions import decide_func as d_f
 
 def finding_elements(s):
     """Select the individual elements of our expression: various operations, function names, numbers.
@@ -37,8 +37,8 @@ def finding_elements(s):
                     s[i] = float(num_v)
                 except:
                     s[i] = num_v
-                    print(num_v + ' --- incorrect value')
-                    exit()
+                    print('ERROR: ', num_v + ' --- incorrect value')
+                    exit(ValueError)
 
                 i = del_els(i, len(num_v))
                 num_v = ''
@@ -74,6 +74,7 @@ def finding_elements(s):
                 i -= 1
 
         elif s[i] == '-':
+
             if s[i+1] == '-':
                 s[i] = '+'
                 del s[i+1]
@@ -81,6 +82,10 @@ def finding_elements(s):
             elif s[i+1] == '+':
                 del s[i+1]
                 i -= 1
+            elif s[i - 1] == '/' or s[i - 1] == '^':
+                s.insert(i, '(')
+                s.insert(i+5, ')')
+
 
 
         i += 1
@@ -102,7 +107,7 @@ def adding_multiply(s):
     while i < len(s)-1: # find potential situation
         if type(s[i]) == float:
             if prior(s[i+1]) == 5 or s[i+1] == '(':
-                s.insert(i+1   , '*')
+                s.insert(i+1, '*')
         elif s[i] == ')':
             if s[i+1] == '(' or prior(s[i+1]) == 5 or type(s[i+1]) == float:
                 s.insert(i+1, '*')
@@ -121,11 +126,11 @@ def prior(op):
     elif op == '+' or op == '-':
         return 1
 
-    elif op == '/' or op == '*':
+    elif op == '/' or op == '*' or op == '//' or op == '%':
         return 2
 
-    elif op == '//' or op == '%':
-        return 3
+    #elif op == '//' or op == '%':  error in test '100/3%2^2'
+    #   return 3
 
     elif op == '^':
         return 4
@@ -294,10 +299,14 @@ def verify(i, steck_nums, steck_ops, s):
 
 
     elif prior(s[i]) <= prior(steck_ops[-1]):
-        steck_nums[-2] = bin_operate(steck_nums[-2], steck_nums[-1], steck_ops[-1])
-        del steck_nums[-1]
-        del steck_ops[-1]
-        verify(i, steck_nums, steck_ops, s)
+        if s[i] == '^' and steck_ops[-1] == '^':
+            steck_ops.append(s[i])
+        else:
+            steck_nums[-2] = bin_operate(steck_nums[-2], steck_nums[-1], steck_ops[-1])
+            del steck_nums[-1]
+            del steck_ops[-1]
+            verify(i, steck_nums, steck_ops, s)
+
 
     elif prior(s[i]) > prior(steck_ops[-1]):
         steck_ops.append(s[i])

@@ -3,8 +3,11 @@ from math import *
 
 def decide_func(s, i, ready_args):
     """determinate functions"""
+    if len(ready_args) == 0:
+        print('ERROR: no necessary arguments ')
+        exit(AttributeError)
 
-    if s[i] == 'abs':
+    elif s[i] == 'abs':
         s[i] = abs(ready_args[0])
 
     elif s[i] == 'acos':
@@ -91,15 +94,22 @@ def decide_func(s, i, ready_args):
     elif s[i] == 'trunc':
         s[i] = trunc(ready_args[0])
 
+    elif s[i] == 'round':
+        if len(ready_args) == 1:
+            ready_args.append(0)
+        s[i] = round(ready_args[0], int(ready_args[1]))
+
+    elif s[i] == 'log':
+        if len(ready_args) == 1:
+            ready_args.append(e)
+        s[i] = log(ready_args[0], ready_args[1])
+
     elif len(ready_args) < 2:
-        print('no necessary arguments or our function "' + s[i] + '"')
-        exit()
+        print('ERROR: no necessary arguments or our function "' + s[i] + '"')
+        exit(AttributeError)
 
     elif s[i] == 'atan2':
         s[i] = atan2(ready_args[0], ready_args[1])
-
-    elif s[i] == 'log':
-        s[i] = log(ready_args[0], ready_args[1])
 
     elif s[i] == 'fmod':
         s[i] = fmod(ready_args[0], ready_args[1])
@@ -116,12 +126,9 @@ def decide_func(s, i, ready_args):
     elif s[i] == 'pow':
         s[i] = pow(ready_args[0], ready_args[1])
 
-    elif s[i] == 'round':
-        s[i] = round(ready_args[0], int(ready_args[1]))
-
     elif s[i] == 'ldexp':
         s[i] = ldexp(ready_args[0], ready_args[1])
 
     else:
-        print('no function "' + s[i] + '"')
-        exit()
+        print('ERROR: no function "' + s[i] + '"')
+        exit(AttributeError)
