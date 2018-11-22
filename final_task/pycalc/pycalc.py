@@ -91,7 +91,7 @@ def get_token(expression='', result_lst=None):
                   expression)
     try:
         el.group()
-    except:
+    except Exception:
         raise TokenParseException('ERROR: wrong expression')
     if el.group()[-1] == '(':
         el = re.match(r'\D{1,1}', expression)
@@ -122,7 +122,6 @@ def implicit_mul(tokens):
                     tokens.insert(index, '*')
                     continue
             elif token == ')' and index != len(tokens) - 1:
-                # print(tokens[index+1])
                 if type(tokens[index + 1]) is float:
                     tokens.insert(index + 1, '*')
                     continue

@@ -16,7 +16,7 @@ from .pycalc import (
     )
 
 
-#import Exceptions
+# import Exceptions
 from .pycalc import (
     WrongBracketsBalance,
     SpaceBetweenOperands,
@@ -60,7 +60,6 @@ class Test(unittest.TestCase):
             [2.0, 3.141592653589793, 3.141592653589793, '/', 2.718281828459045, 2.718281828459045,
              '/', '+', 2.0, 0.0, '^', '+', '^', 1.0, 3.0, '/', '^']
         )
-
 
     def test_from_string_co_result(self):
         self.assertEqual(from_str_to_result('--343+pi^3'), (--343+math.pi**3))
@@ -131,5 +130,4 @@ class Test(unittest.TestCase):
             parse_to_reverse_polish_notation(['(', '-1', '+', '5', '+', 'qwe', ')'])
 
     def test_zero_divizion(self):
-        self.failureException(calculate_expression([ '0', '5.0', '/']), ZeroDivisionError)
-
+        self.failureException(calculate_expression(['0', '5.0', '/']), ZeroDivisionError)
