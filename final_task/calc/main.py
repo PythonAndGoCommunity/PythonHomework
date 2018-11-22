@@ -35,7 +35,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='Takes only string')
     parser.add_argument('string')
-    inp_s = parser.parse_args().s
+    inp_s = parser.parse_args().string
     j = 0
     inp_s += ' '
     z = True
@@ -84,4 +84,3 @@ def main():
     if z == True:
         print(decide_expression(inp_s))
 
-main()
