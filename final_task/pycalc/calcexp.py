@@ -3,6 +3,7 @@
 import math
 import operator
 import pycalc.mydict as mydict
+import pycalc.custom_exception as custom_exc
 
 operations_2 = {"-": operator.sub, "+": operator.add, "*": operator.mul, "^": operator.pow,
                 "/": operator.truediv, "//": operator.floordiv, "%": operator.mod,
@@ -40,8 +41,8 @@ def calculate_expression(expression):
                 if len(operands_stack) >= 1:
                     operands_stack.append(my_operations_1[token_list[i]](operands_stack.pop()))
                 else:
-                    return """ERROR: it seems there is a mistake in expression.
-                    For example: 2 adjoining operators."""
+                    raise custom_exc.VerifyException("""ERROR: it seems there is a mistake in expression.
+                    For example: 2 adjoining operators.""")
                 continue
             if my_operations_2[token_list[i]] != -1:
                 if len(operands_stack) >= 2:
@@ -49,19 +50,20 @@ def calculate_expression(expression):
                     number2 = operands_stack.pop()
                     tmp = my_operations_2[token_list[i]](number2, number1)
                     if type(tmp) == complex:
-                        return """ERROR: negative number cannot be raised to a fractional power."""
+                        raise ValueError("""ERROR: negative number
+                         cannot be raised to a fractional power.""")
                     else:
                         operands_stack.append(tmp)
                 else:
-                    return """ERROR: it seems there is a mistake in expression.
-                    For example: 2 adjoining operators."""
+                    raise custom_exc.VerifyException("""ERROR: it seems there is a mistake in expression.
+                    For example: 2 adjoining operators.""")
                 continue
             if my_constants[token_list[i]] != -1:
                 operands_stack.append(my_constants[token_list[i]])
                 continue
         except ZeroDivisionError:
-            return """ERROR: number cannot be divided by 0."""
+            raise ZeroDivisionError("""ERROR: number cannot be divided by 0.""")
     answer = operands_stack.pop()
     if len(operands_stack) != 0:
-        return "ERROR: missing operator somewhere."
+        raise custom_exc.VerifyException("""ERROR: missing operator somewhere.""")
     return answer
