@@ -35,7 +35,7 @@ class TestAddingMultiplication(unittest.TestCase):
 
 
 
-
+'''
 class TestFomatExpression(unittest.TestCase):
     """Tests for finding_elements"""
 
@@ -43,7 +43,7 @@ class TestFomatExpression(unittest.TestCase):
         "expression '2(2)pow(2,log1p(-10)) formating correctly?"
         formated_expression = finding_elements(list('(2(2)pow(2,log1p(-10))  '))
         self.assertEqual(formated_expression, ['(', 2.0, '*', '(', 2.0, ')', '*', 'pow', '(', 2.0, ',', 'log1p', '(', '-', 10.0, ')', ')', ')'])
-
+'''
 
 
 
