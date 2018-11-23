@@ -38,10 +38,8 @@ def verify_expression(expression):
             token_list.append(" ")
             i += 1
             continue
-        if expression[i].isdigit() or expression[i] == "!" or expression[i] == ".":
+        if expression[i].isdigit() or expression[i] == ".":
             token_list.append(expression[i])
-            if expression[i] == "!":
-                token_list.append(" ")
             prev_token = expression[i]
             i += 1
             continue
