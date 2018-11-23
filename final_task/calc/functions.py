@@ -8,6 +8,7 @@ def finding_elements(s):
     e = 2.718281828459045
     pi = 3.141592653589793
     tau = 6.283185307179586
+    pie = 8.539734222673566
 
     num_v = ''
     fun_v = ''
@@ -55,10 +56,13 @@ def finding_elements(s):
                     s[i-1] = pi
                 elif fun_v == 'tau':
                     s[i-1] = tau
+                elif fun_v == 'epi' or fun_v == 'pie':
+                    s[i-1] = pie
                 else:
                     s[i-1] = fun_v # received string include as one of element of list
                 i = del_els(i-1, len(fun_v))
                 fun_v = ''
+                
         # envisage cases where an element can consist of two
         if s[i] == '/' and s[i+1] == '/':
             s[i] = '//'

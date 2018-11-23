@@ -6,6 +6,10 @@ def decide_func(s, i, ready_args):
     if len(ready_args) == 0:
         print('ERROR: no necessary arguments ')
         exit(AttributeError)
+    
+    elif len(ready_args) > 2:
+        print('ERROR: so many arguments')
+        exit(AttributeError)    
 
     elif s[i] == 'abs':
         s[i] = abs(ready_args[0])
