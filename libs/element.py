@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import math
+
 
 class BaseExpressionException(Exception):
     """ Common base class for all exceptions """
@@ -31,6 +33,11 @@ class UnsupportedMathematicalOperationException(ExpressionFormatException):
     pass
 
 
+class UnsupportedMathematicalFunctionException(ExpressionFormatException):
+    """ Class exception for expression with unsupported mathematical function. """
+    pass
+
+
 class Element:
     """
     Base class for parsing and calculation the mathematical expression. Check the expression for the number of brackets.
@@ -42,8 +49,11 @@ class Element:
     """
 
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
+    MATHEMATICAL_FUNCTIONS = {
+        "sin": math.sin
+    }
 
-    def __init__(self, expression):
+    def __init__(self, expression, func=None):
         """
         Class constructor
         :param expression: mathematical expression as string
@@ -51,6 +61,8 @@ class Element:
         # Validate on expression and raise exception if not true
         if not expression:
             raise NoExpressionException("The expression was not passed")
+
+        self._func = func
 
         self._expression = []
 
@@ -81,13 +93,16 @@ class Element:
                     raise BracketsAreNotBalanced("Closed non-opened bracket.")
                 if bracket_level == 0:
                     if bracket_content:
-                        self._expression.append(Element("".join(bracket_content)))
+                        if item:
+                            self._expression.append(Element(expression="".join(bracket_content), func="".join(item)))
+                            item.clear()
+                        else:
+                            self._expression.append(Element("".join(bracket_content)))
                         bracket_content.clear()
                     else:
                         raise ExpressionFormatException("Empty brackets.")
                     continue
 
-            # Check number brackets and add value, if bracket_level above zero we are inside brackets
             if bracket_level > 0:
                 bracket_content.append(i)
             else:
@@ -102,6 +117,7 @@ class Element:
                     else:
                         self._expression.append(i)
                     last_mathematical_action = i
+
                 else:
                     item.append(i)
                     last_mathematical_action = None
@@ -193,8 +209,19 @@ class Element:
                     value += i
                 elif operation == "-":
                     value -= i
+                else:
+                    raise UnsupportedMathematicalOperationException(
+                        "We do not support '{}' operation".format(operation)
+                    )
                 operation = None
             else:
                 value = i
+
+        if self._func:
+            math_func = self.MATHEMATICAL_FUNCTIONS.get(self._func)
+            if math_func:
+                value = math_func(value)
+            else:
+                raise UnsupportedMathematicalFunctionException("We do not support '{}' function".format(self._func))
 
         return value
