@@ -42,7 +42,8 @@ class TestFomatExpression(unittest.TestCase):
     def test_format1(self):
         "expression '2(2)pow(2,log1p(-10)) formating correctly?"
         formated_expression = finding_elements(list('(2(2)pow(2,log1p(-10))  '))
-        self.assertEqual(formated_expression, ['(', 2.0, '*', '(', 2.0, ')', '*', 'pow', '(', 2.0, ',', 'log1p', '(', '-', 10.0, ')', ')', ')'])
+        self.assertEqual(formated_expression, ['(', 2.0, '*', '(', 2.0, ')', '*', 'pow',
+        '(', 2.0, ',', 'log1p', '(', '-', 10.0, ')', ')', ')'])
 '''
 
 
