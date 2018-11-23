@@ -7,6 +7,7 @@ import pycalc.custom_exception as custom_exc
 import pycalc.parse as parse
 import pycalc.mydict as mydict
 
+
 class TestPycalc(unittest.TestCase):
     def test_parse_argument(self):
         self.assertEqual(parse.parse_argument(["1+2"]), "1+2")
