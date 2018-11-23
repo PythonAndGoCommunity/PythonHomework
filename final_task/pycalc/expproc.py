@@ -163,4 +163,3 @@ def verify_expression(expression):
         token_list.append(" ")
     reverse_expression = ''.join(token_list)
     return reverse_expression
-
