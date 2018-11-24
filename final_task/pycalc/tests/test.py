@@ -1,13 +1,13 @@
 import unittest
 import ddt
 import math
-from pycalc.core.calculator_helper import (
+from core.calculator_helper import (
     is_number, may_unary_operator, is_unary_operator,
     check_right_associativity, is_callable, check_brackets_balance,
     check_empty_expression, PycalcError
 )
 
-from pycalc.core.calculator import (
+from core.calculator import (
     split_operands, implicit_multiplication, may_valid_operation,
     split_arguments, process_func_or_const, final_execution,
     import_modules, execute_comparison, get_length_operator, check_valid_spaces
@@ -46,9 +46,10 @@ class TestCalculatorHelper(unittest.TestCase):
     def test_is_callable_false(self):
         self.assertFalse(is_callable('pi', math))
 
-    def test_check_brackets_balance(self):
+    @ddt.data('(5+3', ')5+3(')
+    def test_check_brackets_balance(self, value):
         with self.assertRaises(PycalcError):
-            check_brackets_balance('(5+3')
+            check_brackets_balance(value)
 
     def test_check_empty_expression(self):
         with self.assertRaises(PycalcError):
@@ -60,8 +61,15 @@ class TestCalculator(unittest.TestCase):
     def test_split_operands(self):
         self.assertEqual(split_operands('5pie'), ['5', 'pi', 'e'])
 
+    def test_split_operands_raise(self):
+        with self.assertRaises(PycalcError):
+            split_operands('5abc')
+
     def test_implicit_multiplication(self):
         self.assertEqual(implicit_multiplication('5pie'), '5*pi*e')
+
+    def test_implicit_multiplication_brackets(self):
+        self.assertEqual(implicit_multiplication('(5+5)5'), '(5+5)*5')
 
     def test_may_valid_operation(self):
         self.assertFalse(may_valid_operation('^', 'u-'))
