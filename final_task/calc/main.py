@@ -2,7 +2,6 @@ import calc.functions as f
 
 import argparse
 
-
 def num(s):
     if (ord(s) < 58 and ord(s) > 47) or s == '.':
         return 7
@@ -28,37 +27,21 @@ def decide_expression(inp_s):
         print('ERROR: No balanced brackets')
         exit(RuntimeError)
 
-
-
-    # delete the spaces, add "(" to the beginning, and two spaces to the end and convert the string to the list
     s = list('(' + inp_s.replace(' ', '') + '  ')
-
-    # bring the list to a convenient (element) type
     try:
         s = f.finding_elements(s)
-
-        # print(s)
-
         steck_ops = []
         steck_nums = []
-
         i = 0
-
-        # main cycle
         while i < len(s):
             f.verify(i, steck_nums, steck_ops, s)
             i += 1
-
-        # print(steck_nums[0])
         return steck_nums[0]
     except:
         print('ERROR: ...')
         exit(RuntimeError)
 
-
-
 def main():
-
     parser = argparse.ArgumentParser(description='Takes only string')
     parser.add_argument('string')
     inp_s = parser.parse_args().string
@@ -104,9 +87,6 @@ def main():
                 print(a > b)
                 z = False
                 break
-
         j += 1
-
     if z == True:
         print(decide_expression(inp_s))
-
