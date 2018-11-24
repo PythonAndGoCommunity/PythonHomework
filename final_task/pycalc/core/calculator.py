@@ -124,13 +124,13 @@ def implicit_multiplication(expression):
     return ''.join(expression)
 
 
-def may_valid_operation(operator, cur):
+def may_valid_operation(last_operator, current_operator):
     """
-    :param operator:
-    :param cur:
-    :return:
+    :param last_operator
+    :param current_operator
+    :return: True if
     """
-    if is_unary_operator(cur) and get_priority(cur) < get_priority(operator):
+    if is_unary_operator(current_operator) and get_priority(current_operator) < get_priority(last_operator):
         return
     return True
 

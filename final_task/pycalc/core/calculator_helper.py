@@ -3,7 +3,7 @@ This module contains auxiliary functions for the calculator
 """
 
 
-class PycalcError(ArithmeticError):
+class PycalcError(Exception):
     def __init__(self, message):
         super().__init__('ERROR: ' + str(message))
 

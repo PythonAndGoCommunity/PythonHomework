@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
 """
 This module allows you to work
 with the functionality of calculator
 """
 
 import sys
-from pycalc.core import args
-from pycalc.core.calculator import calculator
+from .core import args
+from .core.calculator import calculator
 
 
 def main():
