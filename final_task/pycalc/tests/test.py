@@ -1,13 +1,13 @@
 import unittest
 import ddt
 import math
-from core.calculator_helper import (
+from pycalc.core.calculator_helper import (
     is_number, may_unary_operator, is_unary_operator,
     check_right_associativity, is_callable, check_brackets_balance,
     check_empty_expression, PycalcError
 )
 
-from core.calculator import (
+from pycalc.core.calculator import (
     split_operands, implicit_multiplication, may_valid_operation,
     split_arguments, process_func_or_const, final_execution,
     import_modules, execute_comparison, get_length_operator, check_valid_spaces
