@@ -1,31 +1,30 @@
 from math import *
 
-
 def decide_func(s, i, ready_args):
     """determinate functions"""
     if len(ready_args) == 0:
         print('ERROR: no necessary arguments ')
         exit(AttributeError)
-    
+        
     elif len(ready_args) > 2:
         print('ERROR: so many arguments')
-        exit(AttributeError)    
-
+        exit(AttributeError)
+        
     elif s[i] == 'abs':
         s[i] = abs(ready_args[0])
-
+        
     elif s[i] == 'acos':
         s[i] = acos(ready_args[0])
-
+        
     elif s[i] == 'acosh':
         s[i] = acosh(ready_args[0])
-
+        
     elif s[i] == 'asin':
         s[i] = asin(ready_args[0])
-
+        
     elif s[i] == 'asinh':
         s[i] = asinh(ready_args[0])
-
+        
     elif s[i] == 'atan':
         s[i] = atan(ready_args[0])
 
@@ -107,11 +106,11 @@ def decide_func(s, i, ready_args):
         if len(ready_args) == 1:
             ready_args.append(e)
         s[i] = log(ready_args[0], ready_args[1])
-
+        
     elif len(ready_args) < 2:
         print('ERROR: no necessary arguments or our function "' + s[i] + '"')
         exit(AttributeError)
-
+        
     elif s[i] == 'atan2':
         s[i] = atan2(ready_args[0], ready_args[1])
 
@@ -126,13 +125,13 @@ def decide_func(s, i, ready_args):
 
     elif s[i] == 'copysign':
         s[i] = copysign(ready_args[0], ready_args[1])
-
+        
     elif s[i] == 'pow':
         s[i] = pow(ready_args[0], ready_args[1])
-
+        
     elif s[i] == 'ldexp':
         s[i] = ldexp(ready_args[0], ready_args[1])
-
+        
     else:
         print('ERROR: no function "' + s[i] + '"')
         exit(AttributeError)
