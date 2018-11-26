@@ -1,10 +1,6 @@
 from calc.math_functions import decide_func as d_f
 
 
-class Error():
-    pass
-
-
 def finding_elements(s):
     e = 2.718281828459045
     pi = 3.141592653589793
@@ -28,10 +24,10 @@ def finding_elements(s):
                 i -= 1
                 try:
                     s[i] = float(num_v)
-                except Error:
+                except Exception as ex:
                     s[i] = num_v
                     print('ERROR: ', num_v + ' --- incorrect value')
-                    exit(ValueError)
+                    exit()
                 i = del_els(i, len(num_v))
                 num_v = ''
         if ord(s[i]) > 96 and ord(s[i]) < 122:
