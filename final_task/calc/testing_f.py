@@ -3,6 +3,7 @@ import unittest
 from calc.functions import *
 from calc.math_functions import decide_func as d_f
 
+
 class TestAddingMultiplication(unittest.TestCase):
     """Tests for 'adding_multiply'."""
 
@@ -42,6 +43,7 @@ class TestFomatExpression(unittest.TestCase):
         '(', 2.0, ',', 'log1p', '(', '-', 10.0, ')', ')', ')'])
 '''
 
+
 class TestSelection(unittest.TestCase):
     """Tests for selection"""
 
@@ -55,6 +57,7 @@ class TestSelection(unittest.TestCase):
         formated_expession = selection(0, ['pow', '(', 'abs', '(', 0.0, ')', ',', 0.0, ')'])
         self.assertEqual(formated_expession, ['(', 'abs', '(', 0.0, ')', ',', 0.0, ')'])
 
+        
 class TestGettingArgs(unittest.TestCase):
     """Tests for get_args"""
 
@@ -68,6 +71,7 @@ class TestGettingArgs(unittest.TestCase):
         formated_expession = get_args(['(', 'abs', '(', 0.0, ')', ',', 0.0, ')'])
         self.assertEqual(formated_expession, [['(', 'abs', '(', 0.0, ')', ')'], ['(', 0.0, ')']])
 
+        
 class TestDecidingArgs(unittest.TestCase):
     """Tests for deciding_args"""
 
@@ -76,5 +80,6 @@ class TestDecidingArgs(unittest.TestCase):
         formated_expession = deciding_args([['(', 'abs', '(', 0.0, ')', ')'], ['(', 0.0, ')']])
         self.assertEqual(formated_expession, [0.0, 0.0])
 
+        
 if __name__ == '__main__':
     unittest.main()
