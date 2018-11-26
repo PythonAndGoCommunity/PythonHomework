@@ -50,7 +50,14 @@ class Element:
 
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
     MATHEMATICAL_FUNCTIONS = {
-        "sin": math.sin
+        "sin": math.sin,
+        "cos": math.cos,
+        "tan": math.tan,
+        "log": math.log,
+        "log10": math.log10,
+        "log2": math.log2,
+        "abs": math.fabs
+
     }
 
     def __init__(self, expression, func=None):
