@@ -3,10 +3,6 @@ import calc.functions as f
 import argparse
 
 
-class Error():
-    pass
-
-
 def num(s):
     if (ord(s) < 58 and ord(s) > 47) or s == '.':
         return 7
@@ -20,18 +16,18 @@ def decide_expression(inp_s):
         if inp_s[j] == ' ' and j > 0 and j < len(inp_s) - 1:
             if num(inp_s[j - 1]) == num(inp_s[j + 1]) and (num(inp_s[j - 1]) > 1):
                 print('ERROR: ...')
-                exit(RuntimeError)
+                exit()
         if inp_s[j] == '(':
             brackets += 1
         elif inp_s[j] == ')':
             brackets -= 1
             if brackets < 0:
                 print('ERROR: No balanced brackets')
-                exit(Error)
+                exit()
 
     if brackets != 0:
         print('ERROR: No balanced brackets')
-        exit(Error)
+        exit()
 
     s = list('(' + inp_s.replace(' ', '') + '  ')
     try:
@@ -45,7 +41,7 @@ def decide_expression(inp_s):
         return steck_nums[0]
     except Error:
         print('ERROR: ...')
-        exit(RuntimeError)
+        exit()
 
 
 def main():
