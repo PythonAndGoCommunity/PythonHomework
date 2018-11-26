@@ -1,5 +1,6 @@
 from calc.math_functions import decide_func as d_f
 
+
 def finding_elements(s):
     e = 2.718281828459045
     pi = 3.141592653589793
@@ -8,6 +9,7 @@ def finding_elements(s):
     num_v = ''
     fun_v = ''
     i = 0
+    
     
     def del_els(i, n):
         for j in range(n-1):
@@ -73,17 +75,18 @@ def finding_elements(s):
                 s.insert(i+5, ')')
                 
         i += 1
-
+        
     s = s[:-1]
     s[-1] = ')'
-    s = finding_func_with_nums(s) 
-    s = adding_multiply(s) 
-
+    s = finding_func_with_nums(s)
+    s = adding_multiply(s)
+    
     return s
+
 
 def adding_multiply(s):
     i = 0
-    while i < len(s)-1: # find potential situation
+    while i < len(s)-1:
         if type(s[i]) == float:
             if prior(s[i+1]) == 5 or s[i+1] == '(':
                 s.insert(i+1, '*')
@@ -92,6 +95,7 @@ def adding_multiply(s):
                 s.insert(i+1, '*')
         i += 1
     return s
+
 
 def prior(op):
     """distribute priorities to possible elements of an expression"""
@@ -107,6 +111,7 @@ def prior(op):
         return 6
     else:
         return 5
+    
     
 def bin_operate(a, b, op):
     if op == '+':
@@ -130,6 +135,7 @@ def bin_operate(a, b, op):
         else:
             return 'divide by zero'
 
+        
 def finding_func_with_nums(s):
     i = 0
     while i < len(s):
@@ -153,6 +159,7 @@ def finding_func_with_nums(s):
         i += 1
     return s
 
+
 def selection(i, s):
     hooks = 1
     i = i+1
@@ -166,6 +173,7 @@ def selection(i, s):
         line.append(s[i])
         del s[i]
     return line
+
 
 def get_args(s):
     args = []
@@ -187,6 +195,7 @@ def get_args(s):
         args.append(arg)
     return args
 
+
 def deciding_args(args):
     ready_args = []
     for s in args:
@@ -200,13 +209,13 @@ def deciding_args(args):
     return ready_args
 
 
-
 def deciding_function(i, s):
     line = selection(i, s)
     args = get_args(line)
     ready_args = deciding_args(args)
     d_f(s, i, ready_args)
 
+    
 def verify(i, steck_nums, steck_ops, s):
     if type(s[i]) == float:
         steck_nums.append(s[i])
