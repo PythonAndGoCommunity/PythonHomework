@@ -1,7 +1,7 @@
 from calc.math_functions import decide_func as d_f
 
 
-class Error(RuntimeError):
+class Error():
     pass
 
 
