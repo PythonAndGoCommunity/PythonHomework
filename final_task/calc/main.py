@@ -3,7 +3,7 @@ import calc.functions as f
 import argparse
 
 
-class Error(RuntimeError):
+class Error():
     pass
 
 
