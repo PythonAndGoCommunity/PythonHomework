@@ -1,5 +1,6 @@
 from math import *
 
+
 def decide_func(s, i, ready_args):
     """determinate functions"""
     if len(ready_args) == 0:
@@ -27,7 +28,7 @@ def decide_func(s, i, ready_args):
         
     elif s[i] == 'atan':
         s[i] = atan(ready_args[0])
-
+        
     elif s[i] == 'atanh':
         s[i] = atanh(ready_args[0])
 
@@ -135,3 +136,4 @@ def decide_func(s, i, ready_args):
     else:
         print('ERROR: no function "' + s[i] + '"')
         exit(AttributeError)
+        
