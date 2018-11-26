@@ -39,7 +39,7 @@ def decide_expression(inp_s):
             f.verify(i, steck_nums, steck_ops, s)
             i += 1
         return steck_nums[0]
-    except Exeption as ex:
+    except Exception as ex:
         print('ERROR: ...')
         exit()
 
