@@ -32,6 +32,7 @@ class TestAddingMultiplication(unittest.TestCase):
         formated_expression = adding_multiply(['(', 2.0, ')', 'pow', '(', 2.0, ',', 1.0, ')'])
         self.assertEqual(formated_expression, ['(', 2.0, ')', '*', 'pow', '(', 2.0, ',', 1.0, ')'])
 
+
 '''
 class TestFomatExpression(unittest.TestCase):
     """Tests for finding_elements"""
@@ -57,7 +58,7 @@ class TestSelection(unittest.TestCase):
         formated_expession = selection(0, ['pow', '(', 'abs', '(', 0.0, ')', ',', 0.0, ')'])
         self.assertEqual(formated_expession, ['(', 'abs', '(', 0.0, ')', ',', 0.0, ')'])
 
-        
+
 class TestGettingArgs(unittest.TestCase):
     """Tests for get_args"""
 
@@ -71,7 +72,7 @@ class TestGettingArgs(unittest.TestCase):
         formated_expession = get_args(['(', 'abs', '(', 0.0, ')', ',', 0.0, ')'])
         self.assertEqual(formated_expession, [['(', 'abs', '(', 0.0, ')', ')'], ['(', 0.0, ')']])
 
-        
+
 class TestDecidingArgs(unittest.TestCase):
     """Tests for deciding_args"""
 
@@ -80,6 +81,6 @@ class TestDecidingArgs(unittest.TestCase):
         formated_expession = deciding_args([['(', 'abs', '(', 0.0, ')', ')'], ['(', 0.0, ')']])
         self.assertEqual(formated_expession, [0.0, 0.0])
 
-        
+
 if __name__ == '__main__':
     unittest.main()
