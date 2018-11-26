@@ -9,11 +9,13 @@ def finding_elements(s):
     num_v = ''
     fun_v = ''
     i = 0
+
     def del_els(i, n):
         for j in range(n-1):
             del s[i-1]
             i -= 1
         return i+1
+
     while i < len(s)-1:
         if (ord(s[i]) < 58 and ord(s[i]) > 47) or s[i] == '.':
             num_v += s[i]
@@ -22,7 +24,7 @@ def finding_elements(s):
                 i -= 1
                 try:
                     s[i] = float(num_v)
-                except:
+                except RuntimeError:
                     s[i] = num_v
                     print('ERROR: ', num_v + ' --- incorrect value')
                     exit(ValueError)
