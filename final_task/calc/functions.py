@@ -9,14 +9,11 @@ def finding_elements(s):
     num_v = ''
     fun_v = ''
     i = 0
-    
-    
     def del_els(i, n):
         for j in range(n-1):
             del s[i-1]
             i -= 1
         return i+1
-
     while i < len(s)-1:
         if (ord(s[i]) < 58 and ord(s[i]) > 47) or s[i] == '.':
             num_v += s[i]
@@ -47,11 +44,9 @@ def finding_elements(s):
                     s[i-1] = fun_v
                 i = del_els(i-1, len(fun_v))
                 fun_v = ''
-                
         if s[i] == '/' and s[i+1] == '/':
             s[i] = '//'
             del s[i + 1]
-
         elif s[i] == '+':
             if s[i+1] == '-':
                 s[i] = '-'
@@ -60,9 +55,7 @@ def finding_elements(s):
             elif s[i+1] == '+':
                 del s[i+1]
                 i -= 1
-
         elif s[i] == '-':
-
             if s[i+1] == '-':
                 s[i] = '+'
                 del s[i+1]
@@ -73,14 +66,11 @@ def finding_elements(s):
             elif s[i - 1] == '/' or s[i - 1] == '^':
                 s.insert(i, '(')
                 s.insert(i+5, ')')
-                
         i += 1
-        
     s = s[:-1]
     s[-1] = ')'
     s = finding_func_with_nums(s)
     s = adding_multiply(s)
-    
     return s
 
 
@@ -111,8 +101,8 @@ def prior(op):
         return 6
     else:
         return 5
-    
-    
+
+
 def bin_operate(a, b, op):
     if op == '+':
         return a + b
@@ -135,7 +125,7 @@ def bin_operate(a, b, op):
         else:
             return 'divide by zero'
 
-        
+
 def finding_func_with_nums(s):
     i = 0
     while i < len(s):
@@ -215,7 +205,7 @@ def deciding_function(i, s):
     ready_args = deciding_args(args)
     d_f(s, i, ready_args)
 
-    
+
 def verify(i, steck_nums, steck_ops, s):
     if type(s[i]) == float:
         steck_nums.append(s[i])
