@@ -9,11 +9,11 @@ def num(s):
     else:
         return f.prior(s)
 
-    
+
 def decide_expression(inp_s):
     brackets = 0
     for j in range(0, len(inp_s)):
-        if inp_s[j] == ' ' and j >0 and j < len(inp_s)-1:
+        if inp_s[j] == ' ' and j >0 and j < len(inp_s) - 1:
             if num(inp_s[j - 1]) == num(inp_s[j + 1]) and (num(inp_s[j - 1]) > 1):
                 print('ERROR: ...')
                 exit(RuntimeError)
@@ -43,7 +43,7 @@ def decide_expression(inp_s):
         print('ERROR: ...')
         exit(RuntimeError)
 
-        
+
 def main():
     parser = argparse.ArgumentParser(description='Takes only string')
     parser.add_argument('string')
