@@ -2,17 +2,19 @@ import calc.functions as f
 
 import argparse
 
+
 def num(s):
     if (ord(s) < 58 and ord(s) > 47) or s == '.':
         return 7
     else:
         return f.prior(s)
 
+    
 def decide_expression(inp_s):
     brackets = 0
     for j in range(0, len(inp_s)):
         if inp_s[j] == ' ' and j >0 and j < len(inp_s)-1:
-            if num(inp_s[j-1]) == num(inp_s[j+1]) and (num(inp_s[j-1]) > 1):
+            if num(inp_s[j - 1]) == num(inp_s[j + 1]) and (num(inp_s[j - 1]) > 1):
                 print('ERROR: ...')
                 exit(RuntimeError)
         if inp_s[j] == '(':
@@ -41,6 +43,7 @@ def decide_expression(inp_s):
         print('ERROR: ...')
         exit(RuntimeError)
 
+        
 def main():
     parser = argparse.ArgumentParser(description='Takes only string')
     parser.add_argument('string')
@@ -88,5 +91,5 @@ def main():
                 z = False
                 break
         j += 1
-    if z == True:
+    if z is True:
         print(decide_expression(inp_s))
