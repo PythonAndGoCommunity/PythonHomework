@@ -5,7 +5,7 @@ import pycalc.expproc as expproc
 import pycalc.pycalc as pycalc
 import pycalc.custom_exception as custom_exc
 import pycalc.parse as parse
-import pycalc.mydict as mydict
+import pycalc.dictwithmissing as dictwithmissing
 
 
 class TestPycalc(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestPycalc(unittest.TestCase):
 
     def test_mydict(self):
         dict = {1: "a", 2: "b", 3: "c"}
-        my_dict = mydict.MyDict(dict)
+        my_dict = dictwithmissing.DictWithMissing(dict)
         self.assertEqual(my_dict[1], "a")
         self.assertEqual(my_dict[4], -1)
 
