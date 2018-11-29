@@ -38,7 +38,7 @@ def calculate_expression(expression):
             continue
         try:
             if missdict_operations_1argument[token_list[i]] != -1:
-                if len(operands_stack) >= 1:
+                if operands_stack:
                     operands_stack.append(missdict_operations_1argument[token_list[i]](operands_stack.pop()))
                 else:
                     raise custom_exc.VerifyError("""ERROR: it seems there is a mistake in expression.
@@ -64,6 +64,6 @@ def calculate_expression(expression):
         except ZeroDivisionError:
             raise ZeroDivisionError("""ERROR: number cannot be divided by 0.""")
     answer = operands_stack.pop()
-    if len(operands_stack) != 0:
+    if operands_stack:
         raise custom_exc.VerifyError("""ERROR: missing operator somewhere.""")
     return answer

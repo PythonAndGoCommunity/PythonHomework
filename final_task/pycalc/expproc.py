@@ -67,7 +67,7 @@ def verify_expression(expression):
             token_list.append(" ")
             prev_token = ")"
             finished = False
-            while len(stack_operations) != 0 and not finished:
+            while stack_operations and not finished:
                 tmp = stack_operations.pop()
                 finished = tmp == "("
                 if not finished:
@@ -87,7 +87,7 @@ def verify_expression(expression):
                 raise custom_exc.VerifyError("""ERROR: there is a comma sitting lonely...""", i)
             prev_token = ","
             finished = False
-            while len(stack_operations) != 0 and not finished:
+            while stack_operations and not finished:
                 tmp = stack_operations.pop()
                 finished = tmp == "("
                 if not finished:
@@ -147,7 +147,7 @@ def verify_expression(expression):
             continue
         raise custom_exc.VerifyError("""ERROR: Unknown symbol found.""", i)
     token_list.append(" ")
-    while len(stack_operations) != 0:
+    while stack_operations:
         tmp = stack_operations.pop()
         if tmp == "(":
             raise custom_exc.VerifyError("""ERROR: equilibrium of parentheses is violated.
