@@ -13,7 +13,7 @@ class TestPycalc(unittest.TestCase):
         self.assertEqual(parse.parse_argument(["1+2"]), "1+2")
 
     def test_custom_expression(self):
-        error = custom_exc.VerifyException("123")
+        error = custom_exc.VerifyError("123")
         self.assertEqual(error.msg, "123")
 
     def test_mydict(self):
@@ -30,8 +30,8 @@ class TestPycalc(unittest.TestCase):
         self.assertEqual(compexp.check_for_comp("1<=2")[0:2], ["1", "2"])
         self.assertEqual(compexp.check_for_comp("1==2")[0:2], ["1", "2"])
         self.assertEqual(compexp.check_for_comp("1!=2")[0:2], ["1", "2"])
-        self.assertRaises(custom_exc.VerifyException, compexp.check_for_comp, "1>2>3")
-        self.assertRaises(custom_exc.VerifyException, compexp.check_for_comp, "1>=2==3")
+        self.assertRaises(custom_exc.VerifyError, compexp.check_for_comp, "1>2>3")
+        self.assertRaises(custom_exc.VerifyError, compexp.check_for_comp, "1>=2==3")
 
     def test_verify_expression(self):
         self.assertEqual(expproc.verify_expression("1+2"), "1 2 + ")
@@ -41,19 +41,19 @@ class TestPycalc(unittest.TestCase):
         self.assertEqual(expproc.verify_expression("2*(2+3)"), "2  2 3 +  * ")
         self.assertEqual(expproc.verify_expression("pi*e"), "pi  e  * ")
         self.assertEqual(expproc.verify_expression("log(2,3)"), " 2 3  log ")
-        self.assertRaises(custom_exc.VerifyException, expproc.verify_expression, "((1+2)")
-        self.assertRaises(custom_exc.VerifyException, expproc.verify_expression, "pow(2,,3)")
-        self.assertRaises(custom_exc.VerifyException, expproc.verify_expression, "(1+2)p")
-        self.assertRaises(custom_exc.VerifyException, expproc.verify_expression, "pow(2*(2+3, 3)")
-        self.assertRaises(custom_exc.VerifyException, expproc.verify_expression, "(1+2))")
+        self.assertRaises(custom_exc.VerifyError, expproc.verify_expression, "((1+2)")
+        self.assertRaises(custom_exc.VerifyError, expproc.verify_expression, "pow(2,,3)")
+        self.assertRaises(custom_exc.VerifyError, expproc.verify_expression, "(1+2)p")
+        self.assertRaises(custom_exc.VerifyError, expproc.verify_expression, "pow(2*(2+3, 3)")
+        self.assertRaises(custom_exc.VerifyError, expproc.verify_expression, "(1+2))")
 
     def test_calculate_expression(self):
         self.assertEqual(calcexp.calculate_expression("1 2 +"), 3)
         self.assertEqual(calcexp.calculate_expression("1.5 2.5 +"), 4.0)
         self.assertAlmostEqual(calcexp.calculate_expression("pi e +"), 5.859874482048838)
         self.assertAlmostEqual(calcexp.calculate_expression("pi sin"), 0.0)
-        self.assertRaises(custom_exc.VerifyException, calcexp.calculate_expression, "1 + *")
-        self.assertRaises(custom_exc.VerifyException, calcexp.calculate_expression, "1 sin log")
-        self.assertRaises(custom_exc.VerifyException, calcexp.calculate_expression, "1 2 + 3 * 4")
+        self.assertRaises(custom_exc.VerifyError, calcexp.calculate_expression, "1 + *")
+        self.assertRaises(custom_exc.VerifyError, calcexp.calculate_expression, "1 sin log")
+        self.assertRaises(custom_exc.VerifyError, calcexp.calculate_expression, "1 2 + 3 * 4")
         self.assertRaises(ValueError, calcexp.calculate_expression, "2 neg 0.5 ^")
         self.assertRaises(ZeroDivisionError, calcexp.calculate_expression, "1 0 /")

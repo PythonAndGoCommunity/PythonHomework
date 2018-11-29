@@ -24,13 +24,13 @@ def main():
             print(answer)
         else:
             if len(comp_checked[0].replace(" ", "")) == 0 or len(comp_checked[1].replace(" ", "")) == 0:
-                raise custom_exc.VerifyException("""ERROR: one side of inequality is empty.""")
+                raise custom_exc.VerifyError("""ERROR: one side of inequality is empty.""")
             rpn_expression_left = expproc.verify_expression(comp_checked[0])
             answer_left = calcexp.calculate_expression(rpn_expression_left)
             rpn_expression_right = expproc.verify_expression(comp_checked[1])
             answer_right = calcexp.calculate_expression(rpn_expression_right)
             print(comp_checked[2](answer_left, answer_right))
-    except (custom_exc.VerifyException, ValueError, ZeroDivisionError) as error:
+    except (custom_exc.VerifyError, ValueError, ZeroDivisionError) as error:
         print(error.msg)
         sys.exit(1)
 

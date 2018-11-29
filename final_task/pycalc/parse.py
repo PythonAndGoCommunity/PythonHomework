@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Module for processing command line argument to string"""
+"""Module for processing command line arguments using argparse"""
 
 import argparse
 

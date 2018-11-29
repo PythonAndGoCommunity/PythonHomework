@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Module, that first verifies the expression, splits it into tokens and then, if it's valid,
  sends it to calculate_expression for calculation"""
-import pycalc.mydict as mydict
+import pycalc.dictwithmissing as dictwithmissing
 import pycalc.custom_exception as custom_exc
 
 
@@ -14,9 +14,9 @@ unary_operations = {"-": "neg", "+": "pos"}
 multifuncs_basic = ["round", "log", "pow"]
 multifuncs_table = {("round", True): "round2", ("round", False): "round1", ("log", True): "log",
                     ("log", False): "loge", ("pow", True): "pow"}
-my_unary_operations = mydict.MyDict(unary_operations)
-operations_to_stack = mydict.MyDict(operations)
-my_multifuncs_table = mydict.MyDict(multifuncs_table)
+missdict_unary_operations = dictwithmissing.DictWithMissing(unary_operations)
+operations_to_stack = dictwithmissing.DictWithMissing(operations)
+missdict_multifuncs_table = dictwithmissing.DictWithMissing(multifuncs_table)
 constants = ["pi", "e"]
 del operations
 del unary_operations
@@ -43,9 +43,9 @@ def verify_expression(expression):
             prev_token = expression[i]
             i += 1
             continue
-        if my_unary_operations[expression[i]] != -1:
+        if missdict_unary_operations[expression[i]] != -1:
             if i == 0:
-                stack_operations.append(my_unary_operations[expression[i]])
+                stack_operations.append(missdict_unary_operations[expression[i]])
                 prev_token = expression[i]
                 i += 1
                 continue
@@ -53,7 +53,7 @@ def verify_expression(expression):
                     prev_token != "pi" and\
                     prev_token != "e" and\
                     prev_token != ")":
-                stack_operations.append(my_unary_operations[expression[i]])
+                stack_operations.append(missdict_unary_operations[expression[i]])
                 prev_token = expression[i]
                 i += 1
                 continue
@@ -74,7 +74,7 @@ def verify_expression(expression):
                     token_list.append(tmp)
                     token_list.append(" ")
             if not finished:
-                raise custom_exc.VerifyException("""ERROR: equilibrium of parentheses is violated.
+                raise custom_exc.VerifyError("""ERROR: equilibrium of parentheses is violated.
                 Redundant closing parentheses found.""", i)
             else:
                 i += 1
@@ -84,7 +84,7 @@ def verify_expression(expression):
             if not multifunc_flags.pop():
                 multifunc_flags.append(True)
             else:
-                raise custom_exc.VerifyException("""ERROR: there is a comma sitting lonely...""", i)
+                raise custom_exc.VerifyError("""ERROR: there is a comma sitting lonely...""", i)
             prev_token = ","
             finished = False
             while len(stack_operations) != 0 and not finished:
@@ -96,13 +96,13 @@ def verify_expression(expression):
                 else:
                     stack_operations.append("(")
             if not finished:
-                raise custom_exc.VerifyException("""ERROR: something wrong in two-argument
+                raise custom_exc.VerifyError("""ERROR: something wrong in two-argument
                 function.""", i)
             else:
                 i += 1
             continue
         found = False
-        for x in range(5, 0, -1):
+        for x in range(5, 0, -1):  # I know, it's a bad style coding, i just couldn't think of a better solution
             token = expression[i:i+x]
             if operations_to_stack[token] != -1:
                 found = True
@@ -121,8 +121,8 @@ def verify_expression(expression):
                             tmp_op = stack_operations.pop()
                             if tmp_op in multifuncs_basic:
                                 if len(multifunc_flags) == 0:
-                                    raise custom_exc.VerifyException("""ERROR: ?????""")
-                                token_list.append(my_multifuncs_table[(tmp_op, multifunc_flags.pop())])
+                                    raise custom_exc.VerifyError("""ERROR: ?????""")
+                                token_list.append(missdict_multifuncs_table[(tmp_op, multifunc_flags.pop())])
                             else:
                                 token_list.append(tmp_op)
                             token_list.append(" ")
@@ -145,17 +145,17 @@ def verify_expression(expression):
                 break
         if found:
             continue
-        raise custom_exc.VerifyException("""ERROR: Unknown symbol found.""", i)
+        raise custom_exc.VerifyError("""ERROR: Unknown symbol found.""", i)
     token_list.append(" ")
     while len(stack_operations) != 0:
         tmp = stack_operations.pop()
         if tmp == "(":
-            raise custom_exc.VerifyException("""ERROR: equilibrium of parentheses is violated.
+            raise custom_exc.VerifyError("""ERROR: equilibrium of parentheses is violated.
             Missing closing parentheses.""")
         if tmp in multifuncs_basic:
             if len(multifunc_flags) == 0:
-                raise custom_exc.VerifyException("""ERROR: ?????""")
-            token_list.append(my_multifuncs_table[(tmp, multifunc_flags.pop())])
+                raise custom_exc.VerifyError("""ERROR: ?????""")
+            token_list.append(missdict_multifuncs_table[(tmp, multifunc_flags.pop())])
         else:
             token_list.append(tmp)
         token_list.append(" ")

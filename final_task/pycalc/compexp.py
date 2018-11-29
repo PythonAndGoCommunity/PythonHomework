@@ -9,7 +9,9 @@ comparison_dictionary = {">=": operator.ge, "<=": operator.le,
 
 
 def check_for_comp(expression):
-    """This function checks number of comparison operators in our expression."""
+    """This function checks number of comparison operators in our expression and
+    returns either our expression, or a list, where 2 first elements are left and
+    right parts of expression and 3-rd element is comparison operator"""
     found = False
     split_expression = []
     tmp_expression = expression
@@ -18,7 +20,7 @@ def check_for_comp(expression):
     for op in comparison_operators:
         tmp_list = tmp_expression.split(op)
         if len(tmp_list) > 2 or (len(tmp_list) == 2 and found):
-            raise custom_exc.VerifyException("""ERROR: number of comparison operators is more than 1.""")
+            raise custom_exc.VerifyError("""ERROR: number of comparison operators is more than 1.""")
         elif len(tmp_list) == 2:
             found = True
             split_expression = tmp_list
