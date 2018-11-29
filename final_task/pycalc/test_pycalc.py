@@ -18,14 +18,14 @@ from .pycalc import (
 
 # import Exceptions
 from .pycalc import (
-    WrongBracketsBalance,
-    SpaceBetweenOperands,
-    SpaceIn2ElementOperators,
-    WrongToken,
+    ErrorWrongBracketsBalance,
+    ErrorSpaceBetweenOperands,
+    ErrorSpaceIn2ElementOperators,
+    ErrorWrongToken,
 )
 
 
-class Test(unittest.TestCase):
+class TestPyCalc(unittest.TestCase):
     def setUp(self):
         self.expression = get_token('(343+pi^3)/(e+sin(3-11))')
         self.reverse_polish_notation = parse_to_reverse_polish_notation(self.expression)
@@ -114,19 +114,19 @@ class Test(unittest.TestCase):
         self.assertEqual(from_str_to_result('(2.0^(pi/pi+e/e+2.0^0.0))'), 8)
 
     def test_error_raising_brackets(self):
-        with self.assertRaises(WrongBracketsBalance):
+        with self.assertRaises(ErrorWrongBracketsBalance):
             from_str_to_result('((1+15)')
 
     def test_error_raising_space_between_operands(self):
-        with self.assertRaises(SpaceBetweenOperands):
+        with self.assertRaises(ErrorSpaceBetweenOperands):
             check_space_between_operands("1 + 1 2 3 4 5 6 ")
 
     def test_error_raising_space_2el_operators(self):
-        with self.assertRaises(SpaceIn2ElementOperators):
+        with self.assertRaises(ErrorSpaceIn2ElementOperators):
             verify_to_elements_operator('6 < = 6')
 
     def test_wrong_token(self):
-        with self.assertRaises(WrongToken):
+        with self.assertRaises(ErrorWrongToken):
             parse_to_reverse_polish_notation(['(', '-1', '+', '5', '+', 'qwe', ')'])
 
     def test_zero_divizion(self):

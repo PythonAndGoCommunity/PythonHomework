@@ -2,58 +2,63 @@ import argparse
 import math
 import re
 import operator
+from collections import namedtuple
 
 
-class WrongBracketsBalance(Exception):
+class ErrorWrongBracketsBalance(Exception):
     pass
 
 
-class SpaceBetweenOperands(Exception):
+class ErrorSpaceBetweenOperands(Exception):
     pass
 
 
-class SpaceIn2ElementOperators(Exception):
+class ErrorSpaceIn2ElementOperators(Exception):
     pass
 
 
-class TokenParseException(Exception):
+class ErrorTokenParseException(Exception):
     pass
 
 
-class WrongToken(ValueError):
+class ErrorWrongToken(ValueError):
     pass
 
 
-class WrongOperandsCount(ValueError):
+class ErrorWrongOperandsCount(ValueError):
     pass
 
+
+operator_ = namedtuple('operator', ['priority', 'function'])
 
 operators = {
-    '+': [0, operator.add],
-    '-': [0, operator.sub],
-    '*': [1, operator.mul],
-    '/': [1, operator.truediv],
-    '^': [2, operator.pow],
-    '//': [0.5, operator.floordiv],
-    '%': [0.5, operator.mod],
+    '+':  operator_(0, operator.add),
+    '-':  operator_(0, operator.sub),
+    '*':  operator_(1, operator.mul),
+    '/':  operator_(1, operator.truediv),
+    '^':  operator_(2, operator.pow),
+    '//': operator_(0.5, operator.floordiv),
+    '%':  operator_(0.5, operator.mod),
 }
 
+prefix_func = namedtuple('prefix_function', ['priority', 'function', 'args_count'])
+
 prefix_function = {
-    'sin': [0, math.sin, 1],
-    'cos': [0, math.cos, 1],
-    'tan': [0, math.tan, 1],
-    'exp': [0, math.exp, 1],
-    'acos': [0, math.acos, 1],
-    'asin': [0, math.asin, 1],
-    'atan': [0, math.atan, 1],
-    'sqrt': [0, math.sqrt, 1],
-    'log': [0, math.log, 2],
-    'log10': [0, math.log10, 1],
-    'loglp': [0, math.log1p, 1],
-    'factorial': [0, math.factorial, 1],
-    'pow': [0, math.pow, 2],
-    'abs': [0, abs, 1],
-    'round': [0, round, 1],
+    'sin': prefix_func(0, math.sin, 1),
+    'cos': prefix_func(0, math.cos, 1),
+    'tan': prefix_func(0, math.tan, 1),
+    'exp': prefix_func(0, math.exp, 1),
+    'acos': prefix_func(0, math.acos, 1),
+    'asin': prefix_func(0, math.asin, 1),
+    'atan': prefix_func(0, math.atan, 1),
+    'sqrt': prefix_func(0, math.sqrt, 1),
+    'log': prefix_func(0, math.log, 2),
+    'log10': prefix_func(0, math.log10, 1),
+    'loglp': prefix_func(0, math.log1p, 1),
+    'factorial': prefix_func(0, math.factorial, 1),
+    'pow': prefix_func(0, math.pow, 2),
+    'abs': prefix_func(0, abs, 1),
+    'round': prefix_func(0, round, 1),
 }
 
 constants = {
@@ -87,12 +92,11 @@ def get_token(expression='', result_lst=None):
     if result_lst is None:
         expression = expression.lower().replace(' ', '')
         result_lst = []
-    el = re.match(r'\)|\(|-\d+\.?\d*|\d+\.\d+|(--)|-\w*|[-+*/,^]|\.\d+|\w+|(\W{1,2})|[^\d]\w+|\d+|\D+',
-                  expression)
+    el = re.match(r'\)|\(|-\d+\.?\d*|\d+\.?\d*|(--)|-\w*|[-+*/,^]|\.\d+|\w+|\D+|(\d+)\w', expression)
     try:
         el.group()
     except Exception:
-        raise TokenParseException('ERROR: wrong expression')
+        raise ErrorTokenParseException('ERROR: wrong expression')
     if el.group()[-1] == '(':
         el = re.match(r'\D{1,1}', expression)
         result_lst.append(el.group())
@@ -100,6 +104,9 @@ def get_token(expression='', result_lst=None):
         result_lst.append('+')
     elif el.group()[0] == '.':
         result_lst.append('0' + el.group())
+    elif el.group() == 'epi':
+        result_lst.append('e')
+        result_lst.append('pi')
     else:
         result_lst.append(el.group())
     if len(el.group()) < len(expression):
@@ -108,24 +115,38 @@ def get_token(expression='', result_lst=None):
         return result_lst
 
 
-def implicit_mul(tokens):
+def check_implicit_mul(tokens):
     """
     gets list contain tokens verify and add if need multiply operator
 
     :param tokens: list with tokens for ex.['(', '5', ')', '(', '1', ')' ]
     :return: list with tokens and * if add it ['(', '5', ')', '*', '(', '1', ')' ]
     """
-    while True:
-        for index, token in enumerate(tokens):
-            if token == '(' and index != 0:
-                if (type(tokens[index - 1]) is float) or (tokens[index - 1] is ')'):
-                    tokens.insert(index, '*')
-                    continue
-            elif token == ')' and index != len(tokens) - 1:
-                if type(tokens[index + 1]) is float:
-                    tokens.insert(index + 1, '*')
-                    continue
-        return tokens
+    new_tokens = []
+    for index, token in enumerate(tokens):
+
+        if token == '(' and index != 0:
+            if (type(tokens[index - 1]) is float) or (tokens[index - 1] is ')'):
+                new_tokens.append('*')
+                new_tokens.append(token)
+            else:
+                new_tokens.append(token)
+
+        elif token == ')' and index != len(tokens) - 1:
+            if (type(tokens[index + 1]) is float) or (tokens[index+1] in prefix_function):
+                new_tokens.append(token)
+                new_tokens.append('*')
+            else:
+                new_tokens.append(token)
+        elif (type(token) is float) and (index != len(tokens)-1):
+            if (type(tokens[index+1]) is float) or (tokens[index+1] in prefix_function):
+                new_tokens.append(token)
+                new_tokens.append('*')
+            else:
+                new_tokens.append(token)
+        else:
+            new_tokens.append(token)
+    return new_tokens
 
 
 def verify_to_elements_operator(expression):
@@ -134,14 +155,13 @@ def verify_to_elements_operator(expression):
     ]
     for el in to_el_operators_separate_whitespace:
         if el in expression:
-            raise SpaceIn2ElementOperators('ERROR: {} is wrong operators'.format(el))
+            raise ErrorSpaceIn2ElementOperators('ERROR: {} is wrong operators'.format(el))
         else:
             continue
 
 
 def check_space_between_operands(expression=''):
     """
-
     get expression and verify it has space between 2 operands
 
     :param expression:
@@ -153,10 +173,10 @@ def check_space_between_operands(expression=''):
             try:
                 prev = float(expression[index - 1])
                 next_ = float(expression[index + 1])
-            except Exception:
+            except ValueError:
                 continue
             if prev and next_:
-                raise SpaceBetweenOperands('ERROR: space between operands')
+                raise ErrorSpaceBetweenOperands('ERROR: space between operands')
 
 
 def brackets_is_balanced(expression):
@@ -191,7 +211,7 @@ def calculate_expression(expression):
                     operands = (stack.pop(-1),)
                     stack.append(func(*operands))
 
-                elif len(stack) == 0:
+                elif not stack:
                     func = unary[token]
                     for i, el in enumerate(expression):
                         if type(el) is not float:
@@ -201,25 +221,25 @@ def calculate_expression(expression):
                             res = func(*operands)
                             expression.insert(i, res)
                 else:
-                    func = operators[token][1]
+                    func = operators[token].function
                     operands = (stack.pop(-2), stack.pop(-1))
                     stack.append(func(*operands))
 
             elif token in prefix_function:
                 func = prefix_function[token]
-                if func[2] == 1:
+                if func.args_count == 1:
                     operands = (stack.pop(-1),)
-                    stack.append(func[1](*operands))
-                elif func[2] == 2:
+                    stack.append(func.function(*operands))
+                elif func.args_count == 2:
                     try:
                         operands = (stack.pop(-2), stack.pop(-1))
-                    except Exception:
+                    except IndexError:
                         operands = (stack.pop(-1),)
-                    stack.append(func[1](*operands))
+                    stack.append(func.function(*operands))
         if len(stack) == 1:
             return stack[0]
         else:
-            raise WrongOperandsCount('ERROR: Wrong operands count')
+            raise ErrorWrongOperandsCount('ERROR: Wrong operands count')
     except Exception as e:
         return e
 
@@ -291,18 +311,18 @@ def parse_to_reverse_polish_notation(tokens, postfix_expression=None, stack=None
                         tokens.pop(0)
                         break
                 except IndexError:
-                    raise WrongBracketsBalance('ERROR: brackets are not balanced')
+                    raise ErrorWrongBracketsBalance('ERROR: brackets are not balanced')
         elif token in operators:
             while True:
-                if len(stack) is 0:
+                if not stack:
                     stack.append(tokens.pop(0))
                     break
                 else:
                     tmp = stack[-1]
                     if tmp in operators:
-                        if (operators[token][0] <= operators[tmp][0]) and (token != '^'):
+                        if (operators[token].priority <= operators[tmp].priority) and (token != '^'):
                             postfix_expression.append(stack.pop())
-                        elif operators[token][0] > operators[tmp][0]:
+                        elif operators[token].priority > operators[tmp].priority:
                             stack.append(tokens.pop(0))
                             break
                         else:
@@ -324,17 +344,17 @@ def parse_to_reverse_polish_notation(tokens, postfix_expression=None, stack=None
                     if stack[index] != '(' and index != 0:
                         postfix_expression.append(stack.pop())
                         index -= 1
-                        if len(stack) is 0:
-                            raise WrongBracketsBalance
+                        if not stack:
+                            raise ErrorWrongBracketsBalance
                     else:
                         stack.pop()
                         break
             except Exception as e:
                 print(e)
         else:
-            raise WrongToken('ERROR: {token} is not correct element of expression'.format(token=token))
-    while len(stack):
-        postfix_expression.append(stack.pop())
+            raise ErrorWrongToken('ERROR: {token} is not correct element of expression'.format(token=token))
+
+    postfix_expression.extend(stack[::-1])
 
     return postfix_expression
 
@@ -345,9 +365,16 @@ def split_by_comparison(expression):
     :param expression: expression type is string
     :return: tuple contains parts of expression after splitting and list of comp. operators
     """
+    eq = '=='
+    ne = '!='
+    le = '<='
+    ge = '>='
+    gt = '>'
+    lt = '<'
     expression = re.sub(r'\s', '', expression)
-    exp = re.split(r'<=|>=|!=|==|<|>', expression)
-    comparisons_operator = re.findall(r'<=|>=|!=|==|<|>', expression)
+    exp = re.split(r'{lt}|{ge}|{ne}|{eq}|{lt}|{gt}'.format(le=le, ge=ge, ne=ne, eq=eq, lt=lt, gt=gt), expression)
+    comparisons_operator = re.findall(r'{lt}|{ge}|{ne}|{eq}|{lt}|{gt}'.format(le=le, ge=ge, ne=ne,
+                                                                              eq=eq, lt=lt, gt=gt), expression)
     return exp, comparisons_operator
 
 
@@ -378,10 +405,11 @@ def from_str_to_result(expression):
     :return: result or raise Exception if expression has error
     """
     if not brackets_is_balanced(expression):
-        raise WrongBracketsBalance('ERROR: brackets are not balanced')
+        raise ErrorWrongBracketsBalance('ERROR: brackets are not balanced')
 
     expression = get_token(expression)
-    expression = implicit_mul(expression)
+    expression = convert_num_and_const_to_float(expression)
+    expression = check_implicit_mul(expression)
     expression = parse_to_reverse_polish_notation(expression)
     try:
         expression = calculate_expression(expression)
