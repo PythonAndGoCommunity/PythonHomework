@@ -2,14 +2,14 @@ import unittest
 import ddt
 import math
 from pycalc.core.calculator_helper import (
-    is_number, may_unary_operator, is_unary_operator,
-    check_right_associativity, is_callable, check_brackets_balance,
+    check_is_number, check_may_unary_operator, check_is_unary_operator,
+    check_right_associativity, check_is_callable, check_brackets_balance,
     check_empty_expression, PycalcError
 )
 
 from pycalc.core.calculator import (
-    split_operands, implicit_multiplication, may_valid_operation,
-    split_arguments, process_func_or_const, final_execution,
+    split_operands, do_implicit_multiplication, check_may_valid_operation,
+    split_arguments, process_func_or_const, do_final_execution,
     import_modules, execute_comparison, get_length_operator, check_valid_spaces
 )
 
@@ -19,32 +19,32 @@ class TestCalculatorHelper(unittest.TestCase):
 
     @ddt.data('12', '12.5', '12.', '.5')
     def test_is_number_true(self, value):
-        self.assertTrue(is_number(value))
+        self.assertTrue(check_is_number(value))
 
     @ddt.data('qwerty', '.')
     def test_is_number_false(self, value):
-        self.assertFalse(is_number(value))
+        self.assertFalse(check_is_number(value))
 
     def test_may_unary_operator_true(self):
-        self.assertTrue(may_unary_operator('+'))
+        self.assertTrue(check_may_unary_operator('+'))
 
     def test_may_unary_operator_false(self):
-        self.assertFalse(may_unary_operator('^'))
+        self.assertFalse(check_may_unary_operator('^'))
 
     def test_is_unary_operator_true(self):
-        self.assertTrue(is_unary_operator('u+'))
+        self.assertTrue(check_is_unary_operator('u+'))
 
     def test_is_unary_operator_false(self):
-        self.assertFalse(is_unary_operator('+'))
+        self.assertFalse(check_is_unary_operator('+'))
 
     def test_check_right_associativity_true(self):
         self.assertTrue(check_right_associativity('^'))
 
     def test_is_callable_true(self):
-        self.assertTrue(is_callable('sin', math))
+        self.assertTrue(check_is_callable('sin', math))
 
     def test_is_callable_false(self):
-        self.assertFalse(is_callable('pi', math))
+        self.assertFalse(check_is_callable('pi', math))
 
     @ddt.data('(5+3', ')5+3(')
     def test_check_brackets_balance(self, value):
@@ -66,13 +66,13 @@ class TestCalculator(unittest.TestCase):
             split_operands('5abc')
 
     def test_implicit_multiplication(self):
-        self.assertEqual(implicit_multiplication('5pie'), '5*pi*e')
+        self.assertEqual(do_implicit_multiplication('5pie'), '5*pi*e')
 
     def test_implicit_multiplication_brackets(self):
-        self.assertEqual(implicit_multiplication('(5+5)5'), '(5+5)*5')
+        self.assertEqual(do_implicit_multiplication('(5+5)5'), '(5+5)*5')
 
     def test_may_valid_operation(self):
-        self.assertFalse(may_valid_operation('^', 'u-'))
+        self.assertFalse(check_may_valid_operation('^', 'u-'))
 
     def test_split_arguments(self):
         self.assertEqual(split_arguments('5,sin(2),sin(sin(5))'), ['5', 'sin(2)', 'sin(sin(5))'])
@@ -81,14 +81,14 @@ class TestCalculator(unittest.TestCase):
         self.assertEqual(process_func_or_const('sin', 'sin(sin(5)+6)', 3, math), (math.sin(math.sin(5) + 6), 12))
 
     def test_execute_operation(self):
-        self.assertEqual(final_execution(['*'], [5, 7]), 35)
+        self.assertEqual(do_final_execution(['*'], [5, 7]), 35)
 
     def test_final_execution_comparison(self):
-        self.assertTrue(final_execution(['<'], [5, 7]))
+        self.assertTrue(do_final_execution(['<'], [5, 7]))
 
     def test_execute_operation_raise(self):
         with self.assertRaises(PycalcError):
-            final_execution(['^'], [-5, .5])
+            do_final_execution(['^'], [-5, .5])
 
     def test_import_modules(self):
         with self.assertRaises(PycalcError):

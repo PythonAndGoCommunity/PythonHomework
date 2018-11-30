@@ -5,7 +5,7 @@ with the functionality of calculator
 
 import sys
 from .core import args
-from .core.calculator import calculator
+from .core.calculator import do_calculation
 
 
 def main():
@@ -16,7 +16,7 @@ def main():
     """
     arguments = args.arg_parser()
 
-    answer = calculator(arguments.EXPRESSION, arguments.MODULE)
+    answer = do_calculation(arguments.EXPRESSION, arguments.MODULE)
     print(answer)
     if str(answer).startswith('ERROR'):
         sys.exit(-1)

@@ -8,7 +8,7 @@ class PycalcError(Exception):
         super().__init__('ERROR: ' + str(message))
 
 
-def is_number(string):
+def check_is_number(string):
     """
     :return: True if the string is a number
     False otherwise
@@ -20,7 +20,7 @@ def is_number(string):
         return
 
 
-def may_unary_operator(operator):
+def check_may_unary_operator(operator):
     """
     :return: True if the operator may be unary
     False otherwise
@@ -28,7 +28,7 @@ def may_unary_operator(operator):
     return operator in ['+', '-']
 
 
-def is_unary_operator(operator):
+def check_is_unary_operator(operator):
     """
     :return: True if the operator is unary
     False otherwise
@@ -44,7 +44,7 @@ def check_right_associativity(operator):
     return operator == '^'
 
 
-def is_callable(attribute, module):
+def check_is_callable(attribute, module):
     """
     :return: True if the attribute is callable
     False otherwise

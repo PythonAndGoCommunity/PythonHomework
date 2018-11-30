@@ -10,7 +10,7 @@ import sys
 import operator as op
 from .calculator_helper import PycalcError
 from .calculator_helper import (
-    is_number, may_unary_operator, is_unary_operator, check_right_associativity, is_callable,
+    check_is_number, check_may_unary_operator, check_is_unary_operator, check_right_associativity, check_is_callable,
     check_empty_expression, check_brackets_balance
 )
 
@@ -70,7 +70,7 @@ def split_operands(merged_operand):
         if position < 0:
             raise PycalcError('Unexpected operand')
         current_string = merged_operand[:position]
-        if get_module(current_string) or is_number(current_string):
+        if get_module(current_string) or check_is_number(current_string):
             operands.append(current_string)
             merged_operand = merged_operand[position:]
             position = len(merged_operand)
@@ -79,7 +79,7 @@ def split_operands(merged_operand):
     return operands
 
 
-def implicit_multiplication(expression):
+def do_implicit_multiplication(expression):
     """
     Finds places where multiplication signs are missing and inserts them there
     :param expression
@@ -109,8 +109,8 @@ def implicit_multiplication(expression):
         module = get_module(operand)
         is_call = False
         if module:
-            is_call = is_callable(operand, module)
-        if operand and is_number(operand) or module:
+            is_call = check_is_callable(operand, module)
+        if operand and check_is_number(operand) or module:
             j = i - len(operand) - 1
             if j > 0:
                 if j and j != i and expression[j] == ')':
@@ -124,13 +124,13 @@ def implicit_multiplication(expression):
     return ''.join(expression)
 
 
-def may_valid_operation(last_operator, current_operator):
+def check_may_valid_operation(last_operator, current_operator):
     """
     :param last_operator
     :param current_operator
     :return: True if
     """
-    if is_unary_operator(current_operator) and get_priority(current_operator) < get_priority(last_operator):
+    if check_is_unary_operator(current_operator) and get_priority(current_operator) < get_priority(last_operator):
         return
     return True
 
@@ -207,7 +207,7 @@ def process_func_or_const(operand, expression, operator_end_position, module):
             args = [calculate(arg) for arg in raw_arguments]
         try:
             func_result = getattr(module, operand)(*args)
-            if not is_number(func_result):
+            if not check_is_number(func_result):
                 raise PycalcError('Unsupported function result')
             return func_result, operator_end_position
         except (TypeError, ValueError) as error:
@@ -254,7 +254,7 @@ def check_valid_spaces(expression):
         elif symbol == ' ':
             is_space = True
         elif symbol in OPERATORS or (i < len(expression) - 1 and symbol + expression[i + 1] in OPERATORS):
-            if is_last_operator and is_space and not may_unary_operator(symbol):
+            if is_last_operator and is_space and not check_may_unary_operator(symbol):
                 raise PycalcError('Missing operand')
             else:
                 operator_end_position = i + get_length_operator(expression, i) - 1
@@ -264,7 +264,7 @@ def check_valid_spaces(expression):
                 raise PycalcError('Invalid operator')
             is_last_operator, is_space = False, False
             operand, operator_end_position, i = find_operand(expression, i)
-            if is_number(operand):
+            if check_is_number(operand):
                 if is_last_number:
                     raise PycalcError('Missing operator')
                 is_last_number = True
@@ -304,7 +304,7 @@ def execute_operation(operands, operator):
             raise PycalcError('Missing operator or operand')
 
 
-def final_execution(operators, operands):
+def do_final_execution(operators, operands):
     """
     Execute operations with operands while list of operators not empty
     :param operators
@@ -379,7 +379,7 @@ def update_operands(expression, operands, i):
     operand, operator_end_position, i = find_operand(expression, i)
 
     module = get_module(operand)
-    if is_number(operand):
+    if check_is_number(operand):
         operand = float(operand)
         if operand % 1:
             operands.append(operand)
@@ -417,10 +417,10 @@ def update_operators(expression, operator, operators, operands, is_unary, operat
         operator += expression[i + 1]
         operator_end_position = i + 1
 
-    if is_unary and may_unary_operator(operator):
+    if is_unary and check_may_unary_operator(operator):
         operator = 'u' + operator
 
-    if get_priority(operator) >= 1 or (is_unary and may_unary_operator(operator)):
+    if get_priority(operator) >= 1 or (is_unary and check_may_unary_operator(operator)):
         while operators and operands:
             condition_a = not check_right_associativity(operator)
             condition_b = get_priority(operators[-1]) >= get_priority(operator)
@@ -428,7 +428,7 @@ def update_operators(expression, operator, operators, operands, is_unary, operat
             condition_d = get_priority(operators[-1]) > get_priority(operator)
             condition = condition_a and condition_b or condition_c and condition_d
 
-            if may_valid_operation(operators[-1], operator) and get_priority(operators[-1]) > 1 and condition:
+            if check_may_valid_operation(operators[-1], operator) and get_priority(operators[-1]) > 1 and condition:
                 execute_operation(operands, operators.pop())
             else:
                 break
@@ -463,10 +463,10 @@ def calculate(expression):
         else:
             operator_end_position, is_unary = update_operands(expression, operands, i)
 
-    return final_execution(operators, operands)
+    return do_final_execution(operators, operands)
 
 
-def calculator(expression, modules=None):
+def do_calculation(expression, modules=None):
     """
     :param expression
     :param modules
@@ -477,7 +477,7 @@ def calculator(expression, modules=None):
             import_modules(modules)
 
         validate_expression(expression)
-        expression = implicit_multiplication(expression)
+        expression = do_implicit_multiplication(expression)
         return calculate(expression)
 
     except PycalcError as error:
