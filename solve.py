@@ -3,6 +3,6 @@
 from libs.element import Element
 
 if __name__ == '__main__':
-    expression = Element(expression="sin(3.14/2)")
+    expression = Element(expression="3+14>=2-1<5+4")
     print(str(expression))
     print(expression.value())

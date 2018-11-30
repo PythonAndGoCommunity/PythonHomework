@@ -49,6 +49,7 @@ class Element:
     """
 
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
+    COMPARISON_OPERATIONS = (">", "<", "=", "!",)
     MATHEMATICAL_FUNCTIONS = {
         "sin": math.sin,
         "cos": math.cos,
@@ -78,6 +79,35 @@ class Element:
         last_mathematical_action = None
         bracket_closed = False
         bracket_content = []
+        self._comparison_operation = False
+
+        # Validate expression on comparison operation and raise exception if it is not valid format
+        previous_is_comparison = False
+        for i, v in enumerate(expression):
+            if v in self.COMPARISON_OPERATIONS:
+                self._comparison_operation = True
+                if item:
+                    self._expression.append(Element("".join(item)))
+                    item.clear()
+
+                if previous_is_comparison:
+                    self._expression[-1] += v
+                else:
+                    self._expression.append(v)
+
+                previous_is_comparison = True
+            else:
+                previous_is_comparison = False
+                item.append(v)
+
+        if self._comparison_operation:
+            if item:
+                self._expression.append(Element("".join(item)))
+                return
+            else:
+                raise ExpressionFormatException("After comparison operation expression or number are expected")
+
+        item = []
 
         # Validate format expression and raise exception if it is not valid
         for i in expression:
@@ -171,6 +201,36 @@ class Element:
                 last_operation = v
             else:
                 last_operation = None
+
+        boolean_value = True
+        if self._comparison_operation:
+            for i, v in enumerate(self._expression):
+                if isinstance(v, str):
+                    if v == ">=":
+                        if not self._expression[i - 1] >= self._expression[i + 1]:
+                            boolean_value = False
+                    elif v == "<=":
+                        if not self._expression[i - 1] <= self._expression[i + 1]:
+                            boolean_value = False
+                    elif v == "==":
+                        if not self._expression[i - 1] == self._expression[i + 1]:
+                            boolean_value = False
+                    elif v == "<":
+                        if not self._expression[i - 1] < self._expression[i + 1]:
+                            boolean_value = False
+                    elif v == ">":
+                        if not self._expression[i - 1] > self._expression[i + 1]:
+                            boolean_value = False
+                    elif v in ("!=", "<>",):
+                        if not self._expression[i - 1] != self._expression[i + 1]:
+                            boolean_value = False
+                    else:
+                        raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(v))
+
+                if not boolean_value:
+                    return boolean_value
+
+            return boolean_value
 
         # Validate first negative numbers in expression
         if self._expression[0] == "-":
