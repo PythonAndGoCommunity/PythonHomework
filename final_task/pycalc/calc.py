@@ -59,23 +59,6 @@ def fix_multi_operations(expression):
     return expression
 
 
-def insert(regex, expression, token):
-    """Inserts token in expression
-    Args:
-        regex: pattern to find position
-        expression: input string with math expression
-        token: token to insert
-    Returns:
-        The return fixed string
-    """
-    find = re.search(regex, expression)
-    while find:
-        position = re.search(regex, expression).end()
-        expression = token.join([expression[:position], expression[position:]])
-        find = re.search(regex, expression)
-    return expression
-
-
 def fix_missing_zero(expression):
     """Inserts a zero in the number of the construction .number: .3 => 0.3
     Args:
@@ -85,31 +68,19 @@ def fix_missing_zero(expression):
     """
     token = '0'
     regex = r'(?<=\W)(?=\.\d)|(?<=^)(?=\.\d)'
-    find = re.search(regex, expression)
-    if not find:
-        res = expression
-    else:
-        res = insert(regex, expression, token)
+    res = re.sub(regex, token, expression)
     return res
 
 
 def match_negative_value(expression):
-    """change unary minus to '~' for processing
+    """change unary minus with functions and constants to '~' for processing
     Args:
         expression: input string with math expression
     Returns:
         The return string with correct negative value
     """
-    regex = re.compile(r'(?<=^-)(?=[a-z])|(?<=\(-)(?=[a-z])|(?<=\^\-)(?=[a-z])|(?<=\*\-)(?=[a-z])|'
-                       r'(?<=\/\-)(?=[a-z])|(?<=\s\-)(?=[a-z])')
-    find = re.search(regex, expression)
-    if not find:
-        res = expression
-    else:
-        while find:
-            position = re.search(regex, expression).end()
-            expression = '~'.join([expression[:position - 1], expression[position:]])
-            find = re.search(regex, expression)
+    regex = re.compile(r'(?<=^)-(?=[a-z])|(?<=[\*\^\(\/])-(?=[a-z])|(?<=\s)-(?=[a-z])')
+    expression = re.sub(regex, '~', expression)
     return expression
 
 
@@ -122,12 +93,8 @@ def insert_multiplication(expression):
     """
     token = '*'
     regex = r'(?<=\))(?=\w+)|(?<=\))(?=\()|(?<=[^a-z][^a-z]\d)(?=\()|(?<=^\d)(?=\()|(?<=\d)(?=e|[a-z][a-z])'
-    find = re.search(regex, expression)
-    if not find:
-        res = expression
-    else:
-        res = insert(regex, expression, token)
-    return res
+    result = re.sub(regex, token, expression)
+    return result
 
 
 def correct_expression(expression):
@@ -419,7 +386,7 @@ def get_func(module_list, func_name):
             if hasattr(imported, func_name):
                 return getattr(imported, func_name)
     except Exception:
-        pass
+        return None
 
 
 def main():
