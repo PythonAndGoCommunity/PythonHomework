@@ -77,6 +77,3 @@ class TestGetArgs(unittest.TestCase):
 
         formated_expression = get_args(['(', 'log', '(', 2, ',', 2, ')', ',', 4, ')'])
         self.assertEqual(formated_expression, [['log', '(', 2, ',', 2, ')'], [4]])
-
-
-unittest.main()
