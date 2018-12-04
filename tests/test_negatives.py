@@ -41,7 +41,22 @@ class TestNegativesElementSimple(TestCase):
             expression = Element(expression="8-3)//5*2")
             expression.value()
 
-    def test_first_negative_value_bad_format(self):
-        with self.assertRaises(UnsupportedMathematicalOperationException):
-            expression = Element(expression="--2*4-6/2")
+    def test_comparison_format_exception(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="2*4>")
             expression.value()
+
+    def test_unsupported_comparison_operation(self):
+        with self.assertRaises(UnsupportedMathematicalOperationException):
+            expression = Element(expression="10<<=4*3")
+            expression.value()
+
+    def test_unsupported_operation(self):
+        with self.assertRaises(UnsupportedMathematicalOperationException):
+            expression = Element(expression="1++5*3")
+            expression.value()
+
+    # def test_unsupported_trigonometric_operation(self):
+    #     with self.assertRaises(UnsupportedMathematicalOperationException):
+    #         expression = Element(expression="erf(10)")
+    #         expression.value()

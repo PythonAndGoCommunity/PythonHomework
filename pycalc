@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import argparse
+from libs.element import Element
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("-m MODULE ", "--use-modules", metavar="MODULE...", nargs="?", help="additional modules to use")
+    parser.add_argument("EXPRESSION", help="expression string to evaluate")
+
+    args = parser.parse_args()
+
+    expression = Element(expression=args.EXPRESSION)
+    # print(str(expression))
+    print(expression.value())

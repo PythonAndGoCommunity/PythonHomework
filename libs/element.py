@@ -2,6 +2,8 @@
 
 import math
 
+from inspect import getmembers
+
 
 class BaseExpressionException(Exception):
     """ Common base class for all exceptions """
@@ -50,16 +52,6 @@ class Element:
 
     MATH_ACTIONS = ("+", "-", "*", "/", "%", "^",)
     COMPARISON_OPERATIONS = (">", "<", "=", "!",)
-    MATHEMATICAL_FUNCTIONS = {
-        "sin": math.sin,
-        "cos": math.cos,
-        "tan": math.tan,
-        "log": math.log,
-        "log10": math.log10,
-        "log2": math.log2,
-        "abs": math.fabs
-
-    }
 
     def __init__(self, expression, func=None):
         """
@@ -70,8 +62,17 @@ class Element:
         if not expression:
             raise NoExpressionException("The expression was not passed")
 
-        self._func = func
+        self._mathematical_functions = {
+            name: val for name, val in getmembers(math) if type(val).__name__ == "builtin_function_or_method"
+        }
+        self._mathematical_functions["abs"] = abs
+        self._mathematical_functions["round"] = round
 
+        self._mathematical_constants = {
+            name: val for name, val in getmembers(math) if type(val).__name__ == "float"
+        }
+
+        self._func = func
         self._expression = []
 
         bracket_level = 0
@@ -123,6 +124,7 @@ class Element:
                 if bracket_level == 1:
                     continue
 
+            # Validate and sorted data in brackets
             elif i == ")":
                 bracket_level -= 1
                 bracket_closed = True
@@ -145,8 +147,11 @@ class Element:
             else:
                 if i in self.MATH_ACTIONS:
                     if item:
-                        self._expression.append(float("".join(item)))
-                        item.clear()
+                        item = "".join(item)
+                        if item in self._mathematical_constants:
+                            item = self._mathematical_constants[item]
+                        self._expression.append(float(item))
+                        item = []
 
                     # Handle double mathematical operation
                     if last_mathematical_action == i:
@@ -163,7 +168,10 @@ class Element:
 
         # Add item after parsing
         if item:
-            self._expression.append(float("".join(item)))
+            item = "".join(item)
+            if item in self._mathematical_constants:
+                item = self._mathematical_constants[item]
+            self._expression.append(float(item))
 
     def __str__(self):
         """
@@ -183,7 +191,6 @@ class Element:
         Method for expression calculation
         :return: calculate value
         """
-        new_expression = []
         operation = None
         first_negative = False
 
@@ -202,6 +209,7 @@ class Element:
             else:
                 last_operation = None
 
+        # Validate on comparison operation
         boolean_value = True
         if self._comparison_operation:
             for i, v in enumerate(self._expression):
@@ -237,9 +245,22 @@ class Element:
             first_negative = True
             del self._expression[0]
 
-        # Calculate high priority math operations
+        # Calculate power mathematical operation
+        self._expression.reverse()
+        while True:
+            try:
+                index = self._expression.index("^")
+                self._expression.pop(index)
+                power = self._expression.pop(index - 1)
+                self._expression[index - 1] **= power
+            except ValueError:
+                break
+        self._expression.reverse()
+
+        # Calculate high priority mathematical operations
+        new_expression = []
         for i in self._expression:
-            if i in ("*", "/", "%", "//", "**",):
+            if i in ("*", "/", "%", "//",):
                 operation = i
             elif operation:
                 if operation == "*":
@@ -250,8 +271,6 @@ class Element:
                     new_expression[-1] %= i
                 elif operation == "//":
                     new_expression[-1] //= i
-                elif operation == "**":
-                    new_expression[-1] **= i
                 operation = None
             else:
                 if first_negative:
@@ -276,16 +295,13 @@ class Element:
                     value += i
                 elif operation == "-":
                     value -= i
-                else:
-                    raise UnsupportedMathematicalOperationException(
-                        "We do not support '{}' operation".format(operation)
-                    )
                 operation = None
             else:
                 value = i
 
+        # Validate on mathematical function
         if self._func:
-            math_func = self.MATHEMATICAL_FUNCTIONS.get(self._func)
+            math_func = self._mathematical_functions.get(self._func)
             if math_func:
                 value = math_func(value)
             else:
