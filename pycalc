@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
-from libs.element import Element
+from libs.element import Element, BaseExpressionException
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="")
@@ -10,6 +10,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    expression = Element(expression=args.EXPRESSION)
-    # print(str(expression))
-    print(expression.value())
+    try:
+        expression = Element(expression=args.EXPRESSION)
+        print(expression.value())
+    except BaseExpressionException as exc:
+        print("ERROR: {}".format(str(exc)))

@@ -59,9 +59,11 @@ class Element:
         :param expression: mathematical expression as string
         """
         # Validate on expression and raise exception if not true
+        expression = expression.replace(" ", "")
         if not expression:
             raise NoExpressionException("The expression was not passed")
 
+        # TODO: comment
         self._mathematical_functions = {
             name: val for name, val in getmembers(math) if type(val).__name__ == "builtin_function_or_method"
         }
@@ -72,7 +74,12 @@ class Element:
             name: val for name, val in getmembers(math) if type(val).__name__ == "float"
         }
 
-        self._func = func
+        self._func = None
+        if func:
+            if func not in self._mathematical_functions:
+                raise UnsupportedMathematicalFunctionException("We do not support '{}' function".format(self._func))
+            self._func = self._mathematical_functions.get(func)
+
         self._expression = []
 
         bracket_level = 0
@@ -81,8 +88,9 @@ class Element:
         bracket_closed = False
         bracket_content = []
         self._comparison_operation = False
+        self._multivalue = False
 
-        # Validate expression on comparison operation and raise exception if it is not valid format
+        # Validate expression on comparison operation and raise exception if it has not valid format
         previous_is_comparison = False
         for i, v in enumerate(expression):
             if v in self.COMPARISON_OPERATIONS:
@@ -108,9 +116,17 @@ class Element:
             else:
                 raise ExpressionFormatException("After comparison operation expression or number are expected")
 
-        item = []
+        # Look for multivalue expression
+        if "(" not in expression and ")" not in expression and "," in expression:
+            if not self._func:
+                raise ExpressionFormatException("Commas allowed only in function calls.")
+            parts = expression.split(",")
+            self._expression = [Element(i) for i in parts]
+            self._multivalue = True
+            return
 
         # Validate format expression and raise exception if it is not valid
+        item = []
         for i in expression:
             if bracket_closed:
                 if i not in self.MATH_ACTIONS and i != ")":
@@ -186,60 +202,38 @@ class Element:
             data=", ".join(result)
         )
 
-    def value(self):
-        """
-        Method for expression calculation
-        :return: calculate value
-        """
+    def _calculate_boolean_expression(self):
+        boolean_value = True
+        for i, v in enumerate(self._expression):
+            if isinstance(v, str):
+                if v == ">=":
+                    if not self._expression[i - 1] >= self._expression[i + 1]:
+                        boolean_value = False
+                elif v == "<=":
+                    if not self._expression[i - 1] <= self._expression[i + 1]:
+                        boolean_value = False
+                elif v == "==":
+                    if not self._expression[i - 1] == self._expression[i + 1]:
+                        boolean_value = False
+                elif v == "<":
+                    if not self._expression[i - 1] < self._expression[i + 1]:
+                        boolean_value = False
+                elif v == ">":
+                    if not self._expression[i - 1] > self._expression[i + 1]:
+                        boolean_value = False
+                elif v in ("!=", "<>",):
+                    if not self._expression[i - 1] != self._expression[i + 1]:
+                        boolean_value = False
+                else:
+                    raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(v))
+
+            if not boolean_value:
+                return boolean_value
+        return boolean_value
+
+    def _calculate_mathematical_expression(self):
         operation = None
         first_negative = False
-
-        # Validate mathematical operations and calculate nested expressions
-        last_operation = None
-        for i, v in enumerate(self._expression):
-            if isinstance(v, Element):
-                self._expression[i] = v.value()
-            if last_operation and v in self.MATH_ACTIONS:
-                raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
-                    so=last_operation,
-                    fo=v
-                ))
-            if v in self.MATH_ACTIONS:
-                last_operation = v
-            else:
-                last_operation = None
-
-        # Validate on comparison operation
-        boolean_value = True
-        if self._comparison_operation:
-            for i, v in enumerate(self._expression):
-                if isinstance(v, str):
-                    if v == ">=":
-                        if not self._expression[i - 1] >= self._expression[i + 1]:
-                            boolean_value = False
-                    elif v == "<=":
-                        if not self._expression[i - 1] <= self._expression[i + 1]:
-                            boolean_value = False
-                    elif v == "==":
-                        if not self._expression[i - 1] == self._expression[i + 1]:
-                            boolean_value = False
-                    elif v == "<":
-                        if not self._expression[i - 1] < self._expression[i + 1]:
-                            boolean_value = False
-                    elif v == ">":
-                        if not self._expression[i - 1] > self._expression[i + 1]:
-                            boolean_value = False
-                    elif v in ("!=", "<>",):
-                        if not self._expression[i - 1] != self._expression[i + 1]:
-                            boolean_value = False
-                    else:
-                        raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(v))
-
-                if not boolean_value:
-                    return boolean_value
-
-            return boolean_value
-
         # Validate first negative numbers in expression
         if self._expression[0] == "-":
             first_negative = True
@@ -301,10 +295,37 @@ class Element:
 
         # Validate on mathematical function
         if self._func:
-            math_func = self._mathematical_functions.get(self._func)
-            if math_func:
-                value = math_func(value)
-            else:
-                raise UnsupportedMathematicalFunctionException("We do not support '{}' function".format(self._func))
+            value = self._func(value)
 
         return value
+
+    def value(self):
+        """
+        Method for expression calculation
+        :return: calculate value
+        """
+
+        # Validate mathematical operations and calculate nested expressions
+        last_operation = None
+        for i, v in enumerate(self._expression):
+            if isinstance(v, Element):
+                self._expression[i] = v.value()
+            if last_operation and v in self.MATH_ACTIONS:
+                raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                    so=last_operation,
+                    fo=v
+                ))
+            if v in self.MATH_ACTIONS:
+                last_operation = v
+            else:
+                last_operation = None
+
+        # Evaluate comparison expression
+        if self._comparison_operation:
+            return self._calculate_boolean_expression()
+
+        # Evaluate multi-value expression
+        if self._multivalue:
+            return self._func(*self._expression)
+
+        return self._calculate_mathematical_expression()
