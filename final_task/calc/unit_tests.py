@@ -1,7 +1,6 @@
 import unittest
 
 from calc.other_functions import *
-from calc.main_functions import *
 
 
 class TestFindingElements(unittest.TestCase):
@@ -78,8 +77,6 @@ class TestGetArgs(unittest.TestCase):
 
         formated_expression = get_args(['(', 'log', '(', 2, ',', 2, ')', ',', 4, ')'])
         self.assertEqual(formated_expression, [['log', '(', 2, ',', 2, ')'], [4]])
-
-
 
 
 unittest.main()
