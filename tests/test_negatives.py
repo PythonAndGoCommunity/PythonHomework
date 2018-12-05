@@ -52,8 +52,8 @@ class TestNegativesElementSimple(TestCase):
             expression.value()
 
     def test_unsupported_operation(self):
-        with self.assertRaises(UnsupportedMathematicalOperationException):
-            expression = Element(expression="1++5*3")
+        with self.assertRaises(DoubleOperationException):
+            expression = Element(expression="1*/5*3")
             expression.value()
 
     # def test_unsupported_trigonometric_operation(self):

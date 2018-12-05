@@ -317,7 +317,7 @@ class Element:
             if isinstance(v, Element):
                 self._expression[i] = v.value()
             if isinstance(v, str):
-                if v not in ("<=", ">=", "==", '!=', "**", "//"):
+                if v not in ("<=", ">=", "==", "!=", "<>", "**", "//"):
                     if len(v) > 1:
                         if len(v) % 2 == 0:
                             self._expression[i] = "+"

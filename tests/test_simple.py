@@ -38,8 +38,8 @@ class TestElementSimple(TestCase):
         self.assertEqual(expression.value(), -11)
 
     def test_exponentiation(self):
-        expression = Element(expression="2**3//4")
-        self.assertEqual(expression.value(), 2)
+        expression = Element(expression="2*3//2")
+        self.assertEqual(expression.value(), 3)
 
 
 
