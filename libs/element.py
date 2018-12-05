@@ -187,7 +187,10 @@ class Element:
             item = "".join(item)
             if item in self._mathematical_constants:
                 item = self._mathematical_constants[item]
-            self._expression.append(float(item))
+            try:
+                self._expression.append(float(item))
+            except ValueError:
+                raise ExpressionFormatException("Could not convert string to float: '{}'".format(item))
 
     def __str__(self):
         """
@@ -234,6 +237,7 @@ class Element:
     def _calculate_mathematical_expression(self):
         operation = None
         first_negative = False
+
         # Validate first negative numbers in expression
         if self._expression[0] == "-":
             first_negative = True
@@ -254,7 +258,7 @@ class Element:
         # Calculate high priority mathematical operations
         new_expression = []
         for i in self._expression:
-            if i in ("*", "/", "%", "//",):
+            if i in ("*", "/", "%", "//", "**"):
                 operation = i
             elif operation:
                 if operation == "*":
@@ -265,6 +269,8 @@ class Element:
                     new_expression[-1] %= i
                 elif operation == "//":
                     new_expression[-1] //= i
+                elif operation == "**":
+                    raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
                 operation = None
             else:
                 if first_negative:
@@ -310,11 +316,27 @@ class Element:
         for i, v in enumerate(self._expression):
             if isinstance(v, Element):
                 self._expression[i] = v.value()
-            if last_operation and v in self.MATH_ACTIONS:
+            if isinstance(v, str):
+                if v not in ("<=", ">=", "==", '!=', "**", "//"):
+                    if len(v) > 1:
+                        if len(v) % 2 == 0:
+                            self._expression[i] = "+"
+                        else:
+                            self._expression[i] = "-"
+
+            if last_operation and v in ("+", "-",):
+                if last_operation == "+" and v == "-":
+                    self._expression[i] = "-"
+                    del self._expression[i - 1]
+                elif last_operation == "-" and v == "+":
+                    self._expression[i] = "-"
+                    del self._expression[i]
+            elif last_operation and v in self.MATH_ACTIONS:
                 raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
                     so=last_operation,
                     fo=v
                 ))
+
             if v in self.MATH_ACTIONS:
                 last_operation = v
             else:
@@ -326,6 +348,12 @@ class Element:
 
         # Evaluate multi-value expression
         if self._multivalue:
-            return self._func(*self._expression)
+            try:
+                return self._func(*self._expression)
+            except TypeError:
+                raise ExpressionFormatException("Expected 2 arguments, got 3: '{}'".format(self._func))
 
-        return self._calculate_mathematical_expression()
+        try:
+            return self._calculate_mathematical_expression()
+        except TypeError:
+            raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
