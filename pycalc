@@ -15,10 +15,9 @@ if __name__ == '__main__':
         print(expression.value())
     except BaseExpressionException as exc:
         print("ERROR: {}".format(str(exc)))
-    # except ValueError as exc:
-    #     print("ERROR: {}".format(str(exc)))
-    # except TypeError as exc:
-    #     print("ERROR: {}".format(str(exc)))
+    except ValueError as exc:
+        print("ERROR: {}".format(str(exc)))
+    except TypeError as exc:
+        print("ERROR: {}".format(str(exc)))
     # expression = Element(expression=args.EXPRESSION)
     # print(expression.value())
-    # print(expression.booleen_value())

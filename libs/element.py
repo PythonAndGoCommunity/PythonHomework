@@ -59,9 +59,19 @@ class Element:
         :param expression: mathematical expression as string
         """
         # Validate on expression and raise exception if not true
-        expression = expression.replace(" ", "")
+
+        # if " " in expression:
+        #     raise ExpressionFormatException("Expression should not de with spaces")
+
+        # expression = expression.replace(" ", "")
+
         if not expression:
             raise NoExpressionException("The expression was not passed")
+
+        # if expression.startswith("--") or expression.startswith("=") or expression.startswith("+"):
+        #     raise ExpressionFormatException("The expression bad format")
+        # if expression.endswith("-"):
+        #     raise ExpressionFormatException("The expression bad format")
 
         # TODO: comment
         self._mathematical_functions = {
@@ -76,8 +86,9 @@ class Element:
 
         self._func = None
         if func:
+            func = func.strip()
             if func not in self._mathematical_functions:
-                raise UnsupportedMathematicalFunctionException("We do not support '{}' function".format(self._func))
+                raise UnsupportedMathematicalFunctionException("We do not support '{}' function".format(func))
             self._func = self._mathematical_functions.get(func)
 
         self._expression = []
@@ -85,7 +96,6 @@ class Element:
         bracket_level = 0
         item = []
         last_mathematical_action = None
-        bracket_closed = False
         bracket_content = []
         self._comparison_operation = False
         self._multivalue = False
@@ -116,19 +126,32 @@ class Element:
             else:
                 raise ExpressionFormatException("After comparison operation expression or number are expected")
 
-        # Look for multivalue expression
-        if "(" not in expression and ")" not in expression and "," in expression:
-            if not self._func:
-                raise ExpressionFormatException("Commas allowed only in function calls.")
-            parts = expression.split(",")
-            self._expression = [Element(i) for i in parts]
-            self._multivalue = True
+        # Look for commas in expression
+        start_index = 0
+        multivalue_items = []
+        for i, c in enumerate(expression):
+            # increase bracket level
+            if c == "(":
+                bracket_level += 1
+            # decrease bracket level
+            elif c == ")":
+                bracket_level -= 1
+            elif c == "," and bracket_level == 0:
+                self._multivalue = True
+                multivalue_items.append(Element(expression[start_index:i]))
+                start_index = i + 1
+        if self._multivalue:
+            self._expression = multivalue_items
+            self._expression.append(Element(expression[start_index:]))
             return
 
         # Validate format expression and raise exception if it is not valid
         item = []
+        bracket_closed = False
         for i in expression:
-            if bracket_closed:
+            if bracket_closed and bracket_level == 0:
+                if i == " ":
+                    continue
                 if i not in self.MATH_ACTIONS and i != ")":
                     raise ExpressionFormatException("After bracket closed 'math sign' or "
                                                     "another bracket close are expected")
@@ -163,10 +186,11 @@ class Element:
             else:
                 if i in self.MATH_ACTIONS:
                     if item:
-                        item = "".join(item)
-                        if item in self._mathematical_constants:
-                            item = self._mathematical_constants[item]
-                        self._expression.append(float(item))
+                        item = "".join(item).strip()
+                        if item:
+                            if item in self._mathematical_constants:
+                                item = self._mathematical_constants[item]
+                            self._expression.append(float(item))
                         item = []
 
                     # Handle double mathematical operation
@@ -209,6 +233,8 @@ class Element:
         boolean_value = True
         for i, v in enumerate(self._expression):
             if isinstance(v, str):
+                if i <= 0:
+                    raise ExpressionFormatException("Comparison could be at the first position")
                 if v == ">=":
                     if not self._expression[i - 1] >= self._expression[i + 1]:
                         boolean_value = False
@@ -243,17 +269,16 @@ class Element:
             first_negative = True
             del self._expression[0]
 
-        # Calculate power mathematical operation
-        self._expression.reverse()
-        while True:
-            try:
-                index = self._expression.index("^")
-                self._expression.pop(index)
-                power = self._expression.pop(index - 1)
-                self._expression[index - 1] **= power
-            except ValueError:
-                break
-        self._expression.reverse()
+        i = len(self._expression) - 1
+        while i >= 0:
+            el = self._expression[i]
+            if el == "^":
+                self._expression.pop(i)
+                power = self._expression.pop(i)
+                if power == "-":
+                    power = -self._expression.pop(i)
+                self._expression[i - 1] **= power
+            i -= 1
 
         # Calculate high priority mathematical operations
         new_expression = []
@@ -288,8 +313,8 @@ class Element:
             if isinstance(i, str):
                 if i in ("+", "-",):
                     operation = i
-                else:
-                    raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
+                # else:
+                #     raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
             elif operation:
                 if operation == "+":
                     value += i
@@ -312,35 +337,94 @@ class Element:
         """
 
         # Validate mathematical operations and calculate nested expressions
-        last_operation = None
+        # i = len(self._expression) - 1
+        # last_operation = None
+        # print(">>", self._expression)
+        # while i >= 0:
+        #     el = self._expression[i]
+        #     if isinstance(el, Element):
+        #         self._expression[i] = el.value()
+        #         last_operation = None
+        #     elif isinstance(el, str):
+
         for i, v in enumerate(self._expression):
             if isinstance(v, Element):
                 self._expression[i] = v.value()
             if isinstance(v, str):
-                if v not in ("<=", ">=", "==", "!=", "<>", "**", "//"):
+                if v.startswith("-"):
                     if len(v) > 1:
                         if len(v) % 2 == 0:
                             self._expression[i] = "+"
                         else:
                             self._expression[i] = "-"
+                if v.startswith("+"):
+                    self._expression[i] = "+"
 
-            if last_operation and v in ("+", "-",):
-                if last_operation == "+" and v == "-":
-                    self._expression[i] = "-"
-                    del self._expression[i - 1]
-                elif last_operation == "-" and v == "+":
-                    self._expression[i] = "-"
-                    del self._expression[i]
-            elif last_operation and v in self.MATH_ACTIONS:
-                raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
-                    so=last_operation,
-                    fo=v
-                ))
+        expression = []
+        last_operation = None
+        sign = None
+        for i, v in enumerate(self._expression):
+            if isinstance(v, str):
+                if last_operation:
+                    if last_operation in ("+", "-",):
+                        if v in ("+", "-"):
+                            if last_operation == v:
+                                last_operation = "+"
+                            else:
+                                last_operation = "-"
+                        else:
+                            raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                                so=last_operation,
+                                fo=v
+                            ))
+                    else:
+                        if v not in ("+", "-"):
+                            raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+                                so=last_operation,
+                                fo=v
+                            ))
+                        if sign:
+                            if sign == v:
+                                sign = "+"
+                            else:
+                                sign = "-"
+                        else:
+                            sign = v
+                else:
+                    last_operation = v
+                continue
 
-            if v in self.MATH_ACTIONS:
-                last_operation = v
-            else:
+            if last_operation:
+                expression.append(last_operation)
                 last_operation = None
+            if sign == "-":
+                v = -v
+                sign = None
+            expression.append(v)
+
+        if last_operation or sign:
+            raise ExpressionFormatException("Expression finishes with mathematical operation.")
+
+        self._expression = expression
+
+        # for i, v in enumerate(self._expression):
+        #     if isinstance(v, str):
+        #         if last_operation and v in ("+", "-",):
+        #             if last_operation == "+" and v == "-":
+        #                 self._expression[i] = "-"
+        #             elif last_operation == "-" and v == "+":
+        #                 self._expression[i] = "-"
+        #                 del self._expression[i - 1]
+        #         elif last_operation and v in self.MATH_ACTIONS:
+        #             raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
+        #                 so=last_operation,
+        #                 fo=v
+        #             ))
+
+        # if v in self.MATH_ACTIONS:
+        #     last_operation = v
+        # else:
+        #     last_operation = None
 
         # Evaluate comparison expression
         if self._comparison_operation:
@@ -351,9 +435,7 @@ class Element:
             try:
                 return self._func(*self._expression)
             except TypeError:
-                raise ExpressionFormatException("Expected 2 arguments, got 3: '{}'".format(self._func))
+                raise ExpressionFormatException("Expected 2 arguments: '{}'".format(self._func))
 
-        try:
-            return self._calculate_mathematical_expression()
-        except TypeError:
-            raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
+        # print(self._expression)
+        return self._calculate_mathematical_expression()

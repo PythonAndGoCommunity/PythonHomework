@@ -1,7 +1,8 @@
 from unittest import TestCase
 
 from libs.element import Element, NoExpressionException, ExpressionFormatException, BracketsAreNotBalanced, \
-    DoubleOperationException, ExpressionFormatException, UnsupportedMathematicalOperationException
+    DoubleOperationException, ExpressionFormatException, UnsupportedMathematicalOperationException, \
+    UnsupportedMathematicalFunctionException
 
 
 class TestNegativesElementSimple(TestCase):
@@ -53,10 +54,49 @@ class TestNegativesElementSimple(TestCase):
 
     def test_unsupported_operation(self):
         with self.assertRaises(DoubleOperationException):
-            expression = Element(expression="1*/5*3")
+            expression = Element(expression="1+/5*3")
             expression.value()
 
-    # def test_unsupported_trigonometric_operation(self):
-    #     with self.assertRaises(UnsupportedMathematicalOperationException):
-    #         expression = Element(expression="erf(10)")
-    #         expression.value()
+    def test_unsupported_trigonometric_operation(self):
+        with self.assertRaises(UnsupportedMathematicalFunctionException):
+            expression = Element(expression="iii(10)")
+            expression.value()
+
+    def test_not_mathematical_constant(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="li")
+            expression.value()
+
+    def test_exponentiation(self):
+        with self.assertRaises(UnsupportedMathematicalOperationException):
+            expression = Element(expression="2**6")
+            expression.value()
+
+    def test_expected_arguments(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="pow(2,5,6)")
+            expression.value()
+
+    def test_comma_without_func(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="2+3,4")
+            expression.value()
+
+    # def test_calculate_mathematical_expression(self):
+    #     # with self.assertRaises(UnsupportedMathematicalOperationException):
+    #         expression = Element(expression="")
+            # expression.value()
+    def test_bad_expression(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="--+1-")
+            expression.value()
+
+    def test_expression_bad(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="2-")
+            expression.value()
+
+    def test_expression_with_space(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="2- 3+")
+            expression.value()
