@@ -59,31 +59,22 @@ class Element:
         :param expression: mathematical expression as string
         """
         # Validate on expression and raise exception if not true
-
-        # if " " in expression:
-        #     raise ExpressionFormatException("Expression should not de with spaces")
-
-        # expression = expression.replace(" ", "")
-
         if not expression:
             raise NoExpressionException("The expression was not passed")
 
-        # if expression.startswith("--") or expression.startswith("=") or expression.startswith("+"):
-        #     raise ExpressionFormatException("The expression bad format")
-        # if expression.endswith("-"):
-        #     raise ExpressionFormatException("The expression bad format")
-
-        # TODO: comment
+        # Validate function  and constant function in expression
         self._mathematical_functions = {
             name: val for name, val in getmembers(math) if type(val).__name__ == "builtin_function_or_method"
         }
         self._mathematical_functions["abs"] = abs
         self._mathematical_functions["round"] = round
 
+        # Validate mathematical constants in expression
         self._mathematical_constants = {
             name: val for name, val in getmembers(math) if type(val).__name__ == "float"
         }
 
+        # Check function in expression
         self._func = None
         if func:
             func = func.strip()
@@ -158,12 +149,14 @@ class Element:
                 bracket_closed = False
 
             # Validate  and count brackets
+
             if i == "(":
                 bracket_level += 1
                 if bracket_level == 1:
                     continue
 
             # Validate and sorted data in brackets
+
             elif i == ")":
                 bracket_level -= 1
                 bracket_closed = True
@@ -190,7 +183,10 @@ class Element:
                         if item:
                             if item in self._mathematical_constants:
                                 item = self._mathematical_constants[item]
-                            self._expression.append(float(item))
+                            try:
+                                self._expression.append(float(item))
+                            except ValueError:
+                                raise ExpressionFormatException("Could not convert string to float: '{}'".format(item))
                         item = []
 
                     # Handle double mathematical operation
@@ -216,6 +212,7 @@ class Element:
             except ValueError:
                 raise ExpressionFormatException("Could not convert string to float: '{}'".format(item))
 
+    # Conversation to string expression
     def __str__(self):
         """
         String representation of the class
@@ -229,6 +226,7 @@ class Element:
             data=", ".join(result)
         )
 
+    # Calculate comparison expression
     def _calculate_boolean_expression(self):
         boolean_value = True
         for i, v in enumerate(self._expression):
@@ -260,6 +258,7 @@ class Element:
                 return boolean_value
         return boolean_value
 
+    # Calculate mathematical expression
     def _calculate_mathematical_expression(self):
         operation = None
         first_negative = False
@@ -275,8 +274,6 @@ class Element:
             if el == "^":
                 self._expression.pop(i)
                 power = self._expression.pop(i)
-                if power == "-":
-                    power = -self._expression.pop(i)
                 self._expression[i - 1] **= power
             i -= 1
 
@@ -313,8 +310,6 @@ class Element:
             if isinstance(i, str):
                 if i in ("+", "-",):
                     operation = i
-                # else:
-                #     raise UnsupportedMathematicalOperationException("We do not support '{}' operation".format(i))
             elif operation:
                 if operation == "+":
                     value += i
@@ -330,23 +325,13 @@ class Element:
 
         return value
 
+    # Calculate value expression
     def value(self):
         """
         Method for expression calculation
         :return: calculate value
         """
-
-        # Validate mathematical operations and calculate nested expressions
-        # i = len(self._expression) - 1
-        # last_operation = None
-        # print(">>", self._expression)
-        # while i >= 0:
-        #     el = self._expression[i]
-        #     if isinstance(el, Element):
-        #         self._expression[i] = el.value()
-        #         last_operation = None
-        #     elif isinstance(el, str):
-
+        # Validate unary operation
         for i, v in enumerate(self._expression):
             if isinstance(v, Element):
                 self._expression[i] = v.value()
@@ -360,9 +345,11 @@ class Element:
                 if v.startswith("+"):
                     self._expression[i] = "+"
 
+        # Validate negative item in expression
         expression = []
         last_operation = None
         sign = None
+
         for i, v in enumerate(self._expression):
             if isinstance(v, str):
                 if last_operation:
@@ -399,32 +386,13 @@ class Element:
                 last_operation = None
             if sign == "-":
                 v = -v
-                sign = None
+            sign = None
             expression.append(v)
 
         if last_operation or sign:
             raise ExpressionFormatException("Expression finishes with mathematical operation.")
 
         self._expression = expression
-
-        # for i, v in enumerate(self._expression):
-        #     if isinstance(v, str):
-        #         if last_operation and v in ("+", "-",):
-        #             if last_operation == "+" and v == "-":
-        #                 self._expression[i] = "-"
-        #             elif last_operation == "-" and v == "+":
-        #                 self._expression[i] = "-"
-        #                 del self._expression[i - 1]
-        #         elif last_operation and v in self.MATH_ACTIONS:
-        #             raise DoubleOperationException("'{so}' operation follows '{fo}'".format(
-        #                 so=last_operation,
-        #                 fo=v
-        #             ))
-
-        # if v in self.MATH_ACTIONS:
-        #     last_operation = v
-        # else:
-        #     last_operation = None
 
         # Evaluate comparison expression
         if self._comparison_operation:
@@ -436,6 +404,5 @@ class Element:
                 return self._func(*self._expression)
             except TypeError:
                 raise ExpressionFormatException("Expected 2 arguments: '{}'".format(self._func))
-
-        # print(self._expression)
+        # Value mathematical expression
         return self._calculate_mathematical_expression()

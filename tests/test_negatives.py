@@ -82,10 +82,6 @@ class TestNegativesElementSimple(TestCase):
             expression = Element(expression="2+3,4")
             expression.value()
 
-    # def test_calculate_mathematical_expression(self):
-    #     # with self.assertRaises(UnsupportedMathematicalOperationException):
-    #         expression = Element(expression="")
-            # expression.value()
     def test_bad_expression(self):
         with self.assertRaises(ExpressionFormatException):
             expression = Element(expression="--+1-")
@@ -96,7 +92,17 @@ class TestNegativesElementSimple(TestCase):
             expression = Element(expression="2-")
             expression.value()
 
-    def test_expression_with_space(self):
+    def test_convert_string_to_float(self):
         with self.assertRaises(ExpressionFormatException):
-            expression = Element(expression="2- 3+")
+            expression = Element(expression="21 + 2(3 * 4))")
+            expression.value()
+
+    def test_first_comparison(self):
+        with self.assertRaises(ExpressionFormatException):
+            expression = Element(expression="<=4+6")
+            expression.value()
+
+    def test_unsupported_operation(self):
+        with self.assertRaises(DoubleOperationException):
+            expression = Element(expression="4/*5-3")
             expression.value()

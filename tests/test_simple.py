@@ -42,7 +42,7 @@ class TestElementSimple(TestCase):
         self.assertEqual(expression.value(), 3)
 
     def test_str(self):
-        expression = Element(expression="2+3*((5-1)-2)")
+        expression = Element(expression="2+3*((5-1)-2) ")
         self.assertTrue(str(expression), 8)
 
     def test_mathematical_constant(self):
@@ -58,9 +58,9 @@ class TestElementSimple(TestCase):
         self.assertEqual(expression.value(), 8.539734222673566)
 
     def test_unary_operation(self):
-        expression = Element(expression="2*4-----3+++4--3")
-        self.assertEqual(expression.value(), 12)
+        expression = Element(expression="2*4-----3+++-4*-+-+-3")
+        self.assertEqual(expression.value(), 17)
 
-    def test_various_unary_operation(self):
-        expression = Element(expression="2*4++4-+++4---3++2----1")
-        self.assertEqual(expression.value(), 8)
+    def test_negative_exponentiation(self):
+        expression = Element(expression="2^-8")
+        self.assertEqual(expression.value(), 0.00390625)
