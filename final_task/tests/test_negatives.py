@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from libs.element import Element, NoExpressionException, ExpressionFormatException, BracketsAreNotBalanced, \
+from libs.element import Element, NoExpressionException, BracketsAreNotBalanced, \
     DoubleOperationException, ExpressionFormatException, UnsupportedMathematicalOperationException, \
     UnsupportedMathematicalFunctionException
 

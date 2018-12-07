@@ -1,5 +1,8 @@
 image: python:3.6-alpine
 
+before_script:
+  - cd final_task
+
 test:
   stage: test
   script:
