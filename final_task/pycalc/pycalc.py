@@ -1,8 +1,8 @@
 """Entry point of pycalc project."""
 
-from .argparser import Argparser
-from .calculator import Calculator
-from .validator import Validator
+from argparser import Argparser
+from calculator import Calculator
+from validator import Validator
 
 
 def main():

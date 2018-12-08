@@ -1,11 +1,12 @@
-"""Tools for validating given expressions."""
+"""
+    Validator checks for possible error
+    before and during the calculation.
+"""
 
 import re
 
 
 class Validator:
-    """Validator checks given expression for possible errors."""
-
     def validate(self, expression):
         """Fully validates given expression for user error"""
 
@@ -28,6 +29,9 @@ class Validator:
 
         if left is None or right is None:
             self.assert_error("please, check your expression.")
+
+        if sign in ('/', '//', '%') and right == 0:
+            self.assert_error("got a zero division error.")
 
         if sign == '^' and left < 0 and isinstance(right, float):
             self.assert_error(
