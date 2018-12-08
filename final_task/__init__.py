@@ -1,5 +1,5 @@
 import argparse
-from pycalc_class import PyCalc
+from pycalc import PyCalc
 
 
 def main():
