@@ -2,8 +2,8 @@
 
 import math
 import unittest
-from validator import Validator
-from calculator import Calculator
+from .validator import Validator
+from .calculator import Calculator
 
 
 class ValidatorTester(unittest.TestCase):
