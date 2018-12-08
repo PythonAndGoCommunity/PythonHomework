@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(
-    name='final_task',
+    name='pycalc',
     version='1.0.2.',
     packages=[''],
     url='',
