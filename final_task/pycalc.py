@@ -76,7 +76,7 @@ class PyCalc:
             math_operators, math_constants = PyCalc.get_math_operators(math_priority=math_priority,
                                                                        tag_operators=self.tag_advanced,
                                                                        tag_constants=self.tag_constant,
-                                                                       tuple_template = full_info
+                                                                       tuple_template=full_info
                                                                        )
 
             self.operators = common_operators
