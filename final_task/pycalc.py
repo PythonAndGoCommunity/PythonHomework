@@ -2,7 +2,7 @@ import math
 import re
 import types
 import pickle
-
+import argparse
 from collections import namedtuple
 
 
@@ -306,3 +306,16 @@ class PyCalc:
             else:
                 pos = match.end(0)
         return tokens
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("EXPRESSION", help="expression string to evaluate")
+    args = parser.parse_args()
+    calc = PyCalc()
+    result = calc.calculate(args.EXPRESSION)
+    print(result)
+
+
+if __name__ == '__main__':
+    main()
