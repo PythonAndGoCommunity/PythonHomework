@@ -177,8 +177,8 @@ def infix_to_postfix(input_queue):
         elif token is '(':
             operator_stack.append(input_queue.pop(0))
         elif token is ',':
-            # since a comma can appear only after a logarithm, a check is implemented here
-            if 'log' not in operator_stack:
+            # since a comma can appear only after a logarithm or power, a check is implemented here
+            if 'log' not in operator_stack and 'pow' not in operator_stack:
                 raise ErrorUnexpectedComma("ERROR: unexpected comma.")
             try:
                 while operator_stack[-1] is not '(':
@@ -197,8 +197,9 @@ def infix_to_postfix(input_queue):
                          or (operators[operator_stack[-1]].prec == operators[token].prec
                              and token is not '^'))):
                     output_queue.append(operator_stack.pop())
-                operator_stack.append(input_queue.pop(0))
-                break
+                else:
+                    break
+            operator_stack.append(input_queue.pop(0))
         elif token is ')':
             while operator_stack[-1] is not '(':
                 output_queue.append(operator_stack.pop())
@@ -218,8 +219,8 @@ def split_comparison(expression):
     """
     check_whitespace(expression)
     check_brackets(expression)
+    expression = re.sub(r'\s', '', expression)
     check_commas(expression)
-    expression.strip().replace(' ', '')
     token = re.findall(r'==|>=|<=|>|<|!=', expression)
     if len(token) > 1:
         raise ErrorOperators("ERROR: more than one comparison operator.")
