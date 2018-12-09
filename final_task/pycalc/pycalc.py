@@ -264,7 +264,7 @@ class PyCalc:
         except RuntimeError as rerror:
             print(rerror.args[0])
             exit(1)
-        except ValueError as verror:
+        except ValueError:
             print("ERROR: unknown operand!")
             exit(1)
         except Exception:
@@ -341,5 +341,4 @@ if __name__ == '__main__':
 
 # calc = PyCalc()
 # result = calc.calculate('sin(e^log(e^e^sin(23.0),45.0) + cos(3.0+log10(e^-e)))')
-# # result = calc.calculate('5+2*2^2^2^(2-1)*sin(pi/2)')
 # print(result)
