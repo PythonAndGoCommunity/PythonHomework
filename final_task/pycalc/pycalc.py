@@ -125,6 +125,16 @@ class PyCalc:
                     break_bool = True
                     break
 
+        pattern = r"log\(.+,"
+        tmp = re.search(pattern, input_string)
+        while tmp:
+            pos = tmp.start()
+            first_part = input_string[:pos]
+            second_part = input_string[pos:]
+            second_part = re.sub("^log", "log2", second_part)
+            input_string = first_part + second_part
+            tmp = re.search(pattern, input_string)
+
         str_and_tag = namedtuple("str_and_tag", ("s", "tag"))
         string_as_stack = PyCalc.lexer(input_string, self.token_exprs, str_and_tag)
 
@@ -183,7 +193,7 @@ class PyCalc:
                 elif item == ",":
                     while temporary_stack[-1] != "(":
                         rpn_stack.append(temporary_stack.pop())
-                elif self.operators[temporary_stack[-1]].priority < self.operators[item].priority:
+                elif self.operators[temporary_stack[-1]].priority <= self.operators[item].priority and item == "^":
                     temporary_stack.append(item)
                 else:
                     temp_priority = self.operators[item].priority
@@ -255,7 +265,10 @@ class PyCalc:
             print(rerror.args[0])
             exit(1)
         except ValueError as verror:
-            print(verror.args[0])
+            print("ERROR: unknown operand!")
+            exit(1)
+        except Exception:
+            print("ERROR: unknown error!")
             exit(1)
         return result
 
@@ -287,6 +300,7 @@ class PyCalc:
                                                                 tag_constants)})
 
         math_operators.update({'log': tuple_template(math.log, math_priority, 1, 'log', tag_operators)})
+        math_operators.update({'log2': tuple_template(math.log, math_priority, 2, 'log2', tag_operators)})
 
         return math_operators, math_constants
 
@@ -326,5 +340,6 @@ if __name__ == '__main__':
     main()
 
 # calc = PyCalc()
-# result = calc.calculate('6 < = 6')
+# result = calc.calculate('sin(e^log(e^e^sin(23.0),45.0) + cos(3.0+log10(e^-e)))')
+# # result = calc.calculate('5+2*2^2^2^(2-1)*sin(pi/2)')
 # print(result)
