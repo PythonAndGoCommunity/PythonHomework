@@ -67,7 +67,7 @@ class PyCalc:
 
                 "space":    full_info(None,                 None, None,  r'[ \n\t]+',        None),
                 "int_n":    full_info(None,                 None, None,  r'[0-9]+',          self.tag_number),
-                "int_f":    full_info(None,                 None, None,  r'[0-9]+\.[0-9]',   self.tag_number),
+                "int_f":    full_info(None,                 None, None,  r'[0-9]+\.[0-9]+',   self.tag_number),
                 "int_f2":   full_info(None,                 None, None,  r'\.[0-9]',         self.tag_number),
 
 
@@ -183,7 +183,7 @@ class PyCalc:
                 elif item == ",":
                     while temporary_stack[-1] != "(":
                         rpn_stack.append(temporary_stack.pop())
-                elif self.operators[temporary_stack[-1]].priority <= self.operators[item].priority:
+                elif self.operators[temporary_stack[-1]].priority < self.operators[item].priority:
                     temporary_stack.append(item)
                 else:
                     temp_priority = self.operators[item].priority
@@ -254,6 +254,9 @@ class PyCalc:
         except RuntimeError as rerror:
             print(rerror.args[0])
             exit(1)
+        except ValueError as verror:
+            print(verror.args[0])
+            exit(1)
         return result
 
     @staticmethod
@@ -283,6 +286,8 @@ class PyCalc:
                     math_constants.update({item: tuple_template(math.__dict__.get(item), None, None, item,
                                                                 tag_constants)})
 
+        math_operators.update({'log': tuple_template(math.log, math_priority, 1, 'log', tag_operators)})
+
         return math_operators, math_constants
 
     @staticmethod
@@ -302,7 +307,7 @@ class PyCalc:
                         tokens.append(token)
                     break
             if not match:
-                raise RuntimeError('Illegal character: %s\n' % characters[pos])
+                raise RuntimeError('ERROR: Illegal character: %s\n' % characters[pos])
             else:
                 pos = match.end(0)
         return tokens
@@ -319,3 +324,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# calc = PyCalc()
+# result = calc.calculate('6 < = 6')
+# print(result)
