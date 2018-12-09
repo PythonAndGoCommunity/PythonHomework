@@ -198,8 +198,8 @@ def infix_to_postfix(input_queue):
                              and token is not '^'))):
                     output_queue.append(operator_stack.pop())
                 else:
+                    operator_stack.append(input_queue.pop(0))
                     break
-            operator_stack.append(input_queue.pop(0))
         elif token is ')':
             while operator_stack[-1] is not '(':
                 output_queue.append(operator_stack.pop())
