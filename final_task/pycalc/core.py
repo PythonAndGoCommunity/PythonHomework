@@ -292,7 +292,7 @@ def main():
             else:
                 print(compare(expressions, comparator))
         except Exception as exception:
-            return exception
+            print(exception)
 
 
 if __name__ == '__main__':
