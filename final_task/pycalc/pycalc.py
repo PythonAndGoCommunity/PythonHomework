@@ -15,8 +15,8 @@ class Lexer:
     PARENTHESES = ('(', ')')
     OPERATORS = ('+', '-', '*', '//', '/', '%', '^', '==', '!=', '>=', '>', '<=', '<')
     CONSTANTS = tuple(key for key, value in math.__dict__.items() if isinstance(value, float))
-    FUNCTIONS = tuple(key + '(' for key, value in math.__dict__.items() if isinstance(value, types.BuiltinFunctionType)) \
-                   + ('round(', 'abs(')
+    FUNCTIONS = tuple(key + '(' for key, value in math.__dict__.items() \
+                      if isinstance(value, types.BuiltinFunctionType)) + ('round(', 'abs(')
 
     def __init__(self, expression):
         self.expression = expression
