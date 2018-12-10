@@ -301,11 +301,10 @@ def main():
         tokens = lexer.get_all_tokens()
         parser = Parser(tokens)
         parser.parse()
-        print(parser.result)
         print(*calculate(parser.result))
     except SyntaxError as ex:
-        print(ex)
-        
-        
+        print(ex) 
+
+
 if __name__ == '__main__':
     main()
