@@ -290,7 +290,7 @@ def calculate(expression):
     return result
 
 
-if __name__ == '__main__':
+def main():
     # parsing args
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     parser.add_argument('EXPRESSION', help='expression string to evaluate')
@@ -305,3 +305,7 @@ if __name__ == '__main__':
         print(*calculate(parser.result))
     except SyntaxError as ex:
         print(ex)
+        
+        
+if __name__ == '__main__':
+    main()
