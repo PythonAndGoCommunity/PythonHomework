@@ -303,7 +303,7 @@ def main():
         parser.parse()
         print(*calculate(parser.result))
     except SyntaxError as ex:
-        print(ex) 
+        print(ex)
 
 
 if __name__ == '__main__':
