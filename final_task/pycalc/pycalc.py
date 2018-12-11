@@ -7,8 +7,39 @@ from collections import namedtuple
 
 
 class PyCalc:
+    """
+    Python calculator class.
+    Evaluates the passed string.
 
+    List of methods:
+    __init__                - class initialiser;
+    tokenizer       - creates list of tokens from passed string;
+    rpn - transforms passed stack into reverse polish notation stack;
+    execute_rpn             - executes passed stack (stack have to be an rpn stack)
+    calculate               - calculates passed string using previous methods;
+
+    @static_method
+    get_math_operatros      - transforms math module in following dictionary:
+        {'name': namedtuple("full_info", ("func", "priority", "number_args", "regex", "tag")};
+    lexer                   - transforms string into token stack. This method is more common, while tokenizer
+        has more rules to perform.
+    """
     def __init__(self):
+        """
+        Pycalc class initialiser.
+        Sets a lot of variables, such as tag variables, dictionaries of math operators, math constants, etc. and saves
+        them into pickle file. On the next run this file'll be unpacked and loaded, so there'll be no need to recalcula-
+        te dictionaries of math operators and constants.
+
+        Arguments:
+            No arguments.
+
+        Returns:
+            No returns.
+
+        Raises:
+            No raises.
+        """
 
         full_info = namedtuple("full_info", ("func", "priority", "number_args", "regex", "tag"))
         regex_and_tag = namedtuple("regex_and_tag", ("regex", "tag"))
@@ -101,11 +132,24 @@ class PyCalc:
             except Exception:
                 pass
 
-    def stack_from_string(self, input_string):
+    def tokenizer(self, input_string):
+        """
+        Creates list of tokens from passed string.
 
-        pattern = r"[0-9][ \n\t]+[0-9]"
+        Arguments:
+            input_string - (string) input string with math expression.
+
+        Returns:
+            tokens - (list) list of tokens from passed string.
+
+        Raises:
+            RuntimeError - Unknown syntax! - in case of spaces between numbers.
+            RuntimeError - Brackets aren't balanced! - in case of unbalanced brackets.
+        """
+
+        pattern = r"[0-9\.*][ \n\t]+[\.*0-9]"
         if re.search(pattern, input_string):
-            raise RuntimeError("ERROR: Unknown syntax!")
+            raise RuntimeError("Unknown syntax: " + re.search(pattern, input_string).group(0))
 
         patterns_and_replacements = [
             (r"--", r"+"),
@@ -135,44 +179,56 @@ class PyCalc:
             input_string = first_part + second_part
             tmp = re.search(pattern, input_string)
 
-        str_and_tag = namedtuple("str_and_tag", ("s", "tag"))
-        string_as_stack = PyCalc.lexer(input_string, self.token_exprs, str_and_tag)
+        token_and_tag = namedtuple("str_and_tag", ("token", "tag"))
+        token_stack = PyCalc.lexer(input_string, self.token_exprs, token_and_tag)
 
         temporary_stack = ["$"]
-        prev_item = str_and_tag("$", self.tag_common)
+        prev_item = token_and_tag("$", self.tag_common)
         bracket_balance = 0
 
-        for index, item in enumerate(string_as_stack):
+        for index, item in enumerate(token_stack):
 
-            if item.s == "(":
+            if item.token == "(":
                 bracket_balance += 1
-            elif item.s == ")":
+            elif item.token == ")":
                 bracket_balance -= 1
                 if bracket_balance < 0:
-                    raise RuntimeError("ERROR: brackets aren't balanced!")
+                    raise RuntimeError("Brackets aren't balanced!")
 
             if ((item.tag == self.tag_constant or item.tag == self.tag_advanced or item.tag == self.tag_number) and
-                (prev_item.s == ")" or prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number)) or \
-               ((prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number) and item.s == "("):
+                (prev_item.token == ")" or prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number)) or \
+               ((prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number) and item.token == "("):
                 temporary_stack.append("*")
 
-            if prev_item.tag == self.tag_common and prev_item.s != ")":
-                if item.s == "+":
+            if prev_item.tag == self.tag_common and prev_item.token != ")":
+                if item.token == "+":
                     continue
-                elif item.s == "-":
+                elif item.token == "-":
                     temporary_stack.append("#")
                     continue
 
-            temporary_stack.append(item.s)
+            temporary_stack.append(item.token)
             prev_item = item
         else:
-            string_as_stack = temporary_stack[1:]
+            token_stack = temporary_stack[1:]
             if bracket_balance != 0:
-                raise RuntimeError("ERROR: brackets aren't balanced!")
+                raise RuntimeError("Brackets aren't balanced!")
 
-        return string_as_stack
+        return token_stack
 
-    def rpn_from_stacked_string(self, stack):
+    def rpn(self, stack):
+        """
+        Transforms list of tokens to its rpn (reverse polish notation) form.
+
+        Arguments:
+            stack - (list) input stack of tokens.
+
+        Returns:
+            string_as_stack - (list) list of tokens in rpn form.
+
+        Raises:
+            No raises.
+        """
 
         temporary_stack = []
         rpn_stack = []
@@ -210,6 +266,21 @@ class PyCalc:
         return rpn_stack
 
     def execute_rpn(self, rpn_stack):
+        """
+        Executes passed stack in rpn form and returns the result or raises error.
+
+        Arguments:
+            rpn_stack - (list) input stack of tokens in rpn form.
+
+        Returns:
+            result - (float) resulting number.
+
+        Raises:
+            RuntimeError - Unknown operation! - in case of wrong operation oder.
+            ZeroDivision - in case of division by zero.
+            IndexError - in case of wrong operation oder.
+            ValueError - in case of wrong operand.
+        """
 
         temporary_stack = []
 
@@ -235,7 +306,7 @@ class PyCalc:
 
         result = temporary_stack.pop()
         if temporary_stack:
-            raise RuntimeError("ERROR: Unknown operation!")
+            raise RuntimeError("Resulting stack isn't empty. Unknown operation!")
 
         return result
 
@@ -243,40 +314,51 @@ class PyCalc:
 
         # print(input_string)
         try:
-            stacked_string = self.stack_from_string(input_string)
-        except RuntimeError as rerror:
-            print(rerror.args[0])
-            exit(1)
-        except ValueError as verror:
-            print(verror.args[0])
+            stacked_string = self.tokenizer(input_string)
+        except Exception as eerror:
+            print("ERROR in tokenizer: " + str(eerror.args[0]))
             exit(1)
         # print(stacked_string)
-        stacked_rpn = self.rpn_from_stacked_string(stacked_string)
+        stacked_rpn = self.rpn(stacked_string)
         # print(stacked_rpn)
         try:
             result = self.execute_rpn(stacked_rpn)
         except IndexError:
-            print("ERROR: Wrong operations order!")
+            print("ERROR in execute_rpn: Wrong operations order!")
             exit(1)
         except ZeroDivisionError:
-            print("ERROR: Division by zero!")
+            print("ERROR in execute_rpn: Division by zero!")
             exit(1)
         except RuntimeError as rerror:
-            print(rerror.args[0])
+            print("ERROR in execute_rpn:" + str(rerror.args[0]))
             exit(1)
         except ValueError:
-            print("ERROR: unknown operand!")
+            print("ERROR in execute_rpn: unknown operand!")
             exit(1)
         except Exception:
-            print("ERROR: unknown error!")
+            print("ERROR in execute_rpn: unknown error!")
             exit(1)
         return result
 
     @staticmethod
     def get_math_operators(math_priority, tag_operators, tag_constants, tuple_template):
         """
-        Returns dictionary:
-        {"operation_name": (math.operation_name, self.number_of_operation's arguments, operation's value)}
+        Parses math module and returns dictionary with followed structure:
+            {'name': namedtuple("full_info", ("func", "priority", "number_args", "regex", "tag")}
+
+        Arguments:
+            math_priority - (int) priority of math operations. As math module has only functions - all of functions'll
+                have the same priority;
+            tag_operators - (string) string tag for operators;
+            tag_constants - (string) string tag for constants;
+            tuple_template - template of tuple to create cool tuples in return dictionary.
+
+        Returns:
+            math_opeators - (dict) dictionary of operators.
+            math_constants - (dict) dictionary of constants.
+
+        Raises:
+            No raises.
         """
 
         pattern = r"\(.*\)"
@@ -306,6 +388,21 @@ class PyCalc:
 
     @staticmethod
     def lexer(characters, token_exprs, tuple_template):
+        """
+        Creates list of tokens from passed string.
+
+        Arguments:
+            characters - (string) input string with math expression.
+            token_exprs - (list) input list with regulary expressions of math operands, constants and numbers.
+            tuple_template - template of tuple to create cool tuples from received data.
+
+        Returns:
+            tokens - (list) list of tokens from passed string.
+
+        Raises:
+            RuntimeError - Illegal character! - in case of unknown math operand or operator.
+        """
+
         pos = 0
         tokens = []
         while pos < len(characters):
@@ -321,7 +418,7 @@ class PyCalc:
                         tokens.append(token)
                     break
             if not match:
-                raise RuntimeError('ERROR: Illegal character: %s\n' % characters[pos])
+                raise RuntimeError('ERROR in lexer: Illegal character: %s\n' % characters[pos])
             else:
                 pos = match.end(0)
         return tokens
@@ -339,6 +436,8 @@ def main():
 if __name__ == '__main__':
     main()
 
+# print(help(PyCalc.lexer))
+#
 # calc = PyCalc()
-# result = calc.calculate('sin(e^log(e^e^sin(23.0),45.0) + cos(3.0+log10(e^-e)))')
+# result = calc.calculate('5.+.5')
 # print(result)
