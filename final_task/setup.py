@@ -6,8 +6,9 @@ setup(
     version = "1.0",
     author_email = "andrey.mirugin@gmail.com",
     description = ("Pure-python command-line calculator."),
-    packages=find_packages(),
-    entry_points={
-        'console_script':['pycalc=pycalc:main']
+    packages = find_packages(),
+    entry_points = {
+        'console_script': ['pycalc=pycalc.pycalc:main']
     }
 )
+

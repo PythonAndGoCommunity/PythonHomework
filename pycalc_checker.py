@@ -5,7 +5,7 @@ from distutils.util import strtobool
 from termcolor import colored
 
 
-PYCALC_UTIL_NAME = "pycalc"
+PYCALC_UTIL_NAME = "./pycalc"
 RETURN_CODE = 0
 
 
