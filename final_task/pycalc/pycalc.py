@@ -147,7 +147,7 @@ class PyCalc:
             RuntimeError - Brackets aren't balanced! - in case of unbalanced brackets.
         """
 
-        pattern = r"[0-9\.*][ \n\t]+[\.*0-9]"
+        pattern = r"[0-9][ \n\t]+[0-9]"
         if re.search(pattern, input_string):
             raise RuntimeError("Unknown syntax: " + re.search(pattern, input_string).group(0))
 
@@ -316,7 +316,7 @@ class PyCalc:
         try:
             stacked_string = self.tokenizer(input_string)
         except Exception as eerror:
-            print("ERROR in tokenizer: " + str(eerror.args[0]))
+            print("ERROR: in tokenizer" + str(eerror.args[0]))
             exit(1)
         # print(stacked_string)
         stacked_rpn = self.rpn(stacked_string)
@@ -324,19 +324,19 @@ class PyCalc:
         try:
             result = self.execute_rpn(stacked_rpn)
         except IndexError:
-            print("ERROR in execute_rpn: Wrong operations order!")
+            print("ERROR: in execute_rpn Wrong operations order!")
             exit(1)
         except ZeroDivisionError:
-            print("ERROR in execute_rpn: Division by zero!")
+            print("ERROR: in execute_rpn  Division by zero!")
             exit(1)
         except RuntimeError as rerror:
-            print("ERROR in execute_rpn:" + str(rerror.args[0]))
+            print("ERROR: in execute_rpn " + str(rerror.args[0]))
             exit(1)
         except ValueError:
-            print("ERROR in execute_rpn: unknown operand!")
+            print("ERROR: in execute_rpn  unknown operand!")
             exit(1)
         except Exception:
-            print("ERROR in execute_rpn: unknown error!")
+            print("ERROR: in execute_rpn  unknown error!")
             exit(1)
         return result
 
