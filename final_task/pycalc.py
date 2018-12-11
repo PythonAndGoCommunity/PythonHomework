@@ -152,15 +152,15 @@ def checking_and_solving_comparison(expression):
     """
     is_comparison = False
     for i in range(len(expression)):
-        if comparison.get(expression[i]) != None:
+        if comparison.get(expression[i]) is not None:
             is_comparison = True
-            if comparison.get(expression[i]+expression[i+1]) != None:
+            if comparison.get(expression[i]+expression[i+1]) is not None:
                 return [comparison[expression[i]+expression[i+1]](calc(expression[0:i]),
                                                                   calc(expression[i+2:len(expression)])), is_comparison]
             else:
                 return [comparison[expression[i]](calc(expression[0:i]),
                                                   calc(expression[i+1:len(expression)])), is_comparison]
-        elif i+1 < len(expression) and comparison.get(expression[i]+expression[i+1]) != None:
+        elif i+1 < len(expression) and comparison.get(expression[i]+expression[i+1]) is not None:
             is_comparison = True
             return [comparison[expression[i]+expression[i+1]](calc(expression[0:i]),
                                                               calc(expression[i+2:len(expression)])), is_comparison]
@@ -242,10 +242,10 @@ def calc_by_position_of_sign(position, expression):
     Calculates two nearest elements (from the left and right) according to a sign at 'position'
     Parameters
     ----------
-    position : int
-        Position of sign in expression
     expression : str
         The expression that is calculated
+    position : int
+        Position of sign in expression
     Returns
     -------
     str
@@ -263,9 +263,9 @@ def calc_by_position_of_sign(position, expression):
     if position+1 == len(expression):
         raise MissingArgumentException(
             "Not enough argumets for binary operation")
-    if signs.get(expression[position]+expression[position+1]) != None:
+    if signs.get(expression[position]+expression[position+1]) is not None:
         right_pointer = position+1
-    elif signs.get(expression[position]+expression[position-1]) != None:
+    elif signs.get(expression[position]+expression[position-1]) is not None:
         left_pointer = position-1
     [first_number, start] = find_left_element(expression, left_pointer)
     [second_number, end] = find_right_element(expression, right_pointer)
@@ -346,13 +346,13 @@ def add_implicit_mult(expression):
             result_expression = result_expression[0:i] + \
                 "*"+result_expression[i:len(result_expression)]
             was_float = False
-        elif constants.get(expr_right) != None:
+        elif constants.get(expr_right) is not None:
             was_const = True
-        elif constants.get(expr_right) == None and was_const:
+        elif constants.get(expr_right) is None and was_const:
             is_func = False
             temp = expr_right
             for j in range(i+1, len(result_expression)):
-                if functions.get(temp) != None:
+                if functions.get(temp) is not None:
                     is_func = True
                     break
                 temp += result_expression[j]
@@ -403,7 +403,7 @@ def solve_functions(expression):
         elif not res_str[i] in (".", '+', '-', '*', '/', '^', '%', ')', '(') and is_func:
             temp += res_str[i]
         elif res_str[i] == '(' and is_func:
-            if functions.get(temp) != None:
+            if functions.get(temp) is not None:
                 start = i+1
                 for j in range(i, len(expression)):
                     if expression[j] == '(':
@@ -436,7 +436,7 @@ def solve_functions(expression):
         elif res_str[i] in (".", '+', '-', '*', '/', '^', '%'):
             temp = ""
             is_func = False
-    if temp != "" and functions.get(temp) == None and constants.get(temp) == None:
+    if temp != "" and functions.get(temp) is None and constants.get(temp) is None:
         raise UnknownElementException(f"Unknown element '{temp}'")
     return res_str
 
@@ -481,8 +481,7 @@ def main():
     """Main function, that parse arguments and gives the result of calculation"""
     parser = argparse.ArgumentParser(
         description='Pure-python command-line calculator.')
-    parser.add_argument('EXPRESSION', type=str,
-                        help='expression string to evaluate')
+    parser.add_argument('EXPRESSION', help='expression string to evaluate')
     string = parser.parse_args()
     try:
         expression = string.EXPRESSION
@@ -491,11 +490,12 @@ def main():
         [expression, is_comparison] = checking_and_solving_comparison(
             expression)
         if is_comparison:
-            return expression
-        return calc(expression)
+            print(expression)
+        else:
+            print(calc(expression))
     except Exception as e:
-        return f"ERROR: {e}"
-
+        print (f"ERROR: {e}")
+        return e
 
 if __name__ == "__main__":
     main()
