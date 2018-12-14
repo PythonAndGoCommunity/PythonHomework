@@ -192,27 +192,29 @@ class Calc:
 
         return num_stack[0]
 
+    
 
-try:
-    parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
+def calculate():
+    try:
+        parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
 
-    parser.add_argument('EXPRESSION', help='Expression string to evaluate')
-    parser.add_argument('-m', '--use-modules', action='store', nargs='*',
-                        dest='user', help='Using your own module', default=None)
-    pr = parser.parse_args().__dict__
-    s = pr['EXPRESSION']
-    user = [] + pr['user']
-    s = s.replace(' ', '')
-    s = s[1:-1]
-    if s.count('(') != s.count(')'):
-        raise ValueError('brackets are not balanced!')
-    if '$' in s or 'q' in s:
-        raise ValueError('incorrect symbols!')
-    else:
-        s = s.replace('//', '$')
-        s = s.replace('epi', 'q')
-        s = s.replace('pie', 'q')
-    cd = Calc(user)
-    print(cd.my_eval(s))
-except Exception as e:
-    print('Error:', e, sep='\n')
+        parser.add_argument('EXPRESSION', help='Expression string to evaluate')
+        parser.add_argument('-m', '--use-modules', action='store', nargs='*',
+                            dest='user', help='Using your own module', default=None)
+        pr = parser.parse_args().__dict__
+        s = pr['EXPRESSION']
+        user = [] + pr['user']
+        s = s.replace(' ', '')
+        s = s[1:-1]
+        if s.count('(') != s.count(')'):
+            raise ValueError('brackets are not balanced!')
+        if '$' in s or 'q' in s:
+            raise ValueError('incorrect symbols!')
+        else:
+            s = s.replace('//', '$')
+            s = s.replace('epi', 'q')
+            s = s.replace('pie', 'q')
+        cd = Calc(user)
+        print(cd.my_eval(s))
+    except Exception as e:
+        print('PROBLEM', e, sep='\n')
