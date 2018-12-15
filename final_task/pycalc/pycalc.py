@@ -3,6 +3,8 @@ import re
 import types
 import pickle
 import argparse
+import inspect
+import sin
 from collections import namedtuple
 
 
@@ -24,7 +26,7 @@ class PyCalc:
     lexer                   - transforms string into token stack. This method is more common, while tokenizer
         has more rules to perform.
     """
-    def __init__(self):
+    def __init__(self, *args):
         """
         Pycalc class initialiser.
         Sets a lot of variables, such as tag variables, dictionaries of math operators, math constants, etc. and saves
@@ -99,20 +101,25 @@ class PyCalc:
                 "space":    full_info(None,                 None, None,  r'[ \n\t]+',        None),
                 "int_n":    full_info(None,                 None, None,  r'[0-9]+',          self.tag_number),
                 "int_f":    full_info(None,                 None, None,  r'[0-9]+\.[0-9]+',   self.tag_number),
-                "int_f2":   full_info(None,                 None, None,  r'\.[0-9]',         self.tag_number),
+                "int_f2":   full_info(None,                 None, None,  r'\.[0-9]+',         self.tag_number),
+                "int_f3":   full_info(None,                 None, None,  r'[0-9]+\.',         self.tag_number)
 
 
             }
 
-            math_operators, math_constants = PyCalc.get_math_operators(math_priority=math_priority,
-                                                                       tag_operators=self.tag_advanced,
-                                                                       tag_constants=self.tag_constant,
-                                                                       tuple_template=full_info
-                                                                       )
+            math_operators, math_constants = PyCalc.get_operators_from_module(module=math,
+                                                                              priority=math_priority,
+                                                                              tag_operators=self.tag_advanced,
+                                                                              tag_constants=self.tag_constant,
+                                                                              tuple_template=full_info
+                                                                              )
+
+            math_operators.update({'log': full_info(math.log, math_priority, 1, 'log', self.tag_advanced)})
+            math_operators.update({'log2': full_info(math.log, math_priority, 2, 'log2', self.tag_advanced)})
 
             self.operators = common_operators
             self.operators.update(math_operators)
-            self.constants = math_constants
+            self.constants = math_constants.copy()
 
             token_expressions = []
             for item in self.operators.values():
@@ -131,6 +138,23 @@ class PyCalc:
                     pickle.dump(obj, pickle_file)
             except Exception:
                 pass
+
+        finally:
+
+            for item in args:
+                math_operators, math_constants = PyCalc.get_operators_from_module(module=item,
+                                                                                  priority=math_priority,
+                                                                                  tag_operators=self.tag_advanced,
+                                                                                  tag_constants=self.tag_constant,
+                                                                                  tuple_template=full_info
+                                                                                  )
+                self.operators.update(math_operators)
+                self.constants.update(math_constants)
+                for j_item in math_operators.values():
+                    self.token_exprs.append(regex_and_tag(j_item.regex, j_item.tag))
+                for j_item in math_constants.values():
+                    self.token_exprs.append(regex_and_tag(j_item.regex, j_item.tag))
+            self.token_exprs.sort(reverse=True)
 
     def tokenizer(self, input_string):
         """
@@ -341,21 +365,21 @@ class PyCalc:
         return result
 
     @staticmethod
-    def get_math_operators(math_priority, tag_operators, tag_constants, tuple_template):
+    def get_operators_from_module(module, priority, tag_operators, tag_constants, tuple_template):
         """
         Parses math module and returns dictionary with followed structure:
             {'name': namedtuple("full_info", ("func", "priority", "number_args", "regex", "tag")}
 
         Arguments:
-            math_priority - (int) priority of math operations. As math module has only functions - all of functions'll
+            priority - (int) priority of math operations. As math module has only functions - all of functions'll
                 have the same priority;
             tag_operators - (string) string tag for operators;
             tag_constants - (string) string tag for constants;
             tuple_template - template of tuple to create cool tuples in return dictionary.
 
         Returns:
-            math_opeators - (dict) dictionary of operators.
-            math_constants - (dict) dictionary of constants.
+            operators - (dict) dictionary of operators.
+            constants - (dict) dictionary of constants.
 
         Raises:
             No raises.
@@ -364,27 +388,27 @@ class PyCalc:
         pattern = r"\(.*\)"
         coma_pattern = r"\,"
 
-        math_operators = {}
-        math_constants = {}
+        operators = {}
+        constants = {}
 
-        for item in dir(math):
-            if isinstance(math.__dict__.get(item), types.BuiltinFunctionType):
+        for item in dir(module):
+            if isinstance(module.__dict__.get(item), types.BuiltinFunctionType):
 
                 if item.find("__"):
-                    res = re.search(pattern, math.__dict__.get(item).__doc__)
+                    res = re.search(pattern, module.__dict__.get(item).__doc__)
                     res = re.findall(coma_pattern, res.group())
-                    math_operators.update({item: tuple_template(math.__dict__.get(item), math_priority, len(res) + 1,
-                                                                item, tag_operators)})
-
+                    operators.update({item: tuple_template(module.__dict__.get(item), priority, len(res) + 1,
+                                                           item, tag_operators)})
+            elif isinstance(module.__dict__.get(item), types.FunctionType):
+                res = len(inspect.getfullargspec(module.__dict__.get(item)).args)
+                operators.update({item: tuple_template(module.__dict__.get(item), priority, res,
+                                                       item, tag_operators)})
             else:
                 if item.find("__"):
-                    math_constants.update({item: tuple_template(math.__dict__.get(item), None, None, item,
-                                                                tag_constants)})
+                    constants.update({item: tuple_template(module.__dict__.get(item), None, None, item,
+                                                           tag_constants)})
 
-        math_operators.update({'log': tuple_template(math.log, math_priority, 1, 'log', tag_operators)})
-        math_operators.update({'log2': tuple_template(math.log, math_priority, 2, 'log2', tag_operators)})
-
-        return math_operators, math_constants
+        return operators, constants
 
     @staticmethod
     def lexer(characters, token_exprs, tuple_template):
@@ -436,8 +460,6 @@ def main():
 if __name__ == '__main__':
     main()
 
-# print(help(PyCalc.lexer))
-#
-# calc = PyCalc()
-# result = calc.calculate('5.+.5')
+# calc = PyCalc(sin)
+# result = calc.calculate('sin(5)+z+x+cos(5)')
 # print(result)
