@@ -13,8 +13,8 @@ class PyCalc:
     Evaluates the passed string.
 
     List of methods:
-    __init__                - class initialiser;
-    tokenizer       - creates list of tokens from passed string;
+    __init__                - class initializer;
+    tokenizer               - creates list of tokens from passed string;
     rpn - transforms passed stack into reverse polish notation stack;
     execute_rpn             - executes passed stack (stack have to be an rpn stack)
     calculate               - calculates passed string using previous methods;
@@ -25,15 +25,16 @@ class PyCalc:
     lexer                   - transforms string into token stack. This method is more common, while tokenizer
         has more rules to perform.
     """
+
     def __init__(self, *args):
         """
-        Pycalc class initialiser.
+        Pycalc class initializer.
         Sets a lot of variables, such as tag variables, dictionaries of math operators, math constants, etc. and saves
         them into pickle file. On the next run this file'll be unpacked and loaded, so there'll be no need to recalcula-
-        te dictionaries of math operators and constants.
+        te dictionaries of math operators and constants. User functions won't be added to pickle file.
 
         Arguments:
-            No arguments.
+            *args - (list) list of additional modules.
 
         Returns:
             No returns.
@@ -47,92 +48,82 @@ class PyCalc:
 
         cfg_name = "operators.pkl"
 
-        self.tag_advanced = 'advanced'
-        self.tag_constant = 'constant'
-        self.tag_common = 'common'
-        self.tag_number = 'number'
+        tag_advanced = 'advanced'
+        tag_constant = 'constant'
+        tag_common = 'common'
+        tag_number = 'number'
+
+        math_priority = 8
 
         try:
 
             with open(cfg_name, 'rb') as pickle_file:
                 obj = pickle.load(pickle_file)
-                self.constants, self.operators, self.token_exprs = obj
+                math_constants, math_operators, token_expressions = obj
 
         except Exception:
 
-            math_priority = 8
-
             common_operators = {
 
-                ",":        full_info(None,                 9, None,     r',', self.tag_common),
+                ",": full_info(None, 9, None, r',', tag_common),
 
+                "abs": full_info(float.__abs__, 8, 1, r'abs', tag_common),
+                "round": full_info(float.__round__, 8, 1, r'round', tag_common),
 
-                "abs":      full_info(float.__abs__,        8, 1,        r'abs', self.tag_common),
-                "round":    full_info(float.__round__,      8, 1,        r'round', self.tag_common),
+                "$": full_info(float.__pos__, 7, 1, r'\$', tag_common),
+                "#": full_info(float.__neg__, 7, 1, r'\#', tag_common),
 
-                "$":        full_info(float.__pos__,        7, 1,        r'\$', self.tag_common),
-                "#":        full_info(float.__neg__,        7, 1,        r'\#', self.tag_common),
+                "^": full_info(float.__pow__, 6, 2, r'\^', tag_common),
 
-                "^":        full_info(float.__pow__,        6, 2,        r'\^', self.tag_common),
+                "*": full_info(float.__mul__, 5, 2, r'\*', tag_common),
+                "/": full_info(float.__truediv__, 5, 2, r'/', tag_common),
 
-                "*":        full_info(float.__mul__,        5, 2,        r'\*', self.tag_common),
-                "/":        full_info(float.__truediv__,    5, 2,        r'/', self.tag_common),
+                "%": full_info(float.__mod__, 4, 2, r'%', tag_common),
+                "//": full_info(float.__floordiv__, 4, 2, r'//', tag_common),
 
-                "%":        full_info(float.__mod__,        4, 2,        r'%', self.tag_common),
-                "//":       full_info(float.__floordiv__,   4, 2,        r'//', self.tag_common),
+                "-": full_info(float.__sub__, 2, 2, r'-', tag_common),
+                "+": full_info(float.__add__, 2, 2, r'\+', tag_common),
 
-                "-":        full_info(float.__sub__,        2, 2,        r'-', self.tag_common),
-                "+":        full_info(float.__add__,        2, 2,        r'\+', self.tag_common),
+                "(": full_info(None, 1, 0, r'\(', tag_common),
 
+                "<=": full_info(float.__le__, 0, 2, r'<=', tag_common),
+                ">=": full_info(float.__ge__, 0, 2, r'>=', tag_common),
+                "==": full_info(float.__eq__, 0, 2, r'==', tag_common),
+                "!=": full_info(float.__ne__, 0, 2, r'!=', tag_common),
+                "<": full_info(float.__lt__, 0, 2, r'<', tag_common),
+                ">": full_info(float.__gt__, 0, 2, r'>', tag_common),
 
-
-                "(":        full_info(None,                 1, 0,        r'\(', self.tag_common),
-
-                "<=":       full_info(float.__le__,         0, 2,        r'<=', self.tag_common),
-                ">=":       full_info(float.__ge__,         0, 2,        r'>=', self.tag_common),
-                "==":       full_info(float.__eq__,         0, 2,        r'==', self.tag_common),
-                "!=":       full_info(float.__ne__,         0, 2,        r'!=', self.tag_common),
-                "<":        full_info(float.__lt__,         0, 2,        r'<', self.tag_common),
-                ">":        full_info(float.__gt__,         0, 2,        r'>', self.tag_common),
-
-                ")":        full_info(None,                 None, None,  r'\)', self.tag_common),
-
-                "space":    full_info(None,                 None, None,  r'[ \n\t]+',        None),
-                "int_n":    full_info(None,                 None, None,  r'[0-9]+',          self.tag_number),
-                "int_f":    full_info(None,                 None, None,  r'[0-9]+\.[0-9]+',   self.tag_number),
-                "int_f2":   full_info(None,                 None, None,  r'\.[0-9]+',         self.tag_number),
-                "int_f3":   full_info(None,                 None, None,  r'[0-9]+\.',         self.tag_number)
-
-
+                ")": full_info(None, None, None, r'\)', tag_common),
+                "space": full_info(None, None, None, r'[ \n\t]+', None),
+                "num_i": full_info(None, None, None, r'[0-9]+', tag_number),
+                "num_f": full_info(None, None, None, r'[0-9]+\.[0-9]+', tag_number),
+                "num_f2": full_info(None, None, None, r'\.[0-9]+', tag_number),
+                "num_f3": full_info(None, None, None, r'[0-9]+\.', tag_number)
             }
 
             math_operators, math_constants = PyCalc.get_operators_from_module(module=math,
                                                                               priority=math_priority,
-                                                                              tag_operators=self.tag_advanced,
-                                                                              tag_constants=self.tag_constant,
+                                                                              tag_operators=tag_advanced,
+                                                                              tag_constants=tag_constant,
                                                                               tuple_template=full_info
                                                                               )
 
-            math_operators.update({'log': full_info(math.log, math_priority, 1, 'log', self.tag_advanced)})
-            math_operators.update({'log2': full_info(math.log, math_priority, 2, 'log2', self.tag_advanced)})
+            # math_operators.update({'log': full_info(math.log, math_priority, 1, 'log', tag_advanced)})
+            # math_operators.update({'log2': full_info(math.log, math_priority, 2, 'log2', tag_advanced)})
 
-            self.operators = common_operators
-            self.operators.update(math_operators)
-            self.constants = math_constants.copy()
+            math_operators.update(common_operators)
 
             token_expressions = []
-            for item in self.operators.values():
+            for item in math_operators.values():
                 token_expressions.append(regex_and_tag(item.regex, item.tag))
-            for item in self.constants.values():
+            for item in math_constants.values():
                 token_expressions.append(regex_and_tag(item.regex, item.tag))
-
             token_expressions.sort(reverse=True)
-            self.token_exprs = token_expressions
 
             try:
-                obj = [self.constants,
-                       self.operators,
-                       self.token_exprs]
+                obj = [math_constants,
+                       math_operators,
+                       token_expressions]
                 with open(cfg_name, 'wb') as pickle_file:
                     pickle.dump(obj, pickle_file)
             except Exception:
@@ -140,20 +131,30 @@ class PyCalc:
 
         finally:
 
-            for item in args:
-                math_operators, math_constants = PyCalc.get_operators_from_module(module=item,
-                                                                                  priority=math_priority,
-                                                                                  tag_operators=self.tag_advanced,
-                                                                                  tag_constants=self.tag_constant,
-                                                                                  tuple_template=full_info
-                                                                                  )
-                self.operators.update(math_operators)
-                self.constants.update(math_constants)
-                for j_item in math_operators.values():
-                    self.token_exprs.append(regex_and_tag(j_item.regex, j_item.tag))
-                for j_item in math_constants.values():
-                    self.token_exprs.append(regex_and_tag(j_item.regex, j_item.tag))
-            self.token_exprs.sort(reverse=True)
+            if args:
+
+                for item in args:
+                    temp_operators, temp_constants = PyCalc.get_operators_from_module(module=item,
+                                                                                      priority=math_priority,
+                                                                                      tag_operators=tag_advanced,
+                                                                                      tag_constants=tag_constant,
+                                                                                      tuple_template=full_info)
+                    math_operators.update(temp_operators)
+                    math_constants.update(temp_constants)
+                    for j_item in temp_operators.values():
+                        token_expressions.append(regex_and_tag(j_item.regex, j_item.tag))
+                    for j_item in temp_constants.values():
+                        token_expressions.append(regex_and_tag(j_item.regex, j_item.tag))
+                token_expressions.sort(reverse=True)
+
+            self.token_expressions = token_expressions
+            self.constants = math_constants
+            self.operators = math_operators
+
+            self.tag_common = tag_common
+            self.tag_advanced = tag_advanced
+            self.tag_number = tag_number
+            self.tag_constant = tag_constant
 
     def tokenizer(self, input_string):
         """
@@ -169,11 +170,12 @@ class PyCalc:
             RuntimeError - Unknown syntax! - in case of spaces between numbers.
             RuntimeError - Brackets aren't balanced! - in case of unbalanced brackets.
         """
-
+        # Checking spaces between numbers
         pattern = r"[0-9][ \n\t]+[0-9]"
         if re.search(pattern, input_string):
             raise RuntimeError("Unknown syntax: " + re.search(pattern, input_string).group(0))
 
+        # Checking unary operations
         patterns_and_replacements = [
             (r"--", r"+"),
             (r"\++\+", r"+"),
@@ -192,19 +194,22 @@ class PyCalc:
                     break_bool = True
                     break
 
-        pattern = r"log\(.+,"
-        tmp = re.search(pattern, input_string)
-        while tmp:
-            pos = tmp.start()
-            first_part = input_string[:pos]
-            second_part = input_string[pos:]
-            second_part = re.sub("^log", "log2", second_part)
-            input_string = first_part + second_part
-            tmp = re.search(pattern, input_string)
+        # Solving the log problem
+        # pattern = r"log\(.+,"
+        # tmp = re.search(pattern, input_string)
+        # while tmp:
+        #     pos = tmp.start()
+        #     first_part = input_string[:pos]
+        #     second_part = input_string[pos:]
+        #     second_part = re.sub("^log", "log2", second_part)
+        #     input_string = first_part + second_part
+        #     tmp = re.search(pattern, input_string)
 
-        token_and_tag = namedtuple("str_and_tag", ("token", "tag"))
-        token_stack = PyCalc.lexer(input_string, self.token_exprs, token_and_tag)
+        # Lexing
+        token_and_tag = namedtuple("token_and_tag", ("token", "tag"))
+        token_stack = PyCalc.lexer(input_string, self.token_expressions, token_and_tag)
 
+        # Checking bracket balance, adding implicit multiplications, replacing unary operations
         temporary_stack = ["$"]
         prev_item = token_and_tag("$", self.tag_common)
         bracket_balance = 0
@@ -220,7 +225,7 @@ class PyCalc:
 
             if ((item.tag == self.tag_constant or item.tag == self.tag_advanced or item.tag == self.tag_number) and
                 (prev_item.token == ")" or prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number)) or \
-               ((prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number) and item.token == "("):
+                    ((prev_item.tag == self.tag_constant or prev_item.tag == self.tag_number) and item.token == "("):
                 temporary_stack.append("*")
 
             if prev_item.tag == self.tag_common and prev_item.token != ")":
@@ -236,6 +241,29 @@ class PyCalc:
             token_stack = temporary_stack[1:]
             if bracket_balance != 0:
                 raise RuntimeError("Brackets aren't balanced!")
+
+        # Solving the log problem
+        i = 0
+        while i < len(token_stack):
+            if token_stack[i] == "log":
+                j = i+2
+                bracket_counter = 1
+                while bracket_counter != 0:
+                    if token_stack[j] == "(":
+                        bracket_counter += 1
+                    elif token_stack[j] == ")":
+                        bracket_counter -= 1
+                    elif token_stack[j] == "," and bracket_counter == 1:
+                        break
+
+                    j += 1
+
+                else:
+                    token_stack.insert(j-1, ",")
+                    token_stack.insert(j, "e")
+
+            i += 1
+
 
         return token_stack
 
@@ -337,15 +365,15 @@ class PyCalc:
 
         # print(input_string)
         try:
-            stacked_string = self.tokenizer(input_string)
+            tokens = self.tokenizer(input_string)
         except Exception as eerror:
             print("ERROR: in tokenizer" + str(eerror.args[0]))
             exit(1)
-        # print(stacked_string)
-        stacked_rpn = self.rpn(stacked_string)
+        # print(tokens)
+        rpn = self.rpn(tokens)
         # print(stacked_rpn)
         try:
-            result = self.execute_rpn(stacked_rpn)
+            result = self.execute_rpn(rpn)
         except IndexError:
             print("ERROR: in execute_rpn Wrong operations order!")
             exit(1)
@@ -366,10 +394,11 @@ class PyCalc:
     @staticmethod
     def get_operators_from_module(module, priority, tag_operators, tag_constants, tuple_template):
         """
-        Parses math module and returns dictionary with followed structure:
+        Parses passed module and returns dictionary with followed structure:
             {'name': namedtuple("full_info", ("func", "priority", "number_args", "regex", "tag")}
 
         Arguments:
+            module - (module) input module to parse;
             priority - (int) priority of math operations. As math module has only functions - all of functions'll
                 have the same priority;
             tag_operators - (string) string tag for operators;
@@ -383,8 +412,8 @@ class PyCalc:
         Raises:
             No raises.
         """
-
-        pattern = r"\(.*\)"
+        any_pattern = r"\(.+\)"
+        brackets_pattern = r"\(.*\)"
         coma_pattern = r"\,"
 
         operators = {}
@@ -392,21 +421,22 @@ class PyCalc:
 
         for item in dir(module):
             if isinstance(module.__dict__.get(item), types.BuiltinFunctionType):
-
                 if item.find("__"):
-                    res = re.search(pattern, module.__dict__.get(item).__doc__)
-                    res = re.findall(coma_pattern, res.group())
-                    operators.update({item: tuple_template(module.__dict__.get(item), priority, len(res) + 1,
-                                                           item, tag_operators)})
+                    res = re.search(brackets_pattern, module.__dict__.get(item).__doc__)
+                    if re.search(any_pattern, res.group()):
+                        res = re.findall(coma_pattern, res.group())
+                        operators.update({item: tuple_template(module.__dict__.get(item), priority, len(res) + 1,
+                                                               item, tag_operators)})
+                    else:
+                        operators.update({item: tuple_template(module.__dict__.get(item), priority, 0,
+                                                               item, tag_operators)})
             elif isinstance(module.__dict__.get(item), types.FunctionType):
                 res = len(inspect.getfullargspec(module.__dict__.get(item)).args)
-                operators.update({item: tuple_template(module.__dict__.get(item), priority, res,
-                                                       item, tag_operators)})
+                operators.update({item: tuple_template(module.__dict__.get(item), priority, res, item, tag_operators)})
             else:
                 if item.find("__"):
                     constants.update({item: tuple_template(module.__dict__.get(item), None, None, item,
                                                            tag_constants)})
-
         return operators, constants
 
     @staticmethod
@@ -450,8 +480,14 @@ class PyCalc:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("EXPRESSION", help="expression string to evaluate")
+    parser.add_argument('-m', '--use-module', metavar='MODULE', type=str, nargs='+', help='additional user modules')
     args = parser.parse_args()
-    calc = PyCalc()
+    module_list = []
+    if args.use_module:
+        for item in args.use_module:
+            module_list.append(__import__(item))
+
+    calc = PyCalc(*module_list)
     result = calc.calculate(args.EXPRESSION)
     print(result)
 
@@ -459,6 +495,6 @@ def main():
 if __name__ == '__main__':
     main()
 
-# calc = PyCalc(sin)
-# result = calc.calculate('sin(5)+z+x+cos(5)')
+# calc = PyCalc()
+# result = calc.calculate('log(log(e^e, e), e)')
 # print(result)
