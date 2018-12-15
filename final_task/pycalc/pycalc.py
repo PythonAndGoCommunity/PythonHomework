@@ -4,7 +4,6 @@ import types
 import pickle
 import argparse
 import inspect
-import sin
 from collections import namedtuple
 
 
