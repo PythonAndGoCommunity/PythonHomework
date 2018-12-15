@@ -23,9 +23,11 @@ class Calc:
         
         lim -> int - length limit of operation names
     Methods:
-        my_eval(self, st) - evaluate Expression and return value or bool
-        make_note(self, st, impl=False) - make reverse polish entry and write it to eval_list
-        eval_not(self) - evaluate RPE using eval_list as source
+        __init__(self, users) - collects member names of user modules 
+        my_eval(self, st) - evaluates Expression and return value or bool
+        make_note(self, st, impl=False) - makes reverse polish entry and write it to eval_list
+        eval_not(self) - evaluates RPE using eval_list as source
+        check_num(self, temp_num) - converts str to int or float and store num in eval_list
     """
     const = {'pi': math.pi, 'e': math.e, 'q': math.pi * math.e}
     func = {'round': (round, 4), 'abs': (abs, 4)}
@@ -48,7 +50,7 @@ class Calc:
 
     cmp_op = []
 
-    def __init__(self, users):
+    def __init__(self, users: list):
         for u in [u + '.py' for u in users if '.py' not in u]:
             for p in path:
                 try:
@@ -60,7 +62,7 @@ class Calc:
                 else:
                     self.users_mod[foo] = dir(foo)
 
-    def my_eval(self, st):
+    def my_eval(self, st: str):
         for k in self.cmp.keys():
             if k in st:
                 self.cmp_op.append(self.cmp[k])
@@ -81,7 +83,7 @@ class Calc:
                 del res[0]
             return True
 
-    def make_note(self, st, impl=False):
+    def make_note(self, st: str, impl=False):
         self.unary = True
         self.implicit_mul = False
         egg = ''       # содержит операцию
@@ -190,7 +192,7 @@ class Calc:
             self.eval_list.append(o[0])
         self.op_st = []
 
-    def check_num(self, temp_num):            # определение типа числа
+    def check_num(self, temp_num: str):            # определение типа числа
         if '.' in temp_num:
             if len(temp_num) == 1:
                 raise ValueError('incorrect using dots!')
