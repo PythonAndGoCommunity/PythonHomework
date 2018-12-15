@@ -264,7 +264,6 @@ class PyCalc:
 
             i += 1
 
-
         return token_stack
 
     def rpn(self, stack):
