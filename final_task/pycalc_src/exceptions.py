@@ -11,9 +11,9 @@ class BaseCalculatorException(Exception):
             message = 'an error occured while working pycalc'
         self.message = 'ERROR: {}'.format(message)
 
-        print(self.message)
+        #  print(self.message)
 
-        sys.exit(1)
+        #  sys.exit(1)
 
 
 class CalculatorError(BaseCalculatorException):
