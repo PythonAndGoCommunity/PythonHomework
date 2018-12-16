@@ -21,7 +21,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expressions = [valid_expression('5', 0, '5', '5'),
                              valid_expression(' .', 1, '.', '.'),
                              valid_expression('1 ', 0, '1', '1')
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -49,7 +49,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression('-@', '5', '', -5),
                              valid_expression('', '', 'pi', math.pi),
                              valid_expression('-@', '', 'e', -math.e)
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator('')
@@ -66,7 +66,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expression = namedtuple('valid_expression', 'unary_operator operator result')
         valid_expressions = [valid_expression('', 'sin', ['sin']),
                              valid_expression('-@', 'log', ['-@', 'log'])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator('')
@@ -82,7 +82,7 @@ class TestStringMethods(unittest.TestCase):
         invalid_expression = namedtuple('valid_expression', 'unary_operator operator')
         invalid_expressions = [invalid_expression('', 'log100'),
                                invalid_expression('-@', 'sin4')
-                              ]
+                               ]
 
         for expression in invalid_expressions:
             calc = Calculator('')
@@ -101,7 +101,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression(['*'], '+', ['+'], ['*']),
                              valid_expression(['-'], '/', ['-', '/'], []),
                              valid_expression(['sin', 'tan'], '/', ['/'], ['tan', 'sin'])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator('')
@@ -117,7 +117,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expression = namedtuple('valid_expression', 'expression stack index symbol result_stack result_rpn')
         valid_expressions = [valid_expression('5 >= 4', ['>'], 3, '=', ['>='], []),
                              valid_expression('5+1*2 > 4', ['+', '*'], 7, '>', ['>'], ['*', '+'])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -133,7 +133,7 @@ class TestStringMethods(unittest.TestCase):
         invalid_expression = namedtuple('invalid_expression', 'expression stack index symbol')
         invalid_expressions = [invalid_expression('5 > = 4', ['>'], 4, '='),
                                invalid_expression('5+2 = = 4', ['='], 6, '=')
-                              ]
+                               ]
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
@@ -147,14 +147,14 @@ class TestStringMethods(unittest.TestCase):
         """Docstring."""
 
         valid_expression = namedtuple('valid_expression', 'expression stack symbol number result_stack result_rpn')
-        valid_expressions = [
-        valid_expression('round(1.22, 4)', ['round', '('], ',', '', ['round', '(', ','], []),
-        valid_expression('round(1.22+2, 4)', ['round', '(', '+'], ',', '', ['round', '(', ','], ['+']),
-        valid_expression('2 + (4)', ['+'], '(', '', ['+', '('], []),
-        valid_expression('2 + 2(4)', ['+'], '(', '2', ['+', '*', '('], [2]),
-        valid_expression('(4 + 3 * 2)', ['(', '+', '*'], ')', '', [], ['*', '+']),
-        valid_expression('1 + (3 * 2)', ['+', '(', '*'], ')', '', ['+'], ['*'])
-                            ]
+        valid_expressions =
+        [valid_expression('round(1.22, 4)', ['round', '('], ',', '', ['round', '(', ','], []),
+         valid_expression('round(1.22+2, 4)', ['round', '(', '+'], ',', '', ['round', '(', ','], ['+']),
+         valid_expression('2 + (4)', ['+'], '(', '', ['+', '('], []),
+         valid_expression('2 + 2(4)', ['+'], '(', '2', ['+', '*', '('], [2]),
+         valid_expression('(4 + 3 * 2)', ['(', '+', '*'], ')', '', [], ['*', '+']),
+         valid_expression('1 + (3 * 2)', ['+', '(', '*'], ')', '', ['+'], ['*'])
+         ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -175,7 +175,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression('1*-4', 2, '-', True),
                              valid_expression('(1*2)-4', 5, '-', False),
                              valid_expression('5==-5', 3, '-', True)
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -193,7 +193,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expressions = [valid_expression('5/5', 4, '', False),
                              valid_expression('4//3', 2, '/', True),
                              valid_expression('4/3', 1, '/', False)
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -217,7 +217,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression('//', ['//']),
                              valid_expression('-100', [-100]),
                              valid_expression('pi*log2(1)==-1', [3.141592653589793, 1, 'log2', '*', -1, '=='])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -230,7 +230,7 @@ class TestStringMethods(unittest.TestCase):
 
         invalid_expression = namedtuple('invalid_expression', 'expression')
         invalid_expressions = [invalid_expression('not an expression')
-                              ]
+                               ]
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
@@ -246,7 +246,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expressions = [valid_expression('1+2', [1, 2], '+', [3]),
                              valid_expression('round(1.2254,2)', [1.2254, 2, ','], 'round', [1.23]),
                              valid_expression('log(.5)', [0.5], 'log', [-0.6931471805599453])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -261,7 +261,7 @@ class TestStringMethods(unittest.TestCase):
         invalid_expression = namedtuple('invalid_expression', 'expression stack operator')
         invalid_expressions = [invalid_expression('log(.5,)', [0.5, ','], 'log'),
                                invalid_expression('log(.5,1,2)', [0.5, 1, 2, ',', ','], 'log')
-                              ]
+                               ]
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
@@ -278,7 +278,7 @@ class TestStringMethods(unittest.TestCase):
                                       'expression function first_operand second_operand result_stack')
         valid_expressions = [valid_expression('365+635', operator.add, 365, 635, [1000]),
                              valid_expression('sin(1)', math.sin, 1, None, [0.8414709848078965])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -293,7 +293,7 @@ class TestStringMethods(unittest.TestCase):
         invalid_expressions = [invalid_expression('5/0', operator.truediv, 5, 0),
                                invalid_expression('log(-100)', math.log, -100, None),
                                invalid_expression('log(1,,)', math.log, 1, ',')
-                              ]
+                               ]
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
@@ -310,7 +310,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression('-(3)', [3, '-@'], [-3]),
                              valid_expression('1+cos(1)', [1, 1, 'cos', '+'], [1.5403023058681398]),
                              valid_expression('1563', [1563], [1563])
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
@@ -325,7 +325,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expression = namedtuple('valid_expression', 'unary_operator result')
         valid_expressions = [valid_expression('-@', '-'),
                              valid_expression('+@', '+')
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator('expression')
@@ -342,7 +342,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression('789.99', 789.99),
                              valid_expression('-500.87', -500.87),
                              valid_expression([], 0)
-                            ]
+                             ]
 
         for expression in valid_expressions:
             calc = Calculator('expression')
@@ -350,6 +350,10 @@ class TestStringMethods(unittest.TestCase):
             result = calc._convert_to_number(expression.number)
 
             self.assertEqual(result, expression.result)
+
+
+class TestStringMethods(unittest.TestCase):
+    """Docstring."""
 
 
 if __name__ == '__main__':

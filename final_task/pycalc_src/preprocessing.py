@@ -19,26 +19,11 @@ def preprocessing(expression):
 
     expression = expression.lower()
 
-    #  if not _is_operators_available(expression):
-        #  raise PreprocessingError('there are no operators in the expression')
-
     expression = expression.replace('**', '^')
 
     expression = _clean_repeatable_operators(expression)
 
     return expression
-
-
-def _is_operators_available(expression):
-    """Check operators in the expression."""
-    for statement in OPERATORS:
-        if statement in expression:
-            return True
-
-    for statement in CONSTANTS:
-        if statement in expression:
-            return True
-    return False
 
 
 def _clean_repeatable_operators(expression):
