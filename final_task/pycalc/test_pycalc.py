@@ -1,6 +1,6 @@
 import unittest
 import math
-from pycalc import *
+from .pycalc import *
 
 
 class TestLexer(unittest.TestCase):
