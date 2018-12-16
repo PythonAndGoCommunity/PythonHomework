@@ -6,6 +6,6 @@ setup(name='pycalc',
       long_description='Really, my python calculator.',
       packages=find_packages(),
       entry_points={
-            'console_scripts': ['pycalc = pycalc.pycalc:calculate']
+            'console_scripts': ['pycalc = pycalc.pycalc:parse_cmd_args']
       }
       )
