@@ -4,6 +4,9 @@ This module contains auxiliary functions for the calculator
 
 
 class PycalcError(Exception):
+    """
+    Class for Pycalc exceptions
+    """
     def __init__(self, message):
         super().__init__('ERROR: ' + str(message))
 
@@ -25,7 +28,7 @@ def check_may_unary_operator(operator):
     :return: True if the operator may be unary
     False otherwise
     """
-    return operator in ['+', '-']
+    return operator in ('+', '-')
 
 
 def check_is_unary_operator(operator):
@@ -33,7 +36,7 @@ def check_is_unary_operator(operator):
     :return: True if the operator is unary
     False otherwise
     """
-    return operator in ['u+', 'u-']
+    return operator in ('u+', 'u-')
 
 
 def check_right_associativity(operator):

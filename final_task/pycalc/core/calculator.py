@@ -81,19 +81,19 @@ def split_operands(merged_operand):
 
 def do_implicit_multiplication(expression):
     """
-    Finds places where multiplication signs are missing and inserts them there
+    Finds places where multiplication signs are missed and inserts them there
     :param expression
-    :return: expression with multiply signs where they are missing
+    :return: expression with multiply signs where they are missed
     """
-    operator_end_position = -1
+    token_end_position = -1
     insert_positions = []
     expression = expression.replace(' ', '')
     expression = re.sub(r'\)\(', ')*(', expression)
     for i in range(len(expression)):
-        if operator_end_position >= i:
+        if token_end_position >= i:
             continue
         j = i
-        operand, operator_end_position, i = find_operand(expression, i)
+        operand, token_end_position, i = find_operand(expression, i)
         if operand:
             operands = split_operands(operand)
             if not operands:
@@ -104,7 +104,7 @@ def do_implicit_multiplication(expression):
                 if i > 0 and expression[i - 1] == ')':
                     splited_operands = '*' + splited_operands
                 expression = expression.replace(operand, splited_operands)
-                operator_end_position = i + len('*'.join(operands[:-1]))
+                token_end_position = i + len('*'.join(operands[:-1]))
                 operand = operands[-1]
         module = get_module(operand)
         is_call = False
@@ -128,7 +128,7 @@ def check_may_valid_operation(last_operator, current_operator):
     """
     :param last_operator
     :param current_operator
-    :return: True if
+    :return: True if operation is valid
     """
     if check_is_unary_operator(current_operator) and get_priority(current_operator) < get_priority(last_operator):
         return
@@ -164,7 +164,7 @@ def split_arguments(arguments_string):
             split_positions.append(i)
 
     for i, position in enumerate(split_positions):
-        if not i:
+        if i == 0:
             arguments.append(arguments_string[:position])
         elif i < len(split_positions):
             arguments.append(arguments_string[split_positions[i - 1] + 1:position])
@@ -176,11 +176,11 @@ def split_arguments(arguments_string):
     return arguments
 
 
-def process_func_or_const(operand, expression, operator_end_position, module):
+def process_func_or_const(operand, expression, token_end_position, module):
     """
     :param operand
     :param expression
-    :param operator_end_position
+    :param token_end_position
     :param module
     :return: the constant or result of the function and
     position of the last symbol if this is function
@@ -189,17 +189,17 @@ def process_func_or_const(operand, expression, operator_end_position, module):
         count = 0
         inner_expression = ''
         brackets = {'(': 1, ')': -1}
-        if operator_end_position < len(expression) and expression[operator_end_position] == '(':
+        if token_end_position < len(expression) and expression[token_end_position] == '(':
             count += 1
-            operator_end_position += 1
+            token_end_position += 1
             while count:
-                if expression[operator_end_position] in brackets:
-                    count += brackets[expression[operator_end_position]]
+                if expression[token_end_position] in brackets:
+                    count += brackets[expression[token_end_position]]
                 if not count:
                     break
-                inner_expression += expression[operator_end_position]
-                operator_end_position += 1
-        args = []
+                inner_expression += expression[token_end_position]
+                token_end_position += 1
+        args = ()
         if inner_expression:
             raw_arguments = split_arguments(inner_expression)
             if not raw_arguments[-1]:
@@ -209,11 +209,11 @@ def process_func_or_const(operand, expression, operator_end_position, module):
             func_result = getattr(module, operand)(*args)
             if not check_is_number(func_result):
                 raise PycalcError('Unsupported function result')
-            return func_result, operator_end_position
+            return func_result, token_end_position
         except (TypeError, ValueError) as error:
             raise PycalcError(error)
 
-    return getattr(module, operand), ''
+    return getattr(module, operand), None
 
 
 def get_priority(operator):
@@ -245,28 +245,28 @@ def check_valid_spaces(expression):
     :param expression
     """
     is_last_number, is_last_operator, is_space = False, False, False
-    operator_end_position = -1
+    token_end_position = -1
     for i, symbol in enumerate(expression):
         if symbol in ['(', ')']:
             is_last_number, is_last_operator, is_space = False, False, False
-        elif operator_end_position >= i:
+        elif token_end_position >= i:
             continue
         elif symbol == ' ':
             is_space = True
         elif symbol in OPERATORS or (i < len(expression) - 1 and symbol + expression[i + 1] in OPERATORS):
             if is_last_operator and is_space and not check_may_unary_operator(symbol):
-                raise PycalcError('Missing operand')
+                raise PycalcError('Missed operand')
             else:
-                operator_end_position = i + get_length_operator(expression, i) - 1
+                token_end_position = i + get_length_operator(expression, i) - 1
             is_last_number, is_last_operator, is_space = False, True, False
         else:
             if symbol in ['!', '=']:
                 raise PycalcError('Invalid operator')
             is_last_operator, is_space = False, False
-            operand, operator_end_position, i = find_operand(expression, i)
+            operand, token_end_position, i = find_operand(expression, i)
             if check_is_number(operand):
                 if is_last_number:
-                    raise PycalcError('Missing operator')
+                    raise PycalcError('Missed operator')
                 is_last_number = True
             else:
                 is_last_number = False
@@ -284,7 +284,7 @@ def execute_comparison(operands, operators):
             if not OPERATORS[operator](operands[i], operands[i + 1]):
                 return False
         return True
-    raise PycalcError('Missing operator or operand')
+    raise PycalcError('Missed operator or operand')
 
 
 def execute_operation(operands, operator):
@@ -301,7 +301,7 @@ def execute_operation(operands, operator):
             left = operands.pop()
             operands.append(OPERATORS[operator](left, right))
         else:
-            raise PycalcError('Missing operator or operand')
+            raise PycalcError('Missed operator or operand')
 
 
 def do_final_execution(operators, operands):
@@ -312,7 +312,7 @@ def do_final_execution(operators, operands):
     :return: result of calculation
     """
     if not operands:
-        raise PycalcError('Missing operator')
+        raise PycalcError('Missed operator')
     while operators:
         if not check_comparison_priority(operators):
             execute_operation(operands, operators.pop())
@@ -324,7 +324,7 @@ def do_final_execution(operators, operands):
         raise PycalcError('Negative number cannot be raised to a fractional power')
 
     elif len(operands) > 1:
-        raise PycalcError('Missing operator')
+        raise PycalcError('Missed operator')
 
     answer = operands.pop()
     if answer % 1 or isinstance(answer, bool):
@@ -343,9 +343,9 @@ def find_operand(expression, position):
     while position < len(expression) and (expression[position].isalnum() or expression[position] == '.'):
         operand += expression[position]
         position += 1
-    operator_end_position = position - 1
+    token_end_position = position - 1
 
-    return operand, operator_end_position, position
+    return operand, token_end_position, position
 
 
 def get_length_operator(expression, position):
@@ -369,53 +369,51 @@ def validate_expression(expression):
     check_valid_spaces(expression)
 
 
-def update_operands(expression, operands, i):
+def update_operands(expression, operands, index):
     """
-    :param expression:
-    :param operands:
-    :param i:
-    :return:
+    :param expression
+    :param operands
+    :param index: index of symbol with which the operand starts
+    :return: token's end position index
     """
-    operand, operator_end_position, i = find_operand(expression, i)
+    operand, token_end_position, index = find_operand(expression, index)
 
     module = get_module(operand)
     if check_is_number(operand):
         operand = float(operand)
-        if operand % 1:
-            operands.append(operand)
-        else:
-            operands.append(int(operand))
+        if not operand % 1:
+            operand = int(operand)
+        operands.append(operand)
     elif module:
-        new_operand = process_func_or_const(operand, expression, i, module)
-        operands.append(new_operand[0])
-        if new_operand[1]:
-            operator_end_position = new_operand[1]
+        new_operand, tmp_token_end_position = process_func_or_const(operand, expression, index, module)
+        operands.append(new_operand)
+        if tmp_token_end_position:
+            token_end_position = tmp_token_end_position
     else:
         raise PycalcError('Unexpected operand')
-    is_unary = False
 
-    return operator_end_position, is_unary
+    return token_end_position
 
 
-def update_operators(expression, operator, operators, operands, is_unary, operator_end_position, i):
+def update_operators(expression, operator, operators, operands, is_unary, token_end_position, index):
     """
-    :param expression:
-    :param operator:
-    :param operators:
-    :param operands:
-    :param is_unary:
-    :param operator_end_position:
-    :param i:
-    :return:
+    :param expression
+    :param operator
+    :param operators
+    :param operands
+    :param is_unary
+    :param token_end_position
+    :param index: index of symbol with which the operator starts
+    :return: token's end position index
     """
-    if i:
-        prev_symbol = expression[i - 1]
+    if not is_unary and index:
+        prev_symbol = expression[index - 1]
         if prev_symbol in OPERATORS:
             is_unary = True
 
-    if i < len(expression) - 1 and operator + expression[i + 1] in OPERATORS:
-        operator += expression[i + 1]
-        operator_end_position = i + 1
+    if index < len(expression) - 1 and operator + expression[index + 1] in OPERATORS:
+        operator += expression[index + 1]
+        token_end_position = index + 1
 
     if is_unary and check_may_unary_operator(operator):
         operator = 'u' + operator
@@ -433,7 +431,7 @@ def update_operators(expression, operator, operators, operands, is_unary, operat
             else:
                 break
     operators.append(operator)
-    return operator_end_position
+    return token_end_position
 
 
 def calculate(expression):
@@ -444,10 +442,10 @@ def calculate(expression):
     check_empty_expression(expression)
     operands = []
     operators = []
-    operator_end_position = -1
+    token_end_position = -1
     is_unary = True
-    for i, symbol in enumerate(expression):
-        if operator_end_position >= i:
+    for index, symbol in enumerate(expression):
+        if token_end_position >= index:
             continue
         elif symbol == '(':
             operators.append(symbol)
@@ -457,17 +455,19 @@ def calculate(expression):
                 execute_operation(operands, operators.pop())
             operators.pop()
             is_unary = False
-        elif symbol in OPERATORS or (i < len(expression) - 1 and symbol + expression[i + 1] in OPERATORS):
-            operator_end_position = update_operators(expression, symbol, operators, operands,
-                                                     is_unary, operator_end_position, i)
+        elif symbol in OPERATORS or (index < len(expression) - 1 and symbol + expression[index + 1] in OPERATORS):
+            token_end_position = update_operators(expression, symbol, operators, operands,
+                                                  is_unary, token_end_position, index)
         else:
-            operator_end_position, is_unary = update_operands(expression, operands, i)
+            token_end_position = update_operands(expression, operands, index)
+            is_unary = False
 
     return do_final_execution(operators, operands)
 
 
 def do_calculation(expression, modules=None):
     """
+    Import user modules and calculate expression
     :param expression
     :param modules
     :return: result of calculation

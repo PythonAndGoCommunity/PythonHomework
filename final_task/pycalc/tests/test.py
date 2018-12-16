@@ -1,3 +1,6 @@
+"""
+This module contains tests for the calculator
+"""
 import unittest
 import ddt
 import math

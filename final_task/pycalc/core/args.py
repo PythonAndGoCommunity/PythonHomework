@@ -7,7 +7,6 @@ import argparse
 def arg_parser():
     """
     Parse arguments of command line
-
     :return: arguments of command line
     """
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
