@@ -1,6 +1,6 @@
 import unittest
 import math
-from .pycalc import *
+from pycalc import *
 
 
 class TestLexer(unittest.TestCase):
@@ -109,6 +109,9 @@ class TestParser(unittest.TestCase):
         parser = Parser(['1', '2'])
         parser.recognize_implicit_multiplication()
         self.assertEqual(parser.tokens, ['1', '2'])
+        parser = Parser(['pow(', '(', '1', ')', ',', '2', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['pow(', '(', '1', ')', ',', '2', ')'])
 
 
 class TestCalculator(unittest.TestCase):
