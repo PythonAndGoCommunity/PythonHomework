@@ -328,9 +328,9 @@ def add_implicit_mult(expression):
     was_const = False
     for i in range(len(result_expression)):
         expr_right += result_expression[i]
-        if result_expression[i] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/", "(", ")", ","):
+        if result_expression[i] in ("+", "-", "*", "^", "%", "=", ">", "<", "!", "/", "(", ")", ","):
             if result_expression[i] == ")" and i+1 < len(result_expression):
-                if not result_expression[i+1] in ("+", "-", "*","%", "^", "=", ">", "<", "!", "/", ")", ","):
+                if not result_expression[i+1] in ("+", "-", "*", "%", "^", "=", ">", "<", "!", "/", ")", ","):
                     result_expression = result_expression[0:i+1] + \
                         "*"+result_expression[i+1:len(result_expression)]
             expr_left = expr_right
@@ -417,8 +417,10 @@ def solve_functions(expression):
                         break
                 if first_end:
                     try:
-                        res_str = res_str.replace(res_str[func_start:end+1],
-                                                  str("{:.16f}".format(functions[temp](calc(res_str[start:first_end]), calc(res_str[first_end+1:end])))))
+                        res_str = res_str.replace(
+                            res_str[func_start:end+1],
+                            str("{:.16f}".format(functions[temp](calc(res_str[start:first_end]),
+                                calc(res_str[first_end+1:end])))))
                         res_str = solve_functions(res_str)
                         break
                     except Exception:
@@ -443,25 +445,27 @@ def solve_functions(expression):
 
 def replace_spaces(expression):
     """Findes and removes unenecessary spaces near signs"""
-    result_expression = expression
-    space_pos = result_expression.find(" ")
+    res_exp = expression
+    space_pos = res_exp.find(" ")
     while space_pos != -1:
-        if space_pos-1 >= 0 and result_expression[space_pos-1] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/", ","):
-            if space_pos+1 < len(result_expression) and result_expression[space_pos+1] in ("*", "^", "=", ">", "<", "!", "/"):
-                raise UnexpectedSpaceExeption(f"Unexpected space between '{result_expression[space_pos-1]}' and '{result_expression[space_pos+1]}'")
+        if space_pos-1 >= 0 and res_exp[space_pos-1] in ("+", "-", "*", "^", "%", "=", ">", "<", "!", "/", ","):
+            if space_pos+1 < len(res_exp) and res_exp[space_pos+1] in ("*", "^", "=", ">", "<", "!", "/", "%"):
+                error = f"Unexpected space between '{res_exp[space_pos-1]}' and '{res_exp[space_pos+1]}'"
+                raise UnexpectedSpaceExeption(error)
             else:
-                result_expression = result_expression.replace(
-                    result_expression[space_pos], "", 1)
-        elif space_pos+1 < len(result_expression) and result_expression[space_pos+1] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/"):
-            if space_pos-1 >= 0 and result_expression[space_pos-1] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/"):
-                raise UnexpectedSpaceExeption(f"Unexpected space between '{result_expression[space_pos-1]}' and '{result_expression[space_pos+1]}'")
+                res_exp = res_exp.replace(
+                    res_exp[space_pos], "", 1)
+        elif space_pos+1 < len(res_exp) and res_exp[space_pos+1] in ("+", "-", "*", "^", "%", "=", ">", "<", "!", "/"):
+            if space_pos-1 >= 0 and res_exp[space_pos-1] in ("+", "-", "*", "^", "%", "=", ">", "<", "!", "/"):
+                error = f"Unexpected space between '{res_exp[space_pos-1]}' and '{res_exp[space_pos+1]}'"
+                raise UnexpectedSpaceExeption(error)
             else:
-                result_expression = result_expression.replace(
-                    result_expression[space_pos], "", 1)
+                res_exp = res_exp.replace(
+                    res_exp[space_pos], "", 1)
         else:
             raise UnexpectedSpaceExeption("Unexpected space")
-        space_pos = result_expression.find(" ")
-    return result_expression
+        space_pos = res_exp.find(" ")
+    return res_exp
 
 
 def calc(expression):
