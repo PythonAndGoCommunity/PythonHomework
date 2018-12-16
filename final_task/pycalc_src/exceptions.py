@@ -1,6 +1,4 @@
 """Exceptions module."""
-import sys
-
 
 class BaseCalculatorException(Exception):
     """Base calculator exception."""
