@@ -168,10 +168,11 @@ class Parser:
                     self.tokens.insert(next_index, '*')
             elif self.tokens[index] in Lexer.CONSTANTS:
                 if self.is_float(self.tokens[next_index]) \
-                or self.tokens[next_index] in [*Lexer.CONSTANTS, *Lexer.FUNCTIONS, '(']:
+                   or self.tokens[next_index] in [*Lexer.CONSTANTS, *Lexer.FUNCTIONS, '(']:
                     self.tokens.insert(next_index, '*')
             elif self.tokens[index] == ')':
-                if not (self.tokens[next_index] == ')' or self.tokens[next_index] in Lexer.OPERATORS):
+                if not (self.tokens[next_index] == ')' or self.tokens[next_index] == ','
+                        or self.tokens[next_index] in Lexer.OPERATORS):
                     self.tokens.insert(next_index, '*')
             index, next_index = next_index, next_index + 1
 
