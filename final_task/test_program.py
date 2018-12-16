@@ -1,5 +1,4 @@
 import unittest
-
 from program.program import *
 from math import *
 
@@ -162,4 +161,5 @@ class CalculateListTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
     unittest.main()
