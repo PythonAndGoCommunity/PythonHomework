@@ -75,7 +75,7 @@ class TestParser(unittest.TestCase):
         self.assertEqual(parser.tokens, ['2', '*', 'e'])
         parser = Parser(['2', 'sin(', 'pi', ')'])
         parser.recognize_implicit_multiplication()
-        self.assertEqual(parser.tokens, ['2', '*', 'sin(', 'pi', ')'])    
+        self.assertEqual(parser.tokens, ['2', '*', 'sin(', 'pi', ')'])
         parser = Parser(['2', '(', '3', ')'])
         parser.recognize_implicit_multiplication()
         self.assertEqual(parser.tokens, ['2', '*', '(', '3', ')'])
