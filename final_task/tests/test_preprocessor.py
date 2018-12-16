@@ -4,9 +4,7 @@ import unittest
 
 from collections import namedtuple
 
-from pycalc_src.preprocessing import (preprocessing,
-                                      _is_operators_available,
-                                      _clean_repeatable_operators)
+from pycalc_src.preprocessor import Preprocessor
 from pycalc_src.exceptions import BaseCalculatorException
 
 
@@ -21,7 +19,8 @@ class TestStringMethods(unittest.TestCase):
                              ]
 
         for expression in valid_expressions:
-            func_result = preprocessing(expression.expression)
+            preprocessor = Preprocessor(expression.expression)
+            func_result = preprocessor.preprocessing()
 
             self.assertEqual(func_result, expression.result)
 
@@ -35,10 +34,13 @@ class TestStringMethods(unittest.TestCase):
                                ]
 
         for expression in invalid_expressions:
-            with self.assertRaises(BaseCalculatorException):
-                result = preprocessing(expression.expression)
+            preprocessor = Preprocessor(expression.expression)
+            preprocessor._Preprocessor__return_code = 0
 
-    def test_preprocessing__valid_expressions(self):
+            with self.assertRaises(BaseCalculatorException):
+                result = preprocessor.preprocessing()
+
+    def test_clean_repeatable_operators__valid_expressions(self):
         """Docstring."""
         valid_expression = namedtuple('valid_expression', 'expression result')
         valid_expressions = [valid_expression('--1', '+1'),
@@ -48,9 +50,10 @@ class TestStringMethods(unittest.TestCase):
                              ]
 
         for expression in valid_expressions:
-            func_result = _clean_repeatable_operators(expression.expression)
+            preprocessor = Preprocessor(expression.expression)
+            preprocessor._clean_repeatable_operators()
 
-            self.assertEqual(func_result, expression.result)
+            self.assertEqual(preprocessor.expression, expression.result)
 
 
 if __name__ == '__main__':

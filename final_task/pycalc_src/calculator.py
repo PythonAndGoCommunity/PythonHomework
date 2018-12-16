@@ -9,7 +9,7 @@ from pycalc_src.operators import CONSTANTS
 from pycalc_src.operators import UNARY_OPERATORS
 from pycalc_src.operators import COMPARISON_SYMBOLS
 
-from pycalc_src.preprocessing import preprocessing
+from pycalc_src.preprocessor import Preprocessor
 
 
 class Calculator:
@@ -118,11 +118,17 @@ class Calculator:
         """Define that operator is unary."""
         if symbol not in UNARY_OPERATORS:
             return False
+        if index == 0:
+            return True
         if index <= len(self.expression):
-            prev_symbol = self.expression[index - 1]
-            if index == 0 or (prev_symbol in OPERATORS and prev_symbol != ')'
+            for prev_symbol in reversed(self.expression[:index]):
+                if prev_symbol == ' ':
+                    continue
+                elif (prev_symbol in OPERATORS and prev_symbol != ')'
                               or prev_symbol in COMPARISON_SYMBOLS):
-                return True
+                    return True
+                else:
+                    break
         return False
 
     def _is_floordiv(self, index, symbol):
@@ -213,6 +219,7 @@ class Calculator:
 
     def _calculate_rpn(self):
         """Calculate reverse polish notation."""
+        print(self.rpn)
         for item in self.rpn:
             if item == ',':
                 self.stack.append(item)
@@ -239,8 +246,8 @@ class Calculator:
 
     def calculate(self):
         """Prepare and calculate expression."""
-        self.expression = preprocessing(self.expression)
-
+        preprocessor = Preprocessor(self.expression)
+        self.expression = preprocessor.preprocessing()
         self._process_expression()
         self._calculate_rpn()
 

@@ -146,18 +146,17 @@ class TestStringMethods(unittest.TestCase):
     def test_process_brackets_and_comma__valid_expressions(self):
         """Docstring."""
 
-        valid_expression = namedtuple('valid_expression', 'expression stack symbol number result_stack result_rpn')
-        valid_expressions =
-        [valid_expression('round(1.22, 4)', ['round', '('], ',', '', ['round', '(', ','], []),
-         valid_expression('round(1.22+2, 4)', ['round', '(', '+'], ',', '', ['round', '(', ','], ['+']),
-         valid_expression('2 + (4)', ['+'], '(', '', ['+', '('], []),
-         valid_expression('2 + 2(4)', ['+'], '(', '2', ['+', '*', '('], [2]),
-         valid_expression('(4 + 3 * 2)', ['(', '+', '*'], ')', '', [], ['*', '+']),
-         valid_expression('1 + (3 * 2)', ['+', '(', '*'], ')', '', ['+'], ['*'])
-         ]
+        valid_expression = namedtuple('valid_expression', 'stack symbol number result_stack result_rpn')
+        valid_expressions = [valid_expression(['round', '('], ',', '', ['round', '(', ','], []),
+                             valid_expression(['round', '(', '+'], ',', '', ['round', '(', ','], ['+']),
+                             valid_expression(['+'], '(', '', ['+', '('], []),
+                             valid_expression(['+'], '(', '2', ['+', '*', '('], [2]),
+                             valid_expression(['(', '+', '*'], ')', '', [], ['*', '+']),
+                             valid_expression(['+', '(', '*'], ')', '', ['+'], ['*'])
+                             ]
 
         for expression in valid_expressions:
-            calc = Calculator(expression.expression)
+            calc = Calculator('expression')
             calc.stack = expression.stack
             calc.number = expression.number
             calc._process_brackets_and_comma(expression.symbol)
@@ -170,6 +169,7 @@ class TestStringMethods(unittest.TestCase):
 
         valid_expression = namedtuple('valid_expression', 'expression index symbol result')
         valid_expressions = [valid_expression('-4', 0, '-', True),
+                             valid_expression('- 4', 0, '-', True),
                              valid_expression('!4', 0, '!', False),
                              valid_expression('-4', 4, '-', False),
                              valid_expression('1*-4', 2, '-', True),
