@@ -24,6 +24,7 @@ OPERATORS = {
     '//': OPERATOR(2, operator.floordiv, 2),
     '%': OPERATOR(2, operator.mod, 2),
     '^': OPERATOR(3, operator.pow, 2),
+    'pow': OPERATOR(3, operator.pow, 2),
 
     'sin': OPERATOR(4, math.sin, 1),
     'cos': OPERATOR(4, math.cos, 1),

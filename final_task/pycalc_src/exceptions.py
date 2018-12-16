@@ -1,5 +1,6 @@
 """Exceptions module."""
 
+
 class BaseCalculatorException(Exception):
     """Base calculator exception."""
 

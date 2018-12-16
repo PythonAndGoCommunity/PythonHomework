@@ -1,5 +1,7 @@
 """Calculator module."""
 
+import numbers
+
 from pycalc_src.exceptions import CalculatorError
 
 from pycalc_src.operators import OPERATORS
@@ -8,8 +10,6 @@ from pycalc_src.operators import UNARY_OPERATORS
 from pycalc_src.operators import COMPARISON_SYMBOLS
 
 from pycalc_src.preprocessing import preprocessing
-
-from numbers import Number
 
 
 class Calculator:
@@ -183,7 +183,7 @@ class Calculator:
 
         if len(self.stack) < real_params_count:
             raise CalculatorError("not enough operand's for function {}".format(operator))
-        elif self.stack and not isinstance(self.stack[-1], Number):
+        elif self.stack and not isinstance(self.stack[-1], numbers.Number):
             raise CalculatorError("incorrect operand's for function {}".format(operator))
 
         if real_params_count == 1:
