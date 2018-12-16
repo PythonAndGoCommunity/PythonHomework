@@ -5,6 +5,7 @@ import unittest
 from pycalc_src.exceptions import BaseCalculatorException
 from pycalc_src.exceptions import CalculatorError
 
+
 class TestStringMethods(unittest.TestCase):
     """Docstring."""
 
