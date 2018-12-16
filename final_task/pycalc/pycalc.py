@@ -168,7 +168,7 @@ class Parser:
                     self.tokens.insert(next_index, '*')
             elif self.tokens[index] in Lexer.CONSTANTS:
                 if self.is_float(self.tokens[next_index]) \
-                    or self.tokens[next_index] in [*Lexer.CONSTANTS, *Lexer.FUNCTIONS, '(']:
+                or self.tokens[next_index] in [*Lexer.CONSTANTS, *Lexer.FUNCTIONS, '(']:
                     self.tokens.insert(next_index, '*')
             elif self.tokens[index] == ')':
                 if not (self.tokens[next_index] == ')' or self.tokens[next_index] in Lexer.OPERATORS):
@@ -308,7 +308,7 @@ def calculate(expression):
     return result
 
 
-if __name__ == '__main__':
+def main():
     # parsing args
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     parser.add_argument('EXPRESSION', help='expression string to evaluate')
@@ -325,3 +325,7 @@ if __name__ == '__main__':
         print(ex)
     except ZeroDivisionError:
         print('ERROR: division by zero!')
+
+
+if __name__ == '__main__':
+    main()
