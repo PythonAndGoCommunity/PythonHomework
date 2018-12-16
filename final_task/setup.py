@@ -1,16 +1,15 @@
 from setuptools import setup
 
 setup(
-    name = 'Calculator',
-    version = '0.01',
-    description = 'Pure command-line calculator using python',
-    author = 'S.Volodzko',
-    url = '',
-    license = 'MIT',
-    packages = ['program'],
-    entry_points = {'console_scripts': ['pycalc = program.program:main',],},
+    name='Calculator',
+    version='0.01',
+    description='Pure command-line calculator using python',
+    author='S.Volodzko',
+    url='',
+    license='MIT',
+    packages=['program'],
+    entry_points={'console_scripts': ['pycalc = program.program:main']}
 )
-
 
 '''
 You have a package called the program and inside it a file called the program.py
