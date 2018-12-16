@@ -88,6 +88,10 @@ class FunctionCalculatingException(Exception):
     pass
 
 
+class EmptyBracketsException(Exception):
+    pass
+
+
 def is_float(string):
     """Check is string float"""
     try:
@@ -183,24 +187,24 @@ def find_left_element(expression, pointer):
     int
         Start position of element
     """
-    first_number = ""
+    first_element = ""
     start = 0
     for i in range(1, pointer+1):
-        prev = first_number
-        first_number = expression[pointer-i]+first_number
-        if not is_float(first_number):
-            first_number = prev
+        prev = first_element
+        first_element = expression[pointer-i]+first_element
+        if not is_float(first_element):
+            first_element = prev
             start = pointer-i+1
             break
         elif expression[pointer-i] == '+' or expression[pointer-i] == '-':
             if pointer-i-1 >= 0 and (expression[pointer-i-1].isdigit() or expression[pointer-i-1] == ")"):
-                first_number = prev
+                first_element = prev
                 start = pointer-i+1
                 break
             else:
                 start = pointer-i
                 break
-    return [first_number, start]
+    return [first_element, start]
 
 
 def find_right_element(expression, pointer):
@@ -248,7 +252,7 @@ def calc_by_position_of_sign(position, expression):
         Position of sign in expression
     Returns
     -------
-    str
+    float
         Result of calculation
     int
         Start position of left element
@@ -363,7 +367,7 @@ def add_implicit_mult(expression):
     return result_expression
 
 
-def solve_bracets(expression):
+def solve_brackets(expression):
     """Repalces expression in brackets on it's value"""
     result_string = expression
     start = -1
@@ -377,9 +381,11 @@ def solve_bracets(expression):
             brackets_balance -= 1
         if start != -1 and brackets_balance == 0:
             end = i
+            if start == end+1:
+                raise EmptyBracketsException("Empty brackets")
             result_string = result_string.replace(
                 result_string[start:end+1], str("{:.16f}".format(calc(result_string[start+1:end]))))
-            result_string = solve_bracets(result_string)
+            result_string = solve_brackets(result_string)
             break
     if brackets_balance != 0:
         raise BracketsNotBalancedException("brackets not balanced")
@@ -462,7 +468,32 @@ def replace_spaces(expression):
             else:
                 res_exp = res_exp.replace(
                     res_exp[space_pos], "", 1)
+        elif space_pos-1 >= 0 and res_exp[space_pos-1] == ')':
+            if space_pos+1 < len(res_exp):
+                res_exp = res_exp.replace(
+                    res_exp[space_pos], "", 1)
+            else:
+                raise UnexpectedSpaceExeption("Unexpected space in the end of expression")
         else:
+            elem = ""
+            if space_pos-1 >= 0:
+                for i in range(1, space_pos+1):
+                    prev = elem
+                    elem = res_exp[space_pos-i]+elem
+                    if res_exp[space_pos-i] in ("+", "-", "*", "^", "%", "=", ">", "<", "!", "/", ",", "(", ")", " "):
+                        elem = prev
+                        break
+                if constants.get(elem) is not None:
+                    res_exp = res_exp.replace(
+                        res_exp[space_pos], "", 1)
+                    space_pos = res_exp.find(" ")
+                    continue
+                elif is_float(elem):
+                    if space_pos+1 < len(res_exp) and not is_float(res_exp[space_pos+1]):
+                        res_exp = res_exp.replace(
+                            res_exp[space_pos], "", 1)
+                        space_pos = res_exp.find(" ")
+                        continue
             raise UnexpectedSpaceExeption("Unexpected space")
         space_pos = res_exp.find(" ")
     return res_exp
@@ -474,7 +505,7 @@ def calc(expression):
     result_expression = replace_long_unaries(result_expression)
     result_expression = solve_functions(result_expression)
     result_expression = replace_long_unaries(result_expression)
-    result_expression = solve_bracets(result_expression)
+    result_expression = solve_brackets(result_expression)
     result_expression = replace_long_unaries(result_expression)
     result_expression = find_and_replace_consts(result_expression)
     result_expression = replace_long_unaries(result_expression)
