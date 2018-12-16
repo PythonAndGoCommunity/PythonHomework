@@ -31,7 +31,8 @@ class PyCalc:
         Pycalc class initializer.
         Sets a lot of variables, such as tag variables, dictionaries of math operators, math constants, etc. and saves
         them into pickle file. On the next run this file'll be unpacked and loaded, so there'll be no need to recalcula-
-        te dictionaries of math operators and constants. User functions won't be added to pickle file.
+        te dictionaries of math operators and constants. After this method parses all passed modules and retrieves
+        functions and constants form them. User functions and constants won't be added to pickle file.
 
         Arguments:
             *args - (list) list of additional modules.
@@ -108,9 +109,6 @@ class PyCalc:
                                                                               tuple_template=full_info
                                                                               )
 
-            # math_operators.update({'log': full_info(math.log, math_priority, 1, 'log', tag_advanced)})
-            # math_operators.update({'log2': full_info(math.log, math_priority, 2, 'log2', tag_advanced)})
-
             math_operators.update(common_operators)
 
             token_expressions = []
@@ -158,7 +156,8 @@ class PyCalc:
 
     def tokenizer(self, input_string):
         """
-        Creates list of tokens from passed string.
+        Creates list of tokens from passed string. Lexer method is used as common tokenizer. Adds a lot of additional
+        rules such as checking unary operations, logs, bracket balance etc to lexer result.
 
         Arguments:
             input_string - (string) input string with math expression.
@@ -193,17 +192,6 @@ class PyCalc:
                 if re.search(item[0], input_string):
                     break_bool = True
                     break
-
-        # Solving the log problem
-        # pattern = r"log\(.+,"
-        # tmp = re.search(pattern, input_string)
-        # while tmp:
-        #     pos = tmp.start()
-        #     first_part = input_string[:pos]
-        #     second_part = input_string[pos:]
-        #     second_part = re.sub("^log", "log2", second_part)
-        #     input_string = first_part + second_part
-        #     tmp = re.search(pattern, input_string)
 
         # Lexing
         token_and_tag = namedtuple("token_and_tag", ("token", "tag"))
@@ -268,7 +256,7 @@ class PyCalc:
 
     def rpn(self, stack):
         """
-        Transforms list of tokens to its rpn (reverse polish notation) form.
+        Transforms list of tokens to its rpn (reverse polish notation) form. Uses common RPN algorithm.
 
         Arguments:
             stack - (list) input stack of tokens.
@@ -317,7 +305,7 @@ class PyCalc:
 
     def execute_rpn(self, rpn_stack):
         """
-        Executes passed stack in rpn form and returns the result or raises error.
+        Executes passed stack in rpn form and returns the result or raises error. Uses common RPN-execution algorithm.
 
         Arguments:
             rpn_stack - (list) input stack of tokens in rpn form.
@@ -361,40 +349,53 @@ class PyCalc:
         return result
 
     def calculate(self, input_string):
+        """
+        Calculates passed string and takes care of all errors, that happens in program running time.
 
-        # print(input_string)
+        Arguments:
+            input_string - (string) input string with math expression.
+
+        Returns:
+            result - (float) resulting number.
+
+        Raises:
+            No raises.
+        """
+
         try:
             tokens = self.tokenizer(input_string)
         except Exception as eerror:
             print("ERROR: in tokenizer" + str(eerror.args[0]))
             exit(1)
-        # print(tokens)
+
         rpn = self.rpn(tokens)
-        # print(stacked_rpn)
+
         try:
             result = self.execute_rpn(rpn)
         except IndexError:
             print("ERROR: in execute_rpn Wrong operations order!")
             exit(1)
         except ZeroDivisionError:
-            print("ERROR: in execute_rpn  Division by zero!")
+            print("ERROR: in execute_rpn Division by zero!")
             exit(1)
         except RuntimeError as rerror:
             print("ERROR: in execute_rpn " + str(rerror.args[0]))
             exit(1)
         except ValueError:
-            print("ERROR: in execute_rpn  unknown operand!")
+            print("ERROR: in execute_rpn Unknown operand!")
             exit(1)
         except Exception:
-            print("ERROR: in execute_rpn  unknown error!")
+            print("ERROR: in execute_rpn Unknown error!")
             exit(1)
+
         return result
 
     @staticmethod
     def get_operators_from_module(module, priority, tag_operators, tag_constants, tuple_template):
         """
         Parses passed module and returns dictionary with followed structure:
-            {'name': namedtuple("full_info", ("func", "priority", "number_args", "regex", "tag")}
+            {'name': ("func", "priority", "number_args", "regex", "tag")}
+        Uses namedtuple to create more readable code.
 
         Arguments:
             module - (module) input module to parse;
@@ -434,18 +435,17 @@ class PyCalc:
                 operators.update({item: tuple_template(module.__dict__.get(item), priority, res, item, tag_operators)})
             else:
                 if item.find("__"):
-                    constants.update({item: tuple_template(module.__dict__.get(item), None, None, item,
-                                                           tag_constants)})
+                    constants.update({item: tuple_template(module.__dict__.get(item), None, None, item, tag_constants)})
         return operators, constants
 
     @staticmethod
-    def lexer(characters, token_exprs, tuple_template):
+    def lexer(characters, token_expressions, tuple_template):
         """
         Creates list of tokens from passed string.
 
         Arguments:
             characters - (string) input string with math expression.
-            token_exprs - (list) input list with regulary expressions of math operands, constants and numbers.
+            token_expressions - (list) input list with regulary expressions of math operands, constants and numbers.
             tuple_template - template of tuple to create cool tuples from received data.
 
         Returns:
@@ -459,7 +459,7 @@ class PyCalc:
         tokens = []
         while pos < len(characters):
             match = None
-            for token_expr in token_exprs:
+            for token_expr in token_expressions:
                 pattern, tag = token_expr
                 regex = re.compile(pattern)
                 match = regex.match(characters, pos)
@@ -493,7 +493,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# calc = PyCalc()
-# result = calc.calculate('log(log(e^e, e), e)')
-# print(result)
