@@ -22,11 +22,12 @@ class Calculator:
         self.unary_operator = ''
         self.rpn = []
         self.stack = []
+        self.__return_code = 1
 
     def _process_digit(self, index, symbol):
         """Process digit from expression."""
         if self.expression[index - 1] == ' ' and self.number:
-            raise CalculatorError('invalid syntax')
+            raise CalculatorError('invalid syntax', self.__return_code)
         self.number += symbol
 
     def _process_number_and_constant(self):
@@ -55,7 +56,7 @@ class Calculator:
 
         if self.operator:
             if self.operator not in OPERATORS:
-                raise CalculatorError('operator not supported')
+                raise CalculatorError('operator not supported', self.__return_code)
             self.stack.append(self.operator)
 
         self.unary_operator = ''
@@ -80,7 +81,7 @@ class Calculator:
 
         if self.stack and self.stack[-1] in COMPARISON_SYMBOLS:
             if self.expression[index - 1] == ' ':
-                raise CalculatorError('unexpected whitespace')
+                raise CalculatorError('unexpected whitespace', self.__return_code)
             self.stack[-1] += symbol
         else:
             while self.stack:
@@ -165,7 +166,7 @@ class Calculator:
         self.rpn.extend(reversed(self.stack))
 
         if not self.rpn:
-            raise CalculatorError('not enough data to calculate')
+            raise CalculatorError('not enough data to calculate', self.__return_code)
 
         del self.stack[:]
 
@@ -202,11 +203,11 @@ class Calculator:
             else:
                 result = function(first_operand, second_operand)
         except ZeroDivisionError as e:
-            raise CalculatorError(e)
+            raise CalculatorError(e, self.__return_code)
         except ArithmeticError as e:
-            raise CalculatorError(e)
+            raise CalculatorError(e, self.__return_code)
         except Exception as e:
-            raise CalculatorError(e)
+            raise CalculatorError(e, self.__return_code)
         else:
             self.stack.append(result)
 

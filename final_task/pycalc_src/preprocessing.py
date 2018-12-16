@@ -19,8 +19,8 @@ def preprocessing(expression):
 
     expression = expression.lower()
 
-    if not _is_operators_available(expression):
-        raise PreprocessingError('there are no operators in the expression')
+    #  if not _is_operators_available(expression):
+        #  raise PreprocessingError('there are no operators in the expression')
 
     expression = expression.replace('**', '^')
 

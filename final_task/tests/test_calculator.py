@@ -35,6 +35,7 @@ class TestStringMethods(unittest.TestCase):
         expression = '1 2 3 4'
 
         calc = Calculator(expression)
+        calc._Calculator__return_code = 0
         calc.number = '1'
 
         with self.assertRaises(BaseCalculatorException):
@@ -85,6 +86,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator('')
+            calc._Calculator__return_code = 0
             calc.unary_operator = expression.unary_operator
             calc.operator = expression.operator
 
@@ -135,6 +137,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
+            calc._Calculator__return_code = 0
             calc.stack = expression.stack
 
             with self.assertRaises(BaseCalculatorException):
@@ -231,6 +234,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
+            calc._Calculator__return_code = 0
 
             with self.assertRaises(BaseCalculatorException):
                 calc._process_expression()
@@ -261,6 +265,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
+            calc._Calculator__return_code = 0
             calc.stack = expression.stack
 
             with self.assertRaises(BaseCalculatorException):
@@ -292,6 +297,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
+            calc._Calculator__return_code = 0
 
             with self.assertRaises(BaseCalculatorException):
                 calc._calculate_result(expression.function, expression.first_operand, expression.second_operand)
