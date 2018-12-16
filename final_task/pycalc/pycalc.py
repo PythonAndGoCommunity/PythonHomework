@@ -101,9 +101,10 @@ class Calc:
         """
         self.unary = True
         self.implicit_mul = False
-        temp_operation = ''       # содержит не числовое выражение
+        temp_func = ''       # содержит не числовое выражение
         temp_num = ''             # содержит числовое выражение
         for char in expr:
+            # print('char', char, self.op_st)
             if char.isdigit() or char == '.':         # формируем строку с числом если текущий элемент - цифра
                 if self.implicit_mul is True:   # между цифрой и предыдущем элементом есть неявное умножение
                     self.make_note('*', True)
@@ -120,95 +121,102 @@ class Calc:
                     if self.unary:
                         if char == '-':
                             self.op_st.insert(0, (operator.neg, 4))
-                            temp_operation = ''
+                            temp_func = ''
                             continue
                         elif char == '+':
                             self.op_st.insert(0, (operator.pos, 4))
-                            temp_operation = ''
+                            temp_func = ''
                             continue
 
                 if char == ',':    # функция round через ',' может получить второй параметр
+                    self.unload_stack(True)
                     continue
                     
                 # формируем строку с буквами - sin/pi/epi и тд. Из этого потом сформируем функции или const
-                temp_operation += char
+                temp_func += char
 
                 # попытка вытащить текущий egg из пользовательского модуля
                 for module_name, module_attributes in self.user_modules.items():
-                    if temp_operation in module_attributes:                 # получилось вытащить
-                        temp = getattr(module_name, temp_operation)
+                    if temp_func in module_attributes:                 # получилось вытащить
+                        temp = getattr(module_name, temp_func)
                         if callable(temp):                                  # функция
                             self.op_st.insert(0, (temp, 4))
                         else:                                               # константа
                             self.unary = False
                             self.eval_list.append(temp)
-                        temp_operation = ''
+                        temp_func = ''
                         break
                 else:
-                    if temp_operation == '(':
+                    if temp_func == '(':
                         self.unary = True
                         if self.implicit_mul is True:   # перед скобкой вставляем неявное умножение
                             self.make_note('*', True)
-                        self.op_st.insert(0, (temp_operation, 0))
+                        self.op_st.insert(0, (temp_func, 0))
+                        # print('okay', self.eval_list, self.op_st)
 
-                    elif temp_operation == ')':
-                        self.unary = False
-                        for o in self.op_st:            # выгружаем все операции до открывающей скобки
-                            if o[0] == '(':
-                                self.op_st = self.op_st[self.op_st.index(o) + 1:]
-                                break
-                            self.eval_list.append(o[0])
+                    elif temp_func == ')':
+                        self.unload_stack()
                         self.implicit_mul = True        # после закрывающей скобки может быть неявное умножение
 
                     # константа
-                    elif temp_operation in self.const:
+                    elif temp_func in self.const:
                         self.unary = False
                         if self.implicit_mul is True:   # перед скобкой вставляем неявное умножение
                             self.make_note('*', True)
-                        self.eval_list.append(self.const[temp_operation])
+                        self.eval_list.append(self.const[temp_func])
                         # self.check_neg()
                         self.implicit_mul = True
 
                     # выбор из math
-                    elif temp_operation in dir(math):
+                    elif temp_func in dir(math):
                         if self.implicit_mul:
                             self.make_note('*', True)
-                        self.op_st.insert(0, (getattr(math, temp_operation), 4))
+                        self.op_st.insert(0, (getattr(math, temp_func), 4))
 
-                    elif temp_operation in self.func:
-                        self.op_st.insert(0, self.func[temp_operation])
+                    elif temp_func in self.func:
+                        self.op_st.insert(0, self.func[temp_func])
 
-                    elif temp_operation in self.bin_op:
-                        if temp_operation == '^' or (temp_operation == '-' and self.unary is False):
+                    elif temp_func in self.bin_op:
+                        if temp_func == '^' or (temp_func == '-' and self.unary is False) or temp_func == '+':
                             self.unary = True
                         i = 0
-                        if self.op_st and not self.op_st[0][0] == self.bin_op[temp_operation][0] == operator.pow:
-                            for o in self.op_st:          # выталкиваем приоритетные, префиксные операции
-                                if o[1] >= self.bin_op[temp_operation][1]:
-                                    self.eval_list.append(o[0])
-                                    del self.op_st[0]
+                        if self.op_st and not self.op_st[0][0] == self.bin_op[temp_func][0] == operator.pow:
+                            for operation in self.op_st:          # выталкиваем приоритетные, префиксные операции
+                                if operation[1] >= self.bin_op[temp_func][1]:
+                                    self.eval_list.append(operation[0])
+                                    # del self.op_st[0]
                                 else:
                                     break
                                 i += 1
                         self.op_st[:i] = []
-                        self.op_st.insert(0, self.bin_op[temp_operation])
+                        self.op_st.insert(0, self.bin_op[temp_func])
                         self.implicit_mul = False       # наличие бинарной операции исключает неявное умножение
 
                     else:
-                        if self.lim <= len(temp_operation):
+                        if self.lim <= len(temp_func):
                             raise ValueError('unknown function or constant!')
                         continue
-                    temp_operation = ''
-        if temp_operation:
+                    temp_func = ''
+        if temp_func:
             raise ValueError('unknown function or constant!')
         if impl is True:    # обработка неявного умножения. Чисел нет, лист операций трогать нельзя - выход из функции
             self.implicit_mul = False
             return
         if temp_num:                                    # осталось еще число
             self.check_num(temp_num)
-        for o in self.op_st:                          # выгрузить все оставшиеся операции
-            self.eval_list.append(o[0])
+        for operation in self.op_st:                          # выгрузить все оставшиеся операции
+            self.eval_list.append(operation[0])
         self.op_st = []
+
+    def unload_stack(self, is_dot=False):
+        self.unary = False
+        for op in self.op_st:  # выгружаем все операции до открывающей скобки
+            if op[0] == '(':
+                self.op_st = self.op_st[self.op_st.index(op) + 1:]
+                break
+            self.eval_list.append(op[0])
+        if is_dot:
+            self.op_st.insert(0, ('(', 0))
 
     def check_num(self, temp_num):            # определение типа числа
         if '.' in temp_num:
@@ -223,6 +231,7 @@ class Calc:
         Evaluate Reverse Polish Entry from self.evaluate_list
         :return: int or float
         """
+        # print(self.eval_list)
         num_stack = []
         for i in self.eval_list:
             if not callable(i):                     # данный элемент не функция, т.е., число -> поместить в стек чисел
@@ -232,7 +241,6 @@ class Calc:
                     egg = i(*num_stack[1::-1])
                     num_stack[:2] = [egg]
                 except TypeError as ex:
-                    # print(ex)
                     if '2 given' in str(ex):
                         num_stack[0] = i(num_stack[0])
                     if 'got 1' in str(ex):
@@ -242,10 +250,11 @@ class Calc:
 
 
 def calculate(expr, modules):
-    combinations_for_replace = {' + ': '+', ' * ': '*', ', ': ',', ' - ': '-', '\'': '', '"': ''}
+    combinations_for_replace = {' + ': '+', ' * ': '*', ', ': ',', ' - ': '-', ' -': '-', '\'': '', '"': ''}
 
     for i, r in combinations_for_replace.items():
         expr = expr.replace(i, r)
+    print(expr)
     if ' ' in expr:
         raise ValueError('spaces in expression!')
     if not expr:
@@ -257,6 +266,7 @@ def calculate(expr, modules):
     else:
         expr = expr.replace('//', '$')
     cd = Calc(modules)
+    # print(expr)
     print(cd.evaluate_expression(expr))
 
 
