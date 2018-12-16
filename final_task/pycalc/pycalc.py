@@ -181,7 +181,7 @@ def find_left_element(expression, pointer):
     str
         Nearest element from the left to a pointer
     int
-        Start position of element 
+        Start position of element
     """
     first_number = ""
     start = 0
@@ -217,7 +217,7 @@ def find_right_element(expression, pointer):
     str
         Nearest element from the right to a pointer
     int
-        End position of element 
+        End position of element
     """
     end = 0
     flag = False
@@ -498,7 +498,7 @@ def main():
         else:
             print(calc(expression))
     except Exception as e:
-        print (f"ERROR: {e}")
+        print(f"ERROR: {e}")
         return e
 
 
