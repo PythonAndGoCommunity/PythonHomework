@@ -352,9 +352,5 @@ class TestStringMethods(unittest.TestCase):
             self.assertEqual(result, expression.result)
 
 
-class TestStringMethods(unittest.TestCase):
-    """Docstring."""
-
-
 if __name__ == '__main__':
     unittest.main()
