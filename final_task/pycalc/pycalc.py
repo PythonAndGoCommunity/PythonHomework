@@ -76,15 +76,11 @@ class UnexpectedSpaceExeption(Exception):
     pass
 
 
-class EmptyExpressionException(Exception):
-    pass
-
-
 class MissingArgumentException(Exception):
     pass
 
 
-class FunctionCalculatingException(Exception):
+class FunctionArgumentsException(Exception):
     pass
 
 
@@ -381,7 +377,7 @@ def solve_brackets(expression):
             brackets_balance -= 1
         if start != -1 and brackets_balance == 0:
             end = i
-            if start == end+1:
+            if start+1 == end:
                 raise EmptyBracketsException("Empty brackets")
             result_string = result_string.replace(
                 result_string[start:end+1], str("{:.16f}".format(calc(result_string[start+1:end]))))
@@ -430,7 +426,7 @@ def solve_functions(expression):
                         res_str = solve_functions(res_str)
                         break
                     except Exception:
-                        raise FunctionCalculatingException(f"Incorrect arguments in function '{temp}'")
+                        raise FunctionArgumentsException(f"Incorrect arguments in function '{temp}'")
                 else:
                     try:
                         res_str = res_str.replace(res_str[func_start:end+1],
@@ -438,10 +434,12 @@ def solve_functions(expression):
                         res_str = solve_functions(res_str)
                         break
                     except Exception:
-                        raise FunctionCalculatingException(f"Incorrect arguments in function '{temp}'")
+                        raise FunctionArgumentsException(f"Incorrect arguments in function '{temp}'")
             else:
                 raise UnknownFunctionException(f"Unknown function '{temp}'")
         elif res_str[i] in (".", '+', '-', '*', '/', '^', '%'):
+            if temp != "" and functions.get(temp) is None and constants.get(temp) is None:
+                raise UnknownElementException(f"Unknown element '{temp}'")
             temp = ""
             is_func = False
     if temp != "" and functions.get(temp) is None and constants.get(temp) is None:
