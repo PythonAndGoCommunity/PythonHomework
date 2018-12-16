@@ -125,7 +125,7 @@ class Calculator:
                 if prev_symbol == ' ':
                     continue
                 elif (prev_symbol in OPERATORS and prev_symbol != ')'
-                              or prev_symbol in COMPARISON_SYMBOLS):
+                      or prev_symbol in COMPARISON_SYMBOLS):
                     return True
                 else:
                     break
