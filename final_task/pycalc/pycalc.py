@@ -5,13 +5,13 @@ from collections import namedtuple
 
 
 class Lexer:
-    """This class extracts tokens from a mathematical expression.
+    '''This class extracts tokens from a mathematical expression.
     The expression may contain:
         numbers(e.g. '3', '.15', '12.345');
         parentheses: '(', ')';
         constants: all constants from standard python module 'math';
         operators: '+', '-', '*', '//', '/', '%', '^', '==', '!=', '>=', '>', '<=', '<';
-        functions: all functions from standard python module 'math';"""
+        functions: all functions from standard python module 'math'.'''
 
     PARENTHESES = ('(', ')')
     OPERATORS = ('+', '-', '*', '//', '/', '%', '^', '==', '!=', '>=', '>', '<=', '<')
@@ -29,8 +29,8 @@ class Lexer:
             self.position += 1
 
     def get_next_token(self):
-        """This method returns next token in the expression.
-        If the next token can't be recognized, the function raises SyntaxError exception."""
+        '''This method returns next token in the expression.
+        If the next token can't be recognized, the function raises SyntaxError exception.'''
 
         self.current_token = None
         self.skip_spaces()
@@ -53,9 +53,9 @@ class Lexer:
         return result
 
     def recognize_number(self):
-        """This method tries to recognize a number in the expression.
+        '''This method tries to recognize a number in the expression.
         If the number has found, the function returns True, and False otherwise.
-        The number will be placed in self.current_token."""
+        The number will be placed in self.current_token.'''
 
         was_dot = False
         for index, character in enumerate(self.expression[self.position:]):
@@ -72,9 +72,9 @@ class Lexer:
         return self.current_token is not None
 
     def recognize_operator(self):
-        """This method tries to recognize an operator in the expression.
+        '''This method tries to recognize an operator in the expression.
         If the operator has found, the function returns True, and False otherwise.
-        The operator will be placed in self.current_token."""
+        The operator will be placed in self.current_token.'''
 
         for operator in Lexer.OPERATORS:
             if self.expression[self.position:].startswith(operator):
@@ -84,9 +84,9 @@ class Lexer:
         return self.current_token is not None
 
     def recognize_constant(self):
-        """This method tries to recognize a constant in the expression.
+        '''This method tries to recognize a constant in the expression.
         If the constant has found, the function returns True, and False otherwise.
-        The constant will be placed in self.current_token."""
+        The constant will be placed in self.current_token.'''
 
         for constant in Lexer.CONSTANTS:
             if self.expression[self.position:].startswith(constant):
@@ -96,9 +96,9 @@ class Lexer:
         return self.current_token is not None
 
     def recognize_function(self):
-        """This method tries to recognize a function in the expression.
+        '''This method tries to recognize a function in the expression.
         If the function has found, the function returns True, and False otherwise.
-        The function will be placed in self.current_token."""
+        The function will be placed in self.current_token.'''
 
         for function in Lexer.FUNCTIONS:
             if self.expression[self.position:].startswith(function):
@@ -108,9 +108,9 @@ class Lexer:
         return self.current_token is not None
 
     def recognize_parenthesis(self):
-        """This method tries to recognize parentheses in the expression.
+        '''This method tries to recognize parentheses in the expression.
         If the parenthesis have found, the function returns True, and False otherwise.
-        The parentheses will be placed in self.current_token."""
+        The parentheses will be placed in self.current_token.'''
 
         if self.expression[self.position] in Lexer.PARENTHESES:
             self.current_token = self.expression[self.position]
@@ -158,7 +158,25 @@ class Parser:
         except ValueError:
             return False
 
+    def recognize_implicit_multiplication(self):
+        '''This method recognizes implicit multiplication and replaces it with explicit one.'''
+
+        index, next_index = 0, 1
+        while next_index < len(self.tokens):
+            if self.is_float(self.tokens[index]):
+                if self.tokens[next_index] in [*Lexer.CONSTANTS, *Lexer.FUNCTIONS, '(']:
+                    self.tokens.insert(next_index, '*')
+            elif self.tokens[index] in Lexer.CONSTANTS:
+                if self.is_float(self.tokens[next_index]) \
+                    or self.tokens[next_index] in [*Lexer.CONSTANTS, *Lexer.FUNCTIONS, '(']:
+                    self.tokens.insert(next_index, '*')
+            elif self.tokens[index] == ')':
+                if not (self.tokens[next_index] == ')' or self.tokens[next_index] in Lexer.OPERATORS):
+                    self.tokens.insert(next_index, '*')
+            index, next_index = next_index, next_index + 1
+
     def parse(self):
+        self.recognize_implicit_multiplication()
         self.result = self.convert_to_rpn()
         return self.result
 
@@ -290,7 +308,7 @@ def calculate(expression):
     return result
 
 
-def main():
+if __name__ == '__main__':
     # parsing args
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     parser.add_argument('EXPRESSION', help='expression string to evaluate')
@@ -301,10 +319,9 @@ def main():
         tokens = lexer.get_all_tokens()
         parser = Parser(tokens)
         parser.parse()
-        print(*calculate(parser.result))
+        result = calculate(parser.result)
+        print(result[0])
     except SyntaxError as ex:
         print(ex)
-
-
-if __name__ == '__main__':
-    main()
+    except ZeroDivisionError:
+        print('ERROR: division by zero!')

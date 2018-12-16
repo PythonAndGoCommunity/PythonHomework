@@ -69,6 +69,47 @@ class TestParser(unittest.TestCase):
         with self.assertRaises(SyntaxError):
             Parser(['pow(', '5', '*', '(', '3', ',', '4', ')', '+', '3', ')']).convert_to_rpn()
 
+    def test_recognizing_implicit_multiplication(self):
+        parser = Parser(['2', 'e'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['2', '*', 'e'])
+        parser = Parser(['2', 'sin(', 'pi', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['2', '*', 'sin(', 'pi', ')'])    
+        parser = Parser(['2', '(', '3', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['2', '*', '(', '3', ')'])
+
+        parser = Parser(['pi', 'e'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['pi', '*', 'e'])
+        parser = Parser(['e', '(', '3', '+', '2', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['e', '*', '(', '3', '+', '2', ')'])
+        parser = Parser(['tau', 'sin(', 'pi', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['tau', '*', 'sin(', 'pi', ')'])
+        parser = Parser(['e', '2'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['e', '*', '2'])
+
+        parser = Parser(['(', '1', '+', '2', ')', '(', '3', '+', '5', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['(', '1', '+', '2', ')', '*', '(', '3', '+', '5', ')'])
+        parser = Parser(['(', '1', '+', '2', ')', '3'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['(', '1', '+', '2', ')', '*', '3'])
+        parser = Parser(['(', '3', ')', 'sin(', 'pi', ')'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['(', '3', ')', '*', 'sin(', 'pi', ')'])
+        parser = Parser(['(', '3', ')', 'tau'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['(', '3', ')', '*', 'tau'])
+
+        parser = Parser(['1', '2'])
+        parser.recognize_implicit_multiplication()
+        self.assertEqual(parser.tokens, ['1', '2'])
+
 
 class TestCalculator(unittest.TestCase):
     def test_calculating(self):
@@ -94,6 +135,8 @@ class TestCalculator(unittest.TestCase):
             calculate([1, 2])
         with self.assertRaises(SyntaxError):
             calculate([1, 2, '>', '=='])
+        with self.assertRaises(ZeroDivisionError):
+            calculate([5, 0, '/'])
 
 
 if __name__ == '__main__':
