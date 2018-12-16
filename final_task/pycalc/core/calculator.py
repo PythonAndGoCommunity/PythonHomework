@@ -89,38 +89,38 @@ def do_implicit_multiplication(expression):
     insert_positions = []
     expression = expression.replace(' ', '')
     expression = re.sub(r'\)\(', ')*(', expression)
-    for i in range(len(expression)):
-        if token_end_position >= i:
+    for index in range(len(expression)):
+        if token_end_position >= index:
             continue
-        j = i
-        operand, token_end_position, i = find_operand(expression, i)
+        tmp_index = index
+        operand, token_end_position, index = find_operand(expression, index)
         if operand:
             operands = split_operands(operand)
             if not operands:
                 raise PycalcError('Unexpected operand')
             elif len(operands) > 1:
-                i = j
+                index = tmp_index
                 splited_operands = '*'.join(operands)
-                if i > 0 and expression[i - 1] == ')':
+                if index > 0 and expression[index - 1] == ')':
                     splited_operands = '*' + splited_operands
                 expression = expression.replace(operand, splited_operands)
-                token_end_position = i + len('*'.join(operands[:-1]))
+                token_end_position = index + len('*'.join(operands[:-1]))
                 operand = operands[-1]
         module = get_module(operand)
         is_call = False
         if module:
             is_call = check_is_callable(operand, module)
         if operand and check_is_number(operand) or module:
-            j = i - len(operand) - 1
-            if j > 0:
-                if j and j != i and expression[j] == ')':
-                    insert_positions.append(j + 1 + len(insert_positions))
-            j = i
-            if j < len(expression) and expression[j] == '(' and not is_call:
-                insert_positions.append(j + len(insert_positions))
+            tmp_index = index - len(operand) - 1
+            if tmp_index > 0:
+                if tmp_index and tmp_index != index and expression[tmp_index] == ')':
+                    insert_positions.append(tmp_index + 1 + len(insert_positions))
+            tmp_index = index
+            if tmp_index < len(expression) and expression[tmp_index] == '(' and not is_call:
+                insert_positions.append(tmp_index + len(insert_positions))
     expression = list(expression)
-    for i in insert_positions:
-        expression.insert(i, '*')
+    for index in insert_positions:
+        expression.insert(index, '*')
     return ''.join(expression)
 
 
@@ -157,17 +157,17 @@ def split_arguments(arguments_string):
     count = 0
     split_positions = []
     arguments = []
-    for i, symbol in enumerate(arguments_string):
+    for index, symbol in enumerate(arguments_string):
         if symbol in brackets:
             count += brackets[symbol]
         elif symbol == ',' and not count:
-            split_positions.append(i)
+            split_positions.append(index)
 
-    for i, position in enumerate(split_positions):
-        if i == 0:
+    for index, position in enumerate(split_positions):
+        if index == 0:
             arguments.append(arguments_string[:position])
-        elif i < len(split_positions):
-            arguments.append(arguments_string[split_positions[i - 1] + 1:position])
+        elif index < len(split_positions):
+            arguments.append(arguments_string[split_positions[index - 1] + 1:position])
 
     if split_positions:
         arguments.append(arguments_string[split_positions[-1] + 1:])
@@ -246,24 +246,24 @@ def check_valid_spaces(expression):
     """
     is_last_number, is_last_operator, is_space = False, False, False
     token_end_position = -1
-    for i, symbol in enumerate(expression):
+    for index, symbol in enumerate(expression):
         if symbol in ['(', ')']:
             is_last_number, is_last_operator, is_space = False, False, False
-        elif token_end_position >= i:
+        elif token_end_position >= index:
             continue
         elif symbol == ' ':
             is_space = True
-        elif symbol in OPERATORS or (i < len(expression) - 1 and symbol + expression[i + 1] in OPERATORS):
+        elif symbol in OPERATORS or (index < len(expression) - 1 and symbol + expression[index + 1] in OPERATORS):
             if is_last_operator and is_space and not check_may_unary_operator(symbol):
                 raise PycalcError('Missed operand')
             else:
-                token_end_position = i + get_length_operator(expression, i) - 1
+                token_end_position = index + get_length_operator(expression, index) - 1
             is_last_number, is_last_operator, is_space = False, True, False
         else:
             if symbol in ['!', '=']:
                 raise PycalcError('Invalid operator')
             is_last_operator, is_space = False, False
-            operand, token_end_position, i = find_operand(expression, i)
+            operand, token_end_position, index = find_operand(expression, index)
             if check_is_number(operand):
                 if is_last_number:
                     raise PycalcError('Missed operator')
@@ -280,8 +280,8 @@ def execute_comparison(operands, operators):
     True otherwise
     """
     if len(operands) == len(operators) + 1:
-        for i, operator in enumerate(operators):
-            if not OPERATORS[operator](operands[i], operands[i + 1]):
+        for index, operator in enumerate(operators):
+            if not OPERATORS[operator](operands[index], operands[index + 1]):
                 return False
         return True
     raise PycalcError('Missed operator or operand')
