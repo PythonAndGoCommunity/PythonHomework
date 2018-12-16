@@ -254,7 +254,7 @@ def calculate(expr, modules):
 
     for i, r in combinations_for_replace.items():
         expr = expr.replace(i, r)
-    print(expr)
+#     print(expr)
     if ' ' in expr:
         raise ValueError('spaces in expression!')
     if not expr:
