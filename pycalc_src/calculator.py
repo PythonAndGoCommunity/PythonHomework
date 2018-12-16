@@ -1,3 +1,4 @@
+"""Calculator module."""
 
 from pycalc_src.exceptions import CalculatorError
 
@@ -6,15 +7,15 @@ from pycalc_src.operators import CONSTANTS
 from pycalc_src.operators import UNARY_OPERATORS
 from pycalc_src.operators import COMPARISON_SYMBOLS
 
-from pycalc_src.preprocessing import prepare_expression
+from pycalc_src.preprocessing import preprocessing
 
 from numbers import Number
 
+
 class Calculator:
-    """Docstring."""
+    """Calculator object."""
 
     def __init__(self, expression):
-        """Docstring."""
         self.expression = expression
         self.number = ''
         self.operator = ''
@@ -23,13 +24,13 @@ class Calculator:
         self.stack = []
 
     def _process_digit(self, index, symbol):
-
+        """Process digit from expression."""
         if self.expression[index - 1] == ' ' and self.number:
             raise CalculatorError('invalid syntax')
         self.number += symbol
 
     def _process_number_and_constant(self):
-
+        """Process number and constant."""
         if self.unary_operator:
             self.unary_operator = self._replace_unary_operator(self.unary_operator)
 
@@ -48,7 +49,7 @@ class Calculator:
         self.unary_operator = ''
 
     def _process_operator(self):
-
+        """Process operator."""
         if self.unary_operator:
             self.stack.append(self.unary_operator)
 
@@ -61,7 +62,7 @@ class Calculator:
         self.operator = ''
 
     def _process_stack(self, symbol):
-
+        """Process stack."""
         while self.stack:
             if self.stack[-1] == symbol == '^':
                 break
@@ -74,7 +75,7 @@ class Calculator:
         self.stack.append(symbol)
 
     def _process_comparison(self, index, symbol):
-
+        """Process comparison."""
         self._process_number_and_constant()
 
         if self.stack and self.stack[-1] in COMPARISON_SYMBOLS:
@@ -88,7 +89,7 @@ class Calculator:
             self.stack.append(symbol)
 
     def _process_brackets_and_comma(self, symbol):
-
+        """Process brackets and comma from expression."""
         if symbol == ',':
             self._process_number_and_constant()
             while self.stack:
@@ -113,7 +114,7 @@ class Calculator:
                 self.rpn.append(element)
 
     def _is_unary_operator(self, index, symbol):
-
+        """Define that operator is unary."""
         if symbol not in UNARY_OPERATORS:
             return False
         if index <= len(self.expression):
@@ -124,11 +125,13 @@ class Calculator:
         return False
 
     def _is_floordiv(self, index, symbol):
+        """Define that operator is flordiv."""
         if index <= len(self.expression):
             return symbol == self.expression[index - 1] == '/'
         return False
 
     def _process_expression(self):
+        """Process expression to reverse polish notation."""
         for index, symbol in enumerate(self.expression):
 
             if self.operator in CONSTANTS:
@@ -167,11 +170,11 @@ class Calculator:
         del self.stack[:]
 
     def _calculate_operator(self, operator):
-
+        """Prepare operator to calculate."""
         operator_params = OPERATORS[operator]
 
         real_params_count = operator_params.params_quantity
-        if real_params_count == 3:  # 'round' , 'log', 'hypot', 'atan2'
+        if real_params_count == 3:
             if self.stack and self.stack[-1] == ',':
                 self.stack.pop()
                 real_params_count = 2
@@ -192,7 +195,7 @@ class Calculator:
             self._calculate_result(operator_params.function, first_operand, second_operand)
 
     def _calculate_result(self, function, first_operand, second_operand=None):
-
+        """Calculate function."""
         try:
             if second_operand is None:
                 result = function(first_operand)
@@ -208,7 +211,7 @@ class Calculator:
             self.stack.append(result)
 
     def _calculate_rpn(self):
-
+        """Calculate reverse polish notation."""
         for item in self.rpn:
             if item == ',':
                 self.stack.append(item)
@@ -222,20 +225,20 @@ class Calculator:
                 self.stack.append(item)
 
     def _replace_unary_operator(self, unary_operator):
-
+        """Replace unary operator from raw expression."""
         for key, value in UNARY_OPERATORS.items():
             if value == unary_operator:
                 return key
 
     def _convert_to_number(self, number):
-        """Docstring."""
+        """Convert number characters to number."""
         if not isinstance(number, str):
             return 0
         return float(number) if '.' in number else int(number)
 
     def calculate(self):
-        """Docstring."""
-        self.expression = prepare_expression(self.expression)
+        """Prepare and calculate expression."""
+        self.expression = preprocessing(self.expression)
 
         self._process_expression()
         self._calculate_rpn()

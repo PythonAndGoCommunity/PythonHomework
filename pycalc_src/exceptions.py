@@ -1,11 +1,11 @@
+"""Exceptions module."""
 import sys
 
 
 class BaseCalculatorException(Exception):
-    """Docstring."""
+    """Base calculator exception."""
 
     def __init__(self, message=None):
-        """Docstring."""
 
         if message is None:
             message = 'an error occured while working pycalc'
@@ -13,18 +13,18 @@ class BaseCalculatorException(Exception):
 
         print(self.message)
 
-        #sys.exit(1)
+        sys.exit(1)
 
 
 class CalculatorError(BaseCalculatorException):
-    """Docstring."""
+    """Exception for calculator."""
+
     def __init__(self, message=None):
-        """Docstring."""
         super().__init__(message)
 
 
 class PreprocessingError(BaseCalculatorException):
-    """Docstring."""
+    """Exception for preprocessing."""
+
     def __init__(self, message=None):
-        """Docstring."""
         super().__init__(message)

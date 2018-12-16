@@ -1,3 +1,4 @@
+"""Preprocessing module."""
 
 from pycalc_src.exceptions import PreprocessingError
 
@@ -5,8 +6,8 @@ from pycalc_src.operators import OPERATORS
 from pycalc_src.operators import CONSTANTS
 
 
-def _preprocessing(expression):
-
+def preprocessing(expression):
+    """Prepare expression for calculate."""
     if not expression:
         raise PreprocessingError('expression is empty')
 
@@ -29,6 +30,7 @@ def _preprocessing(expression):
 
 
 def _is_operators_available(expression):
+    """Check operators in the expression."""
     for statement in OPERATORS:
         if statement in expression:
             return True
@@ -40,6 +42,7 @@ def _is_operators_available(expression):
 
 
 def _clean_repeatable_operators(expression):
+    """Delete from string repeatable operators."""
     repeatable_operators = {'+-': '-', '--': '+', '++': '+', '-+': '-'}
 
     while True:
@@ -50,9 +53,3 @@ def _clean_repeatable_operators(expression):
             break
 
     return expression
-
-
-def prepare_expression(expression):
-    """Docstring."""
-
-    return _preprocessing(expression)

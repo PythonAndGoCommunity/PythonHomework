@@ -6,8 +6,9 @@ import argparse
 
 from pycalc_src import Calculator
 
+
 def main():
-    """Docstring."""
+    """Function parse argument and calculate expression."""
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('EXPRESSION', help='expression string to evaluate')

@@ -53,7 +53,7 @@ OPERATORS = {
     '<=': OPERATOR(0, operator.le, 2),
     '==': OPERATOR(0, operator.eq, 2),
     '!=': OPERATOR(0, operator.ne, 2),
-    '>=': OPERATOR(0, operator.ge, 2), 
+    '>=': OPERATOR(0, operator.ge, 2),
     '>': OPERATOR(0, operator.gt, 2),
     ',': OPERATOR(0, None, 0),
     '(': OPERATOR(0, None, 0),

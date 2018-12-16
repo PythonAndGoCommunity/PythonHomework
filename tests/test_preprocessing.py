@@ -4,7 +4,7 @@ import unittest
 
 from collections import namedtuple
 
-from pycalc_src.preprocessing import (_preprocessing,
+from pycalc_src.preprocessing import (preprocessing,
                                _is_operators_available,
                                _clean_repeatable_operators)
 from pycalc_src.exceptions import BaseCalculatorException
@@ -20,7 +20,7 @@ class TestStringMethods(unittest.TestCase):
         ]
 
         for expression in valid_expressions:
-            func_result = _preprocessing(expression.expression)
+            func_result = preprocessing(expression.expression)
 
             self.assertEqual(func_result, expression.result)
 
@@ -35,7 +35,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             with self.assertRaises(BaseCalculatorException):
-                result = _preprocessing(expression.expression)
+                result = preprocessing(expression.expression)
 
     def test_is_operators_available__valid_expressions(self):
         """Docstring."""
