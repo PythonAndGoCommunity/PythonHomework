@@ -328,9 +328,9 @@ def add_implicit_mult(expression):
     was_const = False
     for i in range(len(result_expression)):
         expr_right += result_expression[i]
-        if result_expression[i] in ("+", "-", "*", "^", "=", ">", "<", "!", "/", "(", ")", ","):
+        if result_expression[i] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/", "(", ")", ","):
             if result_expression[i] == ")" and i+1 < len(result_expression):
-                if not result_expression[i+1] in ("+", "-", "*", "^", "=", ">", "<", "!", "/", ")", ","):
+                if not result_expression[i+1] in ("+", "-", "*","%", "^", "=", ">", "<", "!", "/", ")", ","):
                     result_expression = result_expression[0:i+1] + \
                         "*"+result_expression[i+1:len(result_expression)]
             expr_left = expr_right
@@ -446,14 +446,14 @@ def replace_spaces(expression):
     result_expression = expression
     space_pos = result_expression.find(" ")
     while space_pos != -1:
-        if space_pos-1 >= 0 and result_expression[space_pos-1] in ("+", "-", "*", "^", "=", ">", "<", "!", "/", ","):
+        if space_pos-1 >= 0 and result_expression[space_pos-1] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/", ","):
             if space_pos+1 < len(result_expression) and result_expression[space_pos+1] in ("*", "^", "=", ">", "<", "!", "/"):
                 raise UnexpectedSpaceExeption(f"Unexpected space between '{result_expression[space_pos-1]}' and '{result_expression[space_pos+1]}'")
             else:
                 result_expression = result_expression.replace(
                     result_expression[space_pos], "", 1)
-        elif space_pos+1 < len(result_expression) and result_expression[space_pos+1] in ("+", "-", "*", "^", "=", ">", "<", "!", "/"):
-            if space_pos-1 >= 0 and result_expression[space_pos-1] in ("+", "-", "*", "^", "=", ">", "<", "!", "/"):
+        elif space_pos+1 < len(result_expression) and result_expression[space_pos+1] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/"):
+            if space_pos-1 >= 0 and result_expression[space_pos-1] in ("+", "-", "*", "^","%", "=", ">", "<", "!", "/"):
                 raise UnexpectedSpaceExeption(f"Unexpected space between '{result_expression[space_pos-1]}' and '{result_expression[space_pos+1]}'")
             else:
                 result_expression = result_expression.replace(
@@ -496,6 +496,7 @@ def main():
     except Exception as e:
         print (f"ERROR: {e}")
         return e
+
 
 if __name__ == "__main__":
     main()
