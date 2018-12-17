@@ -224,8 +224,6 @@ Implements an Shunting-yard algorithm
         if token == '(':
             raise Exception('unpaired brackets')
         output_list.extend([' ', token])
-    print(output_list)
-    print(''.join(output_list))
     return ''.join(output_list)
 
 
