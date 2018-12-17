@@ -153,6 +153,7 @@ Implements an Shunting-yard algorithm
                 while opr != '(':
                     output_list.extend([' ', stack_opr.pop()])
                     opr = stack_opr[-1]
+                output_list.append(' ')
             else:
                 raise Exception('Using the symbol "," outside the function')
 
@@ -223,6 +224,8 @@ Implements an Shunting-yard algorithm
         if token == '(':
             raise Exception('unpaired brackets')
         output_list.extend([' ', token])
+    print(output_list)
+    print(''.join(output_list))
     return ''.join(output_list)
 
 
