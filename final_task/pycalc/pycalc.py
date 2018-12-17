@@ -2,6 +2,7 @@ import argparse
 import importlib
 from string import ascii_letters, digits
 
+# const variable
 LIST_OPERATOR = ['+', '-', '*', '^', '/', '%', '<', '>', '=', '!']
 LIST_DIGITS = list(digits)
 LIST_LETTERS = list(ascii_letters)
@@ -23,184 +24,216 @@ PRIORITY_DICT = {
     '!=': 1}
 BOOL_DICT = {'True': True, 'False': False}
 FUNCTION_DICT = {'abs': abs, 'pow': pow, 'round': round}
+# global variable dict, key: str module name, value: list containing fuction names from [key]
+module_func_dict = {}
+#
+stack_opr = []
 
 
-def _stack_push(stack, opr):
-    """stack_push(stack, opr)
+def set_user_mod(modules=tuple()):
+    """set_user_mod(modules)
 
-This function is part of the shunting yard algorithm"""
+Initialize global variable module_func_dict
 
-    buf_str = ''
+    """
+
+    modules_list = [importlib.import_module(module) for module in modules]
+    global module_func_dict
+    module_func_dict = {module: dir(module) for module in modules_list}
+
+
+def _stack_push(opr):
+    """stack_push(opr)
+
+This function is part of the shunting yard algorithm. Takes an operator and push it on the stack.
+The operator pushes a stack of other operators.
+
+"""
+
+    global stack_opr
+    buf = list()
     if opr == '^' or opr == '+-':
-        for opr2 in stack[::-1]:
+        for opr2 in stack_opr[::-1]:
             if opr2 == '(':
                 break
             elif PRIORITY_DICT[opr] < PRIORITY_DICT[opr2]:
-                buf_str += stack.pop() + ' '
+                buf.extend([' ', stack_opr.pop()])
             else:
                 break
-        stack.append(opr)
+        stack_opr.append(opr)
 
     else:
-        for opr2 in stack[::-1]:
+        for opr2 in stack_opr[::-1]:
             if opr2 == '(':
                 break
             elif PRIORITY_DICT[opr] <= PRIORITY_DICT[opr2]:
-                buf_str += stack.pop() + ' '
+                buf.extend([' ', stack_opr.pop()])
             else:
                 break
-        stack.append(opr)
-    return buf_str
+        stack_opr.append(opr)
+
+    buf.append(' ')
+    return buf
 
 
-def _const_separator(const, stack, module_func_dict):
+def _const_separator(const):
+    """_const_separator(const)
+
+Splits constants which are implicit multiplication. Example "pie" equal "pi*e". Constants are searched in the modules
+defined in the variable module_func_dict.
+
+"""
+    global module_func_dict
     if const in BOOL_DICT:
         return const
     for module in module_func_dict:
         if const in module_func_dict[module]:
-            return ' ' + str(getattr(module, const))
+            return [' ', str(getattr(module, const))]
     else:
+        # Recursion
         i = 0
         l_const = ''
         while i < len(const):
             l_const += const[i]
-            r_const = const[i+1:]
+            r_const = const[i + 1:]
             for module in module_func_dict:
                 if l_const in module_func_dict[module]:
-                    return ' ' + str(getattr(module, l_const)) + ' ' + _stack_push(stack, '*') \
-                           + _const_separator(r_const, stack, module_func_dict)
+                    return [' ', str(getattr(module, l_const)),  *_stack_push('*'), *_const_separator(r_const)]
             i += 1
         else:
             raise Exception('unknown constant {}'.format(const))
 
 
-def shunting_yard_alg(input_str, modules=list()):
-    """shunting_yard_alg(input_str)
+def postfix_translat(input_str):
+    """postfix_translat(input_str)
 
 The function converts a mathematical expression written in infix notation into postfix notation.
+Implements an Shunting-yard algorithm
 
 """
-    module_func_dict = {module: dir(module) for module in modules}
-    if len(input_str) == 0:
+    global module_func_dict
+    global stack_opr
+
+    if not input_str:
         raise Exception('empty input')
-    stack = []
-    output_str = ''
+
+    output_list = list()
     func_buf = ''
     last_token = ''
-    buf_opr = ''
     count_args = list()
-    for token in input_str:
-        if buf_opr in ['=', '<', '>', '!']:
-            if token == '=':
-                output_str += _stack_push(stack, buf_opr+token)
-                buf_opr = ''
-                continue
-            else:
-                raise Exception('unknown operator: "="')
-        elif buf_opr == '/':
-            if token == '/':
-                output_str += _stack_push(stack, '//')
-                buf_opr = ''
-                continue
-            else:
-                output_str += _stack_push(stack, '/')
-                buf_opr = ''
-
+    for i, token in enumerate(input_str):
         if token == ' ':
-            output_str += ' '
-            token = last_token
+            output_list.append(' ')
+            continue
 
         elif token in LIST_LETTERS \
                 or token == '_':
             if last_token == ')':
-                output_str += ' '
-                output_str += _stack_push(stack, '*')
+                output_list.extend(_stack_push('*'))
             if last_token in LIST_DIGITS:
-                output_str += _stack_push(stack, '*')
+                output_list.extend(_stack_push('*'))
             func_buf += token
 
         elif token in LIST_DIGITS:
             if func_buf:
                 func_buf += token
             else:
-                output_str += token
+                if last_token in PRIORITY_DICT:
+                    output_list.append(' ')
+                output_list.append(token)
 
         elif token == '.':
-            output_str += '.'
+            output_list.append('.')
 
         elif token == ',':
-            count_args[-1] += 1
-            output_str += ' '
-            opr = stack[-1]
-            while opr != '(':
-                output_str += ' ' + stack.pop() + ' '
-                opr = stack[-1]
+            if count_args:
+                count_args[-1] += 1
+                output_list.append(' ')
+                opr = stack_opr[-1]
+                while opr != '(':
+                    output_list.extend([' ', stack_opr.pop()])
+                    opr = stack_opr[-1]
+            else:
+                raise Exception('Using the symbol "," outside the function')
 
         elif token == '(':
             if func_buf:
-                stack.append(func_buf)
+                stack_opr.append(func_buf)
                 count_args.append(1)
                 func_buf = ''
             elif last_token == ')' or last_token in LIST_DIGITS:
-                output_str += ' '
-                output_str += _stack_push(stack, '*')
-            stack.append('(')
+                output_list.extend(_stack_push('*'))
+            stack_opr.append('(')
 
         elif token == ')':
             if last_token == '(':
                 count_args[-1] = 0
             if func_buf:
-                output_str += _const_separator(func_buf, stack, module_func_dict)
+                output_list.extend(_const_separator(func_buf))
                 func_buf = ''
-            for opr in stack[::-1]:
+            for opr in stack_opr[::-1]:
                 if opr == '(':
-                    stack.pop()
+                    stack_opr.pop()
                     break
                 else:
-                    output_str += ' ' + stack.pop() + ' '
+                    output_list.extend([' ', stack_opr.pop()])
             else:
                 raise Exception('unpaired brackets')
-            if stack:
-                if stack[-1] not in LIST_OPERATOR and stack[-1] != '(':
-                    output_str += ' ' + str(count_args.pop()) + PREFIX_FUNC + stack.pop()
+            if stack_opr:
+                if stack_opr[-1] not in LIST_OPERATOR and stack_opr[-1] != '(':
+                    output_list.extend([' ', str(count_args.pop()), PREFIX_FUNC, stack_opr.pop()])
 
         elif token in LIST_OPERATOR:
             if func_buf:
-                output_str += _const_separator(func_buf, stack, module_func_dict)
+                output_list.extend(_const_separator(func_buf))
                 func_buf = ''
-            output_str += ' '
             if (token == '-') & (last_token in LIST_OPERATOR or last_token in ['', '(']):
-                output_str += _stack_push(stack, '+-')
+                output_list.extend(_stack_push('+-'))
             elif (token == '+') & (last_token in LIST_OPERATOR):
                 pass
-            elif token in ['=', '<', '>', '!', '/']:
-                buf_opr = token
+            elif token in ['=', '<', '>', '!']:
+                if last_token in ['!=', '==', '<=', '>=', '!=']:
+                    continue
+                next_token = input_str[i + 1]
+                if next_token == '=':
+                    token = token + next_token
+                    output_list.extend(_stack_push(token))
+                elif token == '=':
+                    raise Exception('unknown operator: "="')
+                else:
+                    output_list.extend(_stack_push(token))
+            elif token == '/':
+                next_token = input_str[i + 1]
+                if next_token == '/':
+                    output_list.extend(_stack_push(token + next_token))
+                else:
+                    output_list.extend(_stack_push(token))
             else:
-                output_str += _stack_push(stack, token)
+                output_list.extend(_stack_push(token))
 
         else:
             raise Exception('unknown operator: "{}"'.format(token))
         last_token = token
 
     if func_buf:
-        output_str += _const_separator(func_buf, stack, module_func_dict)
+        output_list.extend(_const_separator(func_buf))
 
-    while stack:
-        token = stack.pop()
+    while stack_opr:
+        token = stack_opr.pop()
         if token == '(':
             raise Exception('unpaired brackets')
-        output_str += ' ' + token
+        output_list.extend([' ', token])
+    return ''.join(output_list)
 
-    return output_str
 
-
-def postfix_eval(input_str, modules=tuple()):
+def postfix_eval(input_str):
     """postfix_eval(input_str)
 
 The function calculates the mathematical expression written in postfix notation.
 
     """
-    module_func_dict = {module: dir(module) for module in modules}
+
+    global module_func_dict
     stack = []
     input_list = input_str.split(' ')
     for token in input_list:
@@ -282,7 +315,7 @@ def main():
     """Entry point"""
 
     parser = argparse.ArgumentParser(add_help=True, description="Pure-python command-line calculator.")
-    parser.add_argument("EXPRESSION", type=str,  help="expression string to evaluate")
+    parser.add_argument("EXPRESSION", type=str, help="expression string to evaluate")
     parser.add_argument('-m', '--use-modules', dest='MODULE', type=str, nargs='+',
                         action='store', help="additional modules to use")
     args = parser.parse_args()
@@ -290,9 +323,9 @@ def main():
         args.MODULE.append('math')
     else:
         args.MODULE = ['math']
-    modules = [importlib.import_module(module) for module in args.MODULE]
     try:
-        print(postfix_eval(shunting_yard_alg(args.EXPRESSION, modules), modules))
+        set_user_mod(tuple(args.MODULE))
+        print(postfix_eval(postfix_translat(args.EXPRESSION)))
     except Exception as err:
         print('ERROR:', err)
 
