@@ -51,7 +51,7 @@ class Calculator:
 
         self.unary_operator = ''
 
-    def _process_operator(self, cloing_bracket_index):
+    def _process_operator(self, closing_bracket_index):
         """Process operator."""
         if self.unary_operator:
             self.stack.append(self.unary_operator)
@@ -60,13 +60,7 @@ class Calculator:
             if self.operator not in OPERATORS:
                 raise CalculatorError('operator not supported', self.__return_code)
 
-            for prev_symbol in reversed(self.expression[:cloing_bracket_index - len(self.operator)]):
-                if prev_symbol == ' ':
-                    continue
-                elif prev_symbol == ')':
-                    self.stack.append('*')
-                    break
-                break
+            self._process_implicit_multiplication(closing_bracket_index - len(self.operator))
 
             self.stack.append(self.operator)
 
@@ -116,12 +110,7 @@ class Calculator:
                 self.stack.append('*')
             self._process_operator(index)
 
-            for prev_symbol in reversed(self.expression[:index]):
-                if prev_symbol == ' ':
-                    continue
-                if prev_symbol == ')':
-                    self.stack.append('*')
-                break
+            self._process_implicit_multiplication(index)
 
             self.stack.append(symbol)
         elif symbol == ')':
@@ -197,6 +186,12 @@ class Calculator:
 
         del self.stack[:]
 
+    def _process_implicit_multiplication(self, index):
+        """Сhecks for implicit multiplication."""
+        prev_symbol = self._get_previous_symbol(index)
+        if prev_symbol == ')':
+            self.stack.append('*')
+
     def _calculate_operator(self, operator):
         """Prepare operator to calculate."""
         operator_params = OPERATORS[operator]
@@ -263,6 +258,13 @@ class Calculator:
         if not isinstance(number, str):
             return 0
         return float(number) if '.' in number else int(number)
+
+    def _get_previous_symbol(self, index):
+        """Return previous symbol excluding whitespace."""
+        for prev_symbol in reversed(self.expression[:index]):
+            if prev_symbol == ' ':
+                continue
+            return prev_symbol
 
     def calculate(self):
         """Prepare and calculate expression."""

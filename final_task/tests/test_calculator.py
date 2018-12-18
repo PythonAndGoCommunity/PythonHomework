@@ -351,6 +351,34 @@ class TestStringMethods(unittest.TestCase):
 
             self.assertEqual(result, expression.result)
 
+    def test_process_implicit_multiplication__valid_expressions(self):
+        """Docstring."""
+
+        valid_expression = namedtuple('valid_expression', 'expression index result_stack')
+        valid_expressions = [valid_expression('(1)(1+2)', 3, ['*'])
+                             ]
+
+        for expression in valid_expressions:
+            calc = Calculator(expression.expression)
+
+            calc._process_implicit_multiplication(expression.index)
+
+            self.assertEqual(calc.stack, expression.result_stack)
+
+    def test_get_previous_symbol__valid_expressions(self):
+        """Docstring."""
+
+        valid_expression = namedtuple('valid_expression', 'expression index result')
+        valid_expressions = [valid_expression('1 +  2', 5, '+')
+                             ]
+
+        for expression in valid_expressions:
+            calc = Calculator(expression.expression)
+
+            result = calc._get_previous_symbol(expression.index)
+
+            self.assertEqual(result, expression.result)
+
 
 if __name__ == '__main__':
     unittest.main()
