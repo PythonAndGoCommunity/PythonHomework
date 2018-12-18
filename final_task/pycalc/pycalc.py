@@ -1,4 +1,5 @@
 import argparse
+import importlib
 import math
 import types
 from collections import namedtuple
@@ -124,6 +125,7 @@ Token = namedtuple('Token', ('priority', 'function', 'args_number'))
 class Parser:
     '''This class parses tokens and converts them into reverse polish notation.'''
 
+    # 'args_number = None' means unknown number of parameters
     TOKENS = {function: Token(5, getattr(math, function), None) for function in dir(math)}
     TOKENS.update({',': Token(0, None, None),
                    '(': Token(0, None, None),
@@ -277,11 +279,15 @@ class Parser:
         return result
 
 
-def calculate(expression):
+def calculate(expression, in_function=False):
     '''This function calculates expression represented in reverse polish notation.'''
 
     result = []
     commas_number = 0
+
+    if in_function and not expression:
+        return result
+
     for token in expression:
         if type(token) in [int, float, list]:
             result.append(token)
@@ -295,9 +301,9 @@ def calculate(expression):
                 elif Parser.TOKENS[token].args_number == 1:
                     result.append(Parser.TOKENS[token].function(result.pop()))
                 elif token == 'fsum':
-                    result.append(Parser.TOKENS[token].function(calculate(result.pop())))
+                    result.append(Parser.TOKENS[token].function(calculate(result.pop(), in_function=True)))
                 else:
-                    result.append(Parser.TOKENS[token].function(*calculate(result.pop())))
+                    result.append(Parser.TOKENS[token].function(*calculate(result.pop(), in_function=True)))
             except TypeError:
                 raise SyntaxError('ERROR: invalid number of arguments \'' + token + '\'.')
             except IndexError:
@@ -309,13 +315,37 @@ def calculate(expression):
     return result
 
 
+def init_modules(modules):
+    '''This function imports functions and constants from user modules.'''
+
+    if not modules:
+        return
+
+    for module in modules:
+        constants = []
+        functions = []
+        lib = importlib.import_module(module)
+        for key, value in lib.__dict__.items():
+            if isinstance(value, (float, int)):
+                constants.append(key)
+            if isinstance(value, types.FunctionType):
+                functions.append(key)
+        Parser.TOKENS.update({function: Token(5, getattr(lib, function), None)
+                             for function in (*constants, *functions)})
+        Lexer.CONSTANTS += tuple(constants)
+        Lexer.FUNCTIONS += tuple(function + '(' for function in functions)
+
+
 def main():
     # parsing args
-    parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
-    parser.add_argument('EXPRESSION', help='expression string to evaluate')
-    expression = parser.parse_args().EXPRESSION
+    arg_parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
+    arg_parser.add_argument('EXPRESSION', help='expression string to evaluate')
+    arg_parser.add_argument('-m', '--use-modules', metavar='MODULE', nargs='+', help='additional modules to use')
+    expression = arg_parser.parse_args().EXPRESSION
+    modules = arg_parser.parse_args().use_modules
 
     try:
+        init_modules(modules)
         lexer = Lexer(expression)
         tokens = lexer.get_all_tokens()
         parser = Parser(tokens)
@@ -326,6 +356,8 @@ def main():
         print(ex)
     except ZeroDivisionError:
         print('ERROR: division by zero!')
+    except ModuleNotFoundError as e:
+        print('ERROR: ' + str(e))
 
 
 if __name__ == '__main__':
