@@ -228,7 +228,7 @@ class Calculator:
 
     def _calculate_rpn(self):
         """Calculate reverse polish notation."""
-        print(self.rpn)
+        #print(self.rpn)
         for item in self.rpn:
             if item == ',':
                 self.stack.append(item)
