@@ -36,7 +36,9 @@ def set_user_mod(modules=None):
 Initialize global variable module_func_dict
 
     """
-    if not modules: return
+
+    if not modules:
+        return
     modules_list = [importlib.import_module(module) for module in modules]
     global module_func_dict
     module_func_dict = {module: dir(module) for module in modules_list}
@@ -226,6 +228,7 @@ Implements an Shunting-yard algorithm
         if token == '(':
             raise Exception('unpaired brackets')
         output_list.extend([' ', token])
+
     return ''.join(output_list)
 
 
