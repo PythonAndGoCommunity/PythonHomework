@@ -4,52 +4,63 @@ import re
 inp = '8*5-4+7*2'
 
 
-regExpression = r'(?:\d+(?:\.\d*)?|\.\d+)|[\+\-\*\/]'
-result = re.findall(regExpression, inp)
-print(result)
+regularExpression = r'(?:\d+(?:\.\d*)?|\.\d+)|[\+\-\*\/]'
+parsedArray = re.findall(regularExpression, inp)
+
+print(parsedArray)
 
 priority = [
     ['+', '-'],
     ['*', '/', '^'],
     ['(', ')']
 ]
-
-tokens = []
+maxPriority = len(priority)-1
 
 
 class Token:
-    def __init__(self, value, token_priority, index):
+    def __init__(self, value, token_priority, array_index):
         self.value = value
         self.priority = token_priority
-        self.index = index
+        self.array_index = array_index
 
     def __repr__(self):
-        return "Token: {}, priority: {}".format(self.value, self.priority)
+        return "{}".format(self.value)
 
 
 class Tree:
-    def __init__(self, token):
+    def __init__(self, value):
         self.rightNode = None
         self.leftNode = None
-        self.token = token
-
-    def insert(self, value):
-        pass
+        self.token = value
 
     def __repr__(self):
-        return '{} (index = {})'.format(self.token.value, self.token.index)
+        return "{}".format(self.token)
 
 
-for i, token in enumerate(result):
+tokensArray = []
+for i, token in enumerate(parsedArray):
     for tokenPriority, operators in enumerate(priority):
         if token in operators:
-            tokens.append(Token(token, tokenPriority, i))
+            tokensArray.append(Token(token, tokenPriority, i))
+            break
+    else:
+        tokensArray.append(Token(token, maxPriority, i))
 
 
-root = Tree(Token(None, 3, None))
+def build_tree(arr):
+    root = Tree(Token(None, maxPriority, None))
+    for token in arr:
+        if root.token.priority > token.priority:
+            root.token = token
+    if root.token.value is None:
+        root.token = arr[0]
 
-for token in tokens:
-    if root.token.priority > token.priority:
-        root.token = token
+    border = arr.index(root.token)
 
-print(root)
+    if root.token != arr[0]:
+        root.leftNode = build_tree(arr[:border:])
+        root.rightNode = build_tree(arr[border + 1::])
+    return root
+
+
+tree = build_tree(tokensArray)
