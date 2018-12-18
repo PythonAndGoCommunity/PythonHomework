@@ -132,9 +132,8 @@ class Calculator:
                     break
                 self.rpn.append(element)
 
-            if self.stack:
-                element = self.stack.pop()
-                self.rpn.append(element)
+            if self.stack and OPERATORS[self.stack[-1]].have_brackets:
+                self.rpn.append(self.stack.pop())
 
     def _is_unary_operator(self, index, symbol):
         """Define that operator is unary."""
