@@ -5,7 +5,7 @@ import math
 import re
 
 # dict { name function: (execution priority, calculation)}
-OPERATORS = {'+': (1, lambda x, y: x + y),
+operators = {'+': (1, lambda x, y: x + y),
              '-': (1, lambda x, y: x - y),
              '*': (2, lambda x, y: x * y),
              '/': (2, lambda x, y: x / y),
@@ -67,7 +67,7 @@ constant = {'pi': math.pi,
             }
 
 # all operators
-OPERATORS_func = ['acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'copysign', 'cos', 'cosh',
+operators_func = ['acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'copysign', 'cos', 'cosh',
                   'degrees', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod', 'frexp', 'fsum',
                   'gamma', 'gcd', 'hypot', 'inf', 'isclose', 'isfinite', 'isinf', 'isnan', 'ldexp', 'lgamma', 'log',
                   'log10', 'log1p', 'log2', 'modf', 'nan', 'pow', 'radians', 'sin', 'sinh', 'sqrt', 'tan', 'tanh',
@@ -75,10 +75,10 @@ OPERATORS_func = ['acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'c
                   'nan', 'tau']
 
 # operators that take two values
-OPERATORS_double = ['+', '-', '*', '/', '%', '^', '//', '%', 'atan2', 'copysign', 'fmod', 'gcd', 'hypot', 'isclose',
+operators_double = ['+', '-', '*', '/', '%', '^', '//', '%', 'atan2', 'copysign', 'fmod', 'gcd', 'hypot', 'isclose',
                     'ldexp', 'pow', 'log']
 
-OPERATORS_compare = {'==': (lambda x, y: x == y),
+operators_compare = {'==': (lambda x, y: x == y),
                      '>=': (lambda x, y: x >= y),
                      '<=': (lambda x, y: x <= y),
                      '!=': (lambda x, y: x != y),
@@ -107,7 +107,7 @@ def main_count(formula):
             return "ERROR: no value"
         else:
 
-            if formula[-1] in OPERATORS:
+            if formula[-1] in operators:
                 return "ERROR: syntax mistake"
             if formula[0] in '^%*/= |\\':
                 return "ERROR: syntax mistake"
@@ -118,7 +118,7 @@ def main_count(formula):
             if formula.count('(') != formula.count(')'):
                 return "ERROR: brackets are not balanced"
 
-            if formula in OPERATORS:
+            if formula in operators:
                 return "ERROR: no function arguments"
 
             if '()' in formula or '[]' in formula:
@@ -134,7 +134,7 @@ def main_count(formula):
                 return "ERROR: unknown function"
 
             # function argument checking
-            for name_func in OPERATORS:
+            for name_func in operators:
                 if name_func.isalpha() or name_func in ['log1p', 'log10', 'atan2', 'expm1', 'log2']:
                     # split by function name + '('
                     name_func_bracket = '{}('.format(name_func)
@@ -222,7 +222,7 @@ def main_count(formula):
             x = int(x)
             y = int(y)
 
-        result_function = OPERATORS[name_function][1](x, y)
+        result_function = operators[name_function][1](x, y)
         # replace only 1 time
         result_formula = result_formula.replace(replace_expression, str(result_function), 1)
 
@@ -249,10 +249,10 @@ def main_count(formula):
             result_formula.append(key)
             if i != len(formula.split('^')) - 1:
                 result_formula.append('^' * (i + 1))
-                # add in OPERATORS degree with high priority
-                OPERATORS.update({'^' * (i + 1): (4 + i, lambda x, y: x ** y)})
-                OPERATORS_double.append('^' * (i + 1))
-                OPERATORS_func.append('^' * (i + 1))
+                # add in operators degree with high priority
+                operators.update({'^' * (i + 1): (4 + i, lambda x, y: x ** y)})
+                operators_double.append('^' * (i + 1))
+                operators_func.append('^' * (i + 1))
 
         return ''.join(result_formula)
 
@@ -319,7 +319,7 @@ def main_count(formula):
                 elif key == '(':
                     bracket_count += 1
 
-                if expression and (key in OPERATORS_double or key in OPERATORS_compare) and not bracket_count:
+                if expression and (key in operators_double or key in operators_compare) and not bracket_count:
                     break
                 else:
                     expression.append(key)
@@ -464,7 +464,7 @@ def main_count(formula):
                 if len(stack) > 2 and ''.join(stack[:3]) == 'log':
 
                     stack.append(key)
-                    if ''.join(stack) in OPERATORS_func:
+                    if ''.join(stack) in operators_func:
                         yield ''.join(stack)
                         stack = []
 
@@ -487,7 +487,7 @@ def main_count(formula):
 
                 elif len(stack) > 2 and ''.join(stack[:3]) == 'log':
                     stack.append(key)
-                    if ''.join(stack) in OPERATORS_func:
+                    if ''.join(stack) in operators_func:
                         yield ''.join(stack)
                         stack = []
 
@@ -498,7 +498,7 @@ def main_count(formula):
 
                 else:
 
-                    if ''.join(stack) + key in OPERATORS_func:
+                    if ''.join(stack) + key in operators_func:
                         stack.append(key)
 
                     elif ''.join(stack) in constant:
@@ -506,7 +506,7 @@ def main_count(formula):
                         stack = []
                         stack.append(key)
 
-                    elif ''.join(stack) in OPERATORS_func:
+                    elif ''.join(stack) in operators_func:
 
                         yield ''.join(stack)
                         stack = []
@@ -535,9 +535,9 @@ def main_count(formula):
             if token in constant:
                 token = constant.get(''.join(token))
 
-            if token in OPERATORS:
+            if token in operators:
                 # choose by priority
-                while stack and stack[-1] != "(" and OPERATORS[token][0] <= OPERATORS[stack[-1]][0]:
+                while stack and stack[-1] != "(" and operators[token][0] <= operators[stack[-1]][0]:
                     yield stack.pop()
                 stack.append(token)
             elif token == ")":
@@ -559,15 +559,15 @@ def main_count(formula):
         stack = []
         for token in converted_formula:
 
-            if token in OPERATORS:
+            if token in operators:
                 # check function with double arguments
-                if token in OPERATORS_double:
+                if token in operators_double:
                     y, x = stack.pop(), stack.pop()
-                    stack.append(OPERATORS[token][1](x, y))
+                    stack.append(operators[token][1](x, y))
                 else:
                     # use function with 1 argument
                     x = stack.pop()
-                    stack.append(OPERATORS[token][1](x))
+                    stack.append(operators[token][1](x))
             else:
                 stack.append(token)
 
@@ -576,9 +576,9 @@ def main_count(formula):
     def check_comparison(formula):
         """Function checks if there are comparison operations"""
 
-        for compare in OPERATORS_compare:
+        for compare in operators_compare:
             if compare in formula:
-                return OPERATORS_compare.get(compare)(
+                return operators_compare.get(compare)(
                     main_count(formula.split(compare)[0]),
                     main_count(formula.split(compare)[1]))
 
