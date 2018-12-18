@@ -40,12 +40,12 @@ class TestPostfixEval(unittest.TestCase):
         set_user_mod(['math'])
 
     def test_common(self):
-        ans = 1+2*(3-4)/5.1%2//2.45
+        ans = 1+2*(3-4)/5.1 % 2//2.45
         self.assertEqual(postfix_eval("1 2 3 4 - * 5.1 / 2 % 2.45 // +"), ans)
 
     def test_bool(self):
-        ans = 3 == True <= 2 > 4
-        self.assertEqual(postfix_eval("3 True 2 <= == 4 >"), ans)
+        ans = 3 == 1 <= 2 > 4
+        self.assertEqual(postfix_eval("3 1 2 <= == 4 >"), ans)
 
     def test_func(self):
         ans = pow(4, 2)*sin(3)*abs(-3)
@@ -54,4 +54,3 @@ class TestPostfixEval(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

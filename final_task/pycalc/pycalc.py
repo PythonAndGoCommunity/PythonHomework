@@ -198,7 +198,7 @@ Implements an Shunting-yard algorithm
                     continue
                 next_token = input_str[i + 1]
                 if next_token == '=':
-                    token = token + next_token
+                    token += next_token
                     output_list.extend(_stack_push(token))
                 elif token == '=':
                     raise Exception('unknown operator: "="')
@@ -209,8 +209,8 @@ Implements an Shunting-yard algorithm
                     continue
                 next_token = input_str[i + 1]
                 if next_token == '/':
-                    token == '//'
-                    output_list.extend(_stack_push(token + next_token))
+                    token = '//'
+                    output_list.extend(_stack_push(token))
                 else:
                     output_list.extend(_stack_push(token))
             else:
@@ -228,7 +228,6 @@ Implements an Shunting-yard algorithm
         if token == '(':
             raise Exception('unpaired brackets')
         output_list.extend([' ', token])
-
     return ''.join(output_list)
 
 
