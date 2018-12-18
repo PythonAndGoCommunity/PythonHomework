@@ -40,7 +40,7 @@ class Calculator:
 
         if self.operator in CONSTANTS:
 
-            if self.rpn and self.rpn[-1] in CONSTANTS.values():
+            if self.rpn and self.rpn[-1] in CONSTANTS.values() and not self.stack:
                 self.stack.append('*')
 
             if self.unary_operator == '-':
@@ -51,7 +51,7 @@ class Calculator:
 
         self.unary_operator = ''
 
-    def _process_operator(self):
+    def _process_operator(self, cloing_bracket_index):
         """Process operator."""
         if self.unary_operator:
             self.stack.append(self.unary_operator)
@@ -59,6 +59,15 @@ class Calculator:
         if self.operator:
             if self.operator not in OPERATORS:
                 raise CalculatorError('operator not supported', self.__return_code)
+
+            for prev_symbol in reversed(self.expression[:cloing_bracket_index - len(self.operator)]):
+                if prev_symbol == ' ':
+                    continue
+                elif prev_symbol == ')':
+                    self.stack.append('*')
+                    break
+                break
+
             self.stack.append(self.operator)
 
         self.unary_operator = ''
@@ -105,7 +114,7 @@ class Calculator:
             if self.number:
                 self._process_number_and_constant()
                 self.stack.append('*')
-            self._process_operator()
+            self._process_operator(index)
 
             for prev_symbol in reversed(self.expression[:index]):
                 if prev_symbol == ' ':
@@ -121,6 +130,10 @@ class Calculator:
                 element = self.stack.pop()
                 if element == '(':
                     break
+                self.rpn.append(element)
+
+            if self.stack:
+                element = self.stack.pop()
                 self.rpn.append(element)
 
     def _is_unary_operator(self, index, symbol):
@@ -228,7 +241,6 @@ class Calculator:
 
     def _calculate_rpn(self):
         """Calculate reverse polish notation."""
-        #print(self.rpn)
         for item in self.rpn:
             if item == ',':
                 self.stack.append(item)

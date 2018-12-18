@@ -63,25 +63,25 @@ class TestStringMethods(unittest.TestCase):
     def test_process_operator__valid_expressions(self):
         """Docstring."""
 
-        valid_expression = namedtuple('valid_expression', 'unary_operator operator result')
-        valid_expressions = [valid_expression('', 'sin', ['sin']),
-                             valid_expression('-@', 'log', ['-@', 'log'])
+        valid_expression = namedtuple('valid_expression', 'unary_operator operator closing_bracket_index result')
+        valid_expressions = [valid_expression('', 'sin', 2, ['sin']),
+                             valid_expression('-@', 'log', 2, ['-@', 'log'])
                              ]
 
         for expression in valid_expressions:
             calc = Calculator('')
             calc.unary_operator = expression.unary_operator
             calc.operator = expression.operator
-            calc._process_operator()
+            calc._process_operator(expression.closing_bracket_index)
 
             self.assertEqual(calc.stack, expression.result)
 
     def test_process_operator__invalid_expressions(self):
         """Docstring."""
 
-        invalid_expression = namedtuple('valid_expression', 'unary_operator operator')
-        invalid_expressions = [invalid_expression('', 'log100'),
-                               invalid_expression('-@', 'sin4')
+        invalid_expression = namedtuple('valid_expression', 'unary_operator operator closing_bracket_index')
+        invalid_expressions = [invalid_expression('', 'log100', 0),
+                               invalid_expression('-@', 'sin4', 0)
                                ]
 
         for expression in invalid_expressions:
@@ -91,7 +91,7 @@ class TestStringMethods(unittest.TestCase):
             calc.operator = expression.operator
 
             with self.assertRaises(BaseCalculatorException):
-                calc._process_operator()
+                calc._process_operator(expression.closing_bracket_index)
 
     def test_process_stack__valid_expressions(self):
         """Docstring."""
@@ -152,7 +152,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression(['+'], 0, '(', '', ['+', '('], []),
                              valid_expression(['+'], 0, '(', '2', ['+', '*', '('], [2]),
                              valid_expression(['(', '+', '*'], 0, ')', '', [], ['*', '+']),
-                             valid_expression(['+', '(', '*'], 0, ')', '', ['+'], ['*'])
+                             valid_expression(['+', '(', '*'], 0, ')', '', [], ['*', '+'])
                              ]
 
         for expression in valid_expressions:
