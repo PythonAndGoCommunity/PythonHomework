@@ -146,20 +146,20 @@ class TestStringMethods(unittest.TestCase):
     def test_process_brackets_and_comma__valid_expressions(self):
         """Docstring."""
 
-        valid_expression = namedtuple('valid_expression', 'stack symbol number result_stack result_rpn')
-        valid_expressions = [valid_expression(['round', '('], ',', '', ['round', '(', ','], []),
-                             valid_expression(['round', '(', '+'], ',', '', ['round', '(', ','], ['+']),
-                             valid_expression(['+'], '(', '', ['+', '('], []),
-                             valid_expression(['+'], '(', '2', ['+', '*', '('], [2]),
-                             valid_expression(['(', '+', '*'], ')', '', [], ['*', '+']),
-                             valid_expression(['+', '(', '*'], ')', '', ['+'], ['*'])
+        valid_expression = namedtuple('valid_expression', 'stack index symbol number result_stack result_rpn')
+        valid_expressions = [valid_expression(['round', '('], 0, ',', '', ['round', '(', ','], []),
+                             valid_expression(['round', '(', '+'], 0, ',', '', ['round', '(', ','], ['+']),
+                             valid_expression(['+'], 0, '(', '', ['+', '('], []),
+                             valid_expression(['+'], 0, '(', '2', ['+', '*', '('], [2]),
+                             valid_expression(['(', '+', '*'], 0, ')', '', [], ['*', '+']),
+                             valid_expression(['+', '(', '*'], 0, ')', '', ['+'], ['*'])
                              ]
 
         for expression in valid_expressions:
             calc = Calculator('expression')
             calc.stack = expression.stack
             calc.number = expression.number
-            calc._process_brackets_and_comma(expression.symbol)
+            calc._process_brackets_and_comma(expression.index, expression.symbol)
 
             self.assertEqual(calc.stack, expression.result_stack)
             self.assertEqual(calc.rpn, expression.result_rpn)

@@ -39,6 +39,10 @@ class Calculator:
             self.number = ''
 
         if self.operator in CONSTANTS:
+
+            if self.rpn and self.rpn[-1] in CONSTANTS.values():
+                self.stack.append('*')
+
             if self.unary_operator == '-':
                 self.rpn.append(0 - CONSTANTS[self.operator])
             else:
@@ -87,7 +91,7 @@ class Calculator:
 
             self.stack.append(symbol)
 
-    def _process_brackets_and_comma(self, symbol):
+    def _process_brackets_and_comma(self, index, symbol):
         """Process brackets and comma from expression."""
         if symbol == ',':
             self._process_number_and_constant()
@@ -101,8 +105,15 @@ class Calculator:
             if self.number:
                 self._process_number_and_constant()
                 self.stack.append('*')
-            else:
-                self._process_operator()
+            self._process_operator()
+
+            for prev_symbol in reversed(self.expression[:index]):
+                if prev_symbol == ' ':
+                    continue
+                if prev_symbol == ')':
+                    self.stack.append('*')
+                break
+
             self.stack.append(symbol)
         elif symbol == ')':
             self._process_number_and_constant()
@@ -151,7 +162,7 @@ class Calculator:
             elif symbol.isdigit() or symbol == '.':
                 self._process_digit(index, symbol)
             elif symbol in ('(', ',', ')'):
-                self._process_brackets_and_comma(symbol)
+                self._process_brackets_and_comma(index, symbol)
             elif symbol in OPERATORS:
                 if self.stack and self._is_floordiv(index, symbol):
                     self.stack[-1] += symbol
@@ -217,6 +228,7 @@ class Calculator:
 
     def _calculate_rpn(self):
         """Calculate reverse polish notation."""
+        print(self.rpn)
         for item in self.rpn:
             if item == ',':
                 self.stack.append(item)
