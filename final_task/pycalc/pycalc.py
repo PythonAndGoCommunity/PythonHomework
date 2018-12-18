@@ -101,11 +101,13 @@ class Calc:
         """
         self.unary = True
         self.implicit_mul = False
-        temp_func = ''       # содержит не числовое выражение
-        temp_num = ''             # содержит числовое выражение
+        temp_func = ''     # содержит не числовое выражение
+        temp_num = ''      # содержит числовое выражение
+        index = -1         # индекс текущего символа в выражении. Необходим для определения схожих функций(log vs log10)
         for char in expr:
-            # print('char', char, self.op_st)
-            if char.isdigit() or char == '.':         # формируем строку с числом если текущий элемент - цифра
+            index += 1
+            # формируем строку с числом если текущий элемент - цифра
+            if not temp_func and char.isdigit() or char == '.':
                 if self.implicit_mul is True:   # между цифрой и предыдущем элементом есть неявное умножение
                     self.make_note('*', True)
                 temp_num += char
@@ -137,7 +139,7 @@ class Calc:
 
                 # попытка вытащить текущий egg из пользовательского модуля
                 for module_name, module_attributes in self.user_modules.items():
-                    if temp_func in module_attributes:                 # получилось вытащить
+                    if temp_func in module_attributes:                      # получилось вытащить
                         temp = getattr(module_name, temp_func)
                         if callable(temp):                                  # функция
                             self.op_st.insert(0, (temp, 4))
@@ -152,11 +154,11 @@ class Calc:
                         if self.implicit_mul is True:   # перед скобкой вставляем неявное умножение
                             self.make_note('*', True)
                         self.op_st.insert(0, (temp_func, 0))
-                        # print('okay', self.eval_list, self.op_st)
 
                     elif temp_func == ')':
                         self.unload_stack()
                         self.implicit_mul = True        # после закрывающей скобки может быть неявное умножение
+                        self.unary = False
 
                     # константа
                     elif temp_func in self.const:
@@ -164,14 +166,16 @@ class Calc:
                         if self.implicit_mul is True:   # перед скобкой вставляем неявное умножение
                             self.make_note('*', True)
                         self.eval_list.append(self.const[temp_func])
-                        # self.check_neg()
                         self.implicit_mul = True
 
                     # выбор из math
                     elif temp_func in dir(math):
                         if self.implicit_mul:
                             self.make_note('*', True)
-                        self.op_st.insert(0, (getattr(math, temp_func), 4))
+                        if self.find_real_func(expr[index + 1:]):
+                            self.op_st.insert(0, (getattr(math, temp_func), 4))
+                        else:
+                            continue
 
                     elif temp_func in self.func:
                         self.op_st.insert(0, self.func[temp_func])
@@ -184,7 +188,6 @@ class Calc:
                             for operation in self.op_st:          # выталкиваем приоритетные, префиксные операции
                                 if operation[1] >= self.bin_op[temp_func][1]:
                                     self.eval_list.append(operation[0])
-                                    # del self.op_st[0]
                                 else:
                                     break
                                 i += 1
@@ -226,12 +229,20 @@ class Calc:
         else:
             self.eval_list.append(int(temp_num))
 
+    # проверка на неполноту функции(log vs log10)
+    @staticmethod
+    def find_real_func(remainder):
+        index = remainder.index('(')
+        if not index:       # функция уже полная, за ней идет скобка
+            return True
+        else:
+            return False
+
     def eval_note(self):
         """
         Evaluate Reverse Polish Entry from self.evaluate_list
         :return: int or float
         """
-        # print(self.eval_list)
         num_stack = []
         for i in self.eval_list:
             if not callable(i):                     # данный элемент не функция, т.е., число -> поместить в стек чисел
@@ -254,7 +265,6 @@ def calculate(expr, modules):
 
     for i, r in combinations_for_replace.items():
         expr = expr.replace(i, r)
-#     print(expr)
     if ' ' in expr:
         raise ValueError('spaces in expression!')
     if not expr:
@@ -266,7 +276,6 @@ def calculate(expr, modules):
     else:
         expr = expr.replace('//', '$')
     cd = Calc(modules)
-    # print(expr)
     print(cd.evaluate_expression(expr))
 
 
