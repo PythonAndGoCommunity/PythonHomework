@@ -30,13 +30,13 @@ module_func_dict = {}
 stack_opr = []
 
 
-def set_user_mod(modules=tuple()):
+def set_user_mod(modules=None):
     """set_user_mod(modules)
 
 Initialize global variable module_func_dict
 
     """
-
+    if not modules: return
     modules_list = [importlib.import_module(module) for module in modules]
     global module_func_dict
     module_func_dict = {module: dir(module) for module in modules_list}
@@ -72,7 +72,8 @@ The operator pushes a stack of other operators.
                 break
         stack_opr.append(opr)
 
-    buf.append(' ')
+    if opr != '+-':
+        buf.append(' ')
     return buf
 
 
@@ -88,7 +89,7 @@ defined in the variable module_func_dict.
         return const
     for module in module_func_dict:
         if const in module_func_dict[module]:
-            return [' ', str(getattr(module, const))]
+            return [str(getattr(module, const))]
     else:
         # Recursion
         i = 0
@@ -98,14 +99,14 @@ defined in the variable module_func_dict.
             r_const = const[i + 1:]
             for module in module_func_dict:
                 if l_const in module_func_dict[module]:
-                    return [' ', str(getattr(module, l_const)),  *_stack_push('*'), *_const_separator(r_const)]
+                    return [str(getattr(module, l_const)),  *_stack_push('*'), *_const_separator(r_const)]
             i += 1
         else:
             raise Exception('unknown constant {}'.format(const))
 
 
-def postfix_translat(input_str):
-    """postfix_translat(input_str)
+def postfix_translator(input_str):
+    """postfix_translator(input_str)
 
 The function converts a mathematical expression written in infix notation into postfix notation.
 Implements an Shunting-yard algorithm
@@ -138,8 +139,6 @@ Implements an Shunting-yard algorithm
             if func_buf:
                 func_buf += token
             else:
-                if last_token in PRIORITY_DICT:
-                    output_list.append(' ')
                 output_list.append(token)
 
         elif token == '.':
@@ -190,7 +189,7 @@ Implements an Shunting-yard algorithm
                 func_buf = ''
             if (token == '-') & (last_token in LIST_OPERATOR or last_token in ['', '(']):
                 output_list.extend(_stack_push('+-'))
-            elif (token == '+') & (last_token in LIST_OPERATOR):
+            elif (token == '+') & (last_token in LIST_OPERATOR or last_token == ''):
                 pass
             elif token in ['=', '<', '>', '!']:
                 if last_token in ['!=', '==', '<=', '>=', '!=']:
@@ -204,8 +203,11 @@ Implements an Shunting-yard algorithm
                 else:
                     output_list.extend(_stack_push(token))
             elif token == '/':
+                if last_token == '//':
+                    continue
                 next_token = input_str[i + 1]
                 if next_token == '/':
+                    token == '//'
                     output_list.extend(_stack_push(token + next_token))
                 else:
                     output_list.extend(_stack_push(token))
@@ -292,7 +294,7 @@ The function calculates the mathematical expression written in postfix notation.
         elif PREFIX_FUNC in token:
             pos = token.find(PREFIX_FUNC)
             args_list = []
-            for i in range(int(token[:pos])):
+            for _ in range(int(token[:pos])):
                 args_list.append(stack.pop())
             func_name = token[pos + len(PREFIX_FUNC):]
             for module in module_func_dict:
@@ -326,7 +328,7 @@ def main():
         args.MODULE = ['math']
     try:
         set_user_mod(tuple(args.MODULE))
-        print(postfix_eval(postfix_translat(args.EXPRESSION)))
+        print(postfix_eval(postfix_translator(args.EXPRESSION)))
     except Exception as err:
         print('ERROR:', err)
 
