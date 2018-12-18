@@ -1,39 +1,42 @@
-import calc.other_functions as o_f
+from calc import other_functions
 from calc.math_functions import decide_func
 
 
-def reduction_expression(s):
+class ExpressionError(Exception):
+    pass
 
-    lis = o_f.finding_elements(s)
-    lis = o_f.additions(lis)
+
+def reduction_expression(string):
+    lis = other_functions.finding_elements(string)
+    lis = other_functions.additions(lis)
     return lis
 
 
-def compare(lis):
+def check_compared(composition):
     i = 0
-    while i < len(lis)-1:
-        if lis[i] == '==':
-            a, b = cut(i, lis)
+    while i < len(composition)-1:
+        if composition[i] == '==':
+            a, b = cut(i, composition)
             return a == b
-        elif lis[i] == '<=':
-            a, b = cut(i, lis)
+        elif composition[i] == '<=':
+            a, b = cut(i, composition)
             return a <= b
-        elif lis[i] == '>=':
-            a, b = cut(i, lis)
+        elif composition[i] == '>=':
+            a, b = cut(i, composition)
             return a >= b
-        elif lis[i] == '!=':
-            a, b = cut(i, lis)
+        elif composition[i] == '!=':
+            a, b = cut(i, composition)
             return a != b
-        elif lis[i] == '>':
-            a, b = cut(i, lis)
+        elif composition[i] == '>':
+            a, b = cut(i, composition)
             return a > b
-        elif lis[i] == '<':
-            a, b = cut(i, lis)
+        elif composition[i] == '<':
+            a, b = cut(i, composition)
             return a < b
 
         i += 1
 
-    return decide_expression(lis)
+    return decide_expression(composition)
 
 
 def cut(i, lis):
@@ -55,55 +58,54 @@ def decide_expression(s):
 
     if len(st_nums) > 1 or len(st_ops):
         print('ERROR: not necessary operation')
-        exit()
+        raise ExpressionError
 
     return st_nums[0]
 
 
-def verify(s, i, st_nums, st_ops):
+def verify(string, index, st_nums, st_ops):
+    if type(string[index]) == float:
+        st_nums.append(string[index])
 
-    if type(s[i]) == float:
-        st_nums.append(s[i])
-
-    elif s[i] == '(':
+    elif string[index] == '(':
         st_ops.append('(')
-        if o_f.prior(s[i+1]) == 1:
+        if other_functions.get_prior(string[index+1]) == 1:
             st_nums.append(0)
 
-    elif s[i] == ')':
+    elif string[index] == ')':
         if st_ops[-1] == '(':
             del st_ops[-1]
         else:
             try:
-                st_nums[-2] = o_f.bin_operate(st_nums[-2], st_nums[-1], st_ops[-1])
+                st_nums[-2] = other_functions.perform_bin_operate(st_nums[-2], st_nums[-1], st_ops[-1])
             except Exception:
                 print('ERROR: not necessary element')
-                exit()
+                raise ExpressionError
             del st_ops[-1]
             del st_nums[-1]
-            verify(s, i, st_nums, st_ops)
+            verify(string, index, st_nums, st_ops)
 
-    elif o_f.prior(s[i]) == 5:
-        args = o_f.decide_function(i, s)
+    elif other_functions.get_prior(string[index]) == 5:
+        args = other_functions.decide_function(index, string)
         ready_args = decide_args(args)
-        s[i] = decide_func(s[i], ready_args)
-        verify(s, i, st_nums, st_ops)
+        string[index] = decide_func(string[index], ready_args)
+        verify(string, index, st_nums, st_ops)
 
-    elif o_f.prior(s[i]) <= o_f.prior(st_ops[-1]):
-        if s[i] == '^' and st_ops[-1] == '^':
-            st_ops.append(s[i])
+    elif other_functions.get_prior(string[index]) <= other_functions.get_prior(st_ops[-1]):
+        if string[index] == '^' and st_ops[-1] == '^':
+            st_ops.append(string[index])
         else:
             try:
-                st_nums[-2] = o_f.bin_operate(st_nums[-2], st_nums[-1], st_ops[-1])
+                st_nums[-2] = other_functions.perform_bin_operate(st_nums[-2], st_nums[-1], st_ops[-1])
             except Exception:
                 print('ERROR: not necessary element')
-                exit()
+                raise ExpressionError
             del st_nums[-1]
             del st_ops[-1]
-            verify(s, i, st_nums, st_ops)
+            verify(string, index, st_nums, st_ops)
 
-    elif o_f.prior(s[i]) > o_f.prior(st_ops[-1]):
-        st_ops.append(s[i])
+    elif other_functions.get_prior(string[index]) > other_functions.get_prior(st_ops[-1]):
+        st_ops.append(string[index])
 
 
 def decide_args(args):

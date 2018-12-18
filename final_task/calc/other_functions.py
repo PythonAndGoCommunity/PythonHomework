@@ -1,24 +1,30 @@
+from math import pi, e, tau
+
+
 def finding_elements(s):
     lis = []
+    ord_a = 97
+    ord_z = 122
+    ord_0 = 48
+    ord_9 = 57
     unit_num = ''
     unit_fun = ''
     s += ' '
-    i = 0
-    while i < len(s):
+    for element in s:
 
-        if 96 < ord(s[i]) < 122:
+        if ord_a <= ord(element) <= ord_z:
             if unit_num:
                 unit_num = verify_num(unit_num)
                 lis.append(unit_num)
                 unit_num = ''
-            unit_fun += s[i]
+            unit_fun += element
             unit_fun = verify_pi_e(unit_fun, lis)
 
-        elif (47 < ord(s[i]) < 58) or s[i] == '.':
+        elif (ord_0 <= ord(element) <= ord_9) or element == '.':
             if unit_fun:
                 lis.append(unit_fun)
                 unit_fun = ''
-            unit_num += s[i]
+            unit_num += element
 
         else:
             if unit_num:
@@ -28,9 +34,8 @@ def finding_elements(s):
             if unit_fun:
                 lis.append(unit_fun)
                 unit_fun = ''
-            lis.append(s[i])
+            lis.append(element)
 
-        i += 1
     return lis
 
 
@@ -45,10 +50,13 @@ def verify_num(str_num):
 
 def verify_pi_e(unit_func, lis):
     if unit_func == 'e':
-        lis.append(2.718281828459045)
+        lis.append(e)
         return ''
     elif unit_func == 'pi':
-        lis.append(3.141592653589793)
+        lis.append(pi)
+        return ''
+    elif unit_func == 'tau':
+        lis.append(tau)
         return ''
     else:
         return unit_func
@@ -83,10 +91,10 @@ def additions(lis):
             continue
 
         elif type(lis[i]) == float:
-            if prior(lis[i + 1]) == 5 or lis[i + 1] == '(':
+            if get_prior(lis[i + 1]) == 5 or lis[i + 1] == '(':
                 lis.insert(i + 1, '*')
         elif lis[i] == ')':
-            if lis[i + 1] == '(' or prior(lis[i + 1]) == 5:
+            if lis[i + 1] == '(' or get_prior(lis[i + 1]) == 5:
                 lis.insert(i + 1, '*')
 
         i += 1
@@ -94,7 +102,7 @@ def additions(lis):
     i = 0
     while i < len(lis) - 1:
 
-        if prior(lis[i]) == 1 and prior(lis[i+1]) == 1:
+        if get_prior(lis[i]) == 1 and get_prior(lis[i+1]) == 1:
             if lis[i] != lis[i+1]:
                 lis[i] = '-'
             else:
@@ -103,13 +111,13 @@ def additions(lis):
             continue
 
         elif type(lis[i]) == float:
-            if (prior(lis[i + 1]) == 5 or lis[i + 1] == '(') and type(lis[i + 1]) != float:
+            if (get_prior(lis[i + 1]) == 5 or lis[i + 1] == '(') and type(lis[i + 1]) != float:
                 lis.insert(i + 1, '*')
         elif lis[i] == ')':
-            if lis[i + 1] == '(' or prior(lis[i + 1]) == 5:
+            if lis[i + 1] == '(' or get_prior(lis[i + 1]) == 5:
                 lis.insert(i + 1, '*')
 
-        elif (prior(lis[i]) == 2 or prior(lis[i]) == 3) and prior(lis[i+1]) == 1:
+        elif (get_prior(lis[i]) == 2 or get_prior(lis[i]) == 3) and get_prior(lis[i+1]) == 1:
             del lis[i+1]
             lis[i+1] *= -1
             continue
@@ -127,7 +135,7 @@ def additions(lis):
     return lis
 
 
-def prior(op):
+def get_prior(op):
     four_4 = [',', ' ', '<', '>', '=', '!', '>=', '<=', '==', '!=']
     if op == '(' or op == ')':
         return 0
@@ -143,7 +151,7 @@ def prior(op):
         return 5
 
 
-def bin_operate(a, b, op):
+def perform_bin_operate(a, b, op):
     if op == '+':
         return a + b
     elif op == '-':
@@ -182,7 +190,7 @@ def get_line_args(i, s):
     hooks = 1
     i = i + 1
     if s[i] != '(':
-        print('ERROR: arguments of function "' + s[i-1] + '" should be between hooks')
+        print('ERROR: arguments of function "' + str(s[i-1]) + '" should be between hooks')
         exit()
     line = [s[i]]
     del s[i]
