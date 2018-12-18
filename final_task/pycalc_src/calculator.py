@@ -131,14 +131,10 @@ class Calculator:
         if index == 0:
             return True
         if index <= len(self.expression):
-            for prev_symbol in reversed(self.expression[:index]):
-                if prev_symbol == ' ':
-                    continue
-                elif (prev_symbol in OPERATORS and prev_symbol != ')'
-                      or prev_symbol in COMPARISON_SYMBOLS):
+            prev_symbol = self._get_previous_symbol(index)
+            if (prev_symbol in OPERATORS and prev_symbol != ')'
+                or prev_symbol in COMPARISON_SYMBOLS):
                     return True
-                else:
-                    break
         return False
 
     def _is_floordiv(self, index, symbol):
@@ -260,7 +256,7 @@ class Calculator:
         return float(number) if '.' in number else int(number)
 
     def _get_previous_symbol(self, index):
-        """Return previous symbol excluding whitespace."""
+        """Return previous symbol excluding whitespace's."""
         for prev_symbol in reversed(self.expression[:index]):
             if prev_symbol == ' ':
                 continue
