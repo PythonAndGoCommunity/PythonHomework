@@ -1,10 +1,8 @@
 import math
 import argparse
+import numbers
 
-constants = {
-    "e": math.e,
-    "pi": math.pi
-}
+constants = {a: getattr(math, a) for a in dir(math) if isinstance(getattr(math, a), numbers.Number)}
 
 comparison = {
     "<": lambda x, y: x < y,
@@ -25,29 +23,9 @@ signs = {
     "^": lambda x, y: x ** y
 }
 
-functions = {
-    "abs": abs,
-    "round": round,
-    "acosh": math.acosh,
-    "asinh": math.asinh,
-    "atanh": math.atanh,
-    "acos": math.acos,
-    "asin": math.asin,
-    "atan": math.atan,
-    "cosh": math.cosh,
-    "sinh": math.sinh,
-    "tanh": math.tanh,
-    "factorial": math.factorial,
-    "log10": math.log10,
-    "log2": math.log2,
-    "cos": math.cos,
-    "sin": math.sin,
-    "tan": math.tan,
-    "exp": math.exp,
-    "sqrt": math.sqrt,
-    "log": lambda x, y = math.e: math.log(x, y),
-    "pow": lambda x, y: x ** y
-}
+functions = {a: getattr(math, a) for a in dir(math) if callable(getattr(math, a))}
+functions['abs'] = abs
+functions['round'] = round
 
 priority = {
     "+": 0,
