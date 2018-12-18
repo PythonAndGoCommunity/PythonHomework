@@ -152,7 +152,7 @@ class TestStringMethods(unittest.TestCase):
                              valid_expression(['+'], 0, '(', '', ['+', '('], []),
                              valid_expression(['+'], 0, '(', '2', ['+', '*', '('], [2]),
                              valid_expression(['(', '+', '*'], 0, ')', '', [], ['*', '+']),
-                             valid_expression(['+', '(', '*'], 0, ')', '', [], ['*', '+'])
+                             valid_expression(['+', '(', '*'], 0, ')', '', ['+'], ['*'])
                              ]
 
         for expression in valid_expressions:
