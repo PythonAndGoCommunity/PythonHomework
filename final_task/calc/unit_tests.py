@@ -1,5 +1,4 @@
 import unittest
-
 from calc.other_functions import *
 from calc.math_functions import decide_func
 
@@ -116,7 +115,7 @@ class TestMiniFunctions1(unittest.TestCase):
     def test_bo(self):
         """Function 'bin_operate' verify performance"""
 
-        formated_expression = bin_operate(2, 2, '^')
+        formated_expression = perform_bin_operate(2, 2, '^')
         self.assertEqual(formated_expression, 4)
 
 
@@ -128,5 +127,3 @@ class TestDecideFunction(unittest.TestCase):
 
         formated_expression = decide_func('pow', [2, 2])
         self.assertEqual(formated_expression, 4)
-
-unittest.main()
