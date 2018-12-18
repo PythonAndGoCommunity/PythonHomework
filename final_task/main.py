@@ -11,9 +11,16 @@ print(parsedArray)
 
 priority = [
     ['+', '-'],
-    ['*', '/', '^'],
-    ['(', ')']
+    ['*', '/'],
+    ['(', ')', '^']
 ]
+
+operation = {'+': lambda a, b: a+b,
+             '-': lambda a, b: a-b,
+             '*': lambda a, b: a*b,
+             '/': lambda a, b: a/b
+             }
+
 maxPriority = len(priority)-1
 
 
@@ -28,10 +35,11 @@ class Token:
 
 
 class Tree:
-    def __init__(self, value):
+    def __init__(self, value, parent=None):
         self.rightNode = None
         self.leftNode = None
         self.token = value
+        self.parent = parent
 
     def __repr__(self):
         return "{}".format(self.token)
@@ -47,20 +55,41 @@ for i, token in enumerate(parsedArray):
         tokensArray.append(Token(token, maxPriority, i))
 
 
-def build_tree(arr):
-    root = Tree(Token(None, maxPriority, None))
+def build_tree(arr, parent=None):
+    root = Tree(Token(None, maxPriority, None), parent)
     for token in arr:
-        if root.token.priority > token.priority:
+        if root.token.priority >= token.priority:
             root.token = token
+
     if root.token.value is None:
         root.token = arr[0]
 
     border = arr.index(root.token)
 
     if root.token != arr[0]:
-        root.leftNode = build_tree(arr[:border:])
-        root.rightNode = build_tree(arr[border + 1::])
+        root.leftNode = build_tree(arr[:border:], root)
+        root.rightNode = build_tree(arr[border + 1::], root)
     return root
 
 
 tree = build_tree(tokensArray)
+
+
+result = 0
+
+operands_array = []
+
+
+def postOrder(node):
+    if not node.leftNode and not node.rightNode:
+        return node
+    left = postOrder(node.leftNode)
+    right = postOrder(node.rightNode)
+    if left and right:
+        result = operation[left.parent.token.value](int(left.token.value), int(right.token.value))
+        left.parent.token.value = result
+        return left.parent
+
+print(postOrder(tree))
+
+
