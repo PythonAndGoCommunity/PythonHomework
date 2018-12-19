@@ -468,7 +468,6 @@ def main():
         rpn.expression = rpn.parse_expression()
         check.initial_check(rpn.expression)
         rpn_expression = rpn.convert_to_rpn(rpn.expression)
-        print(rpn.handle_operations(rpn_expression))
         return rpn.handle_operations(rpn_expression)
     except Exception as e:
         exit(f'ERROR: {e}')
