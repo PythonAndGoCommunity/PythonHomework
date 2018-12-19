@@ -1,6 +1,6 @@
 import unittest
 import math
-from .pycalc import *
+from pycalc import *
 
 
 class TestLexer(unittest.TestCase):
@@ -140,6 +140,16 @@ class TestCalculator(unittest.TestCase):
             calculate([1, 2, '>', '=='])
         with self.assertRaises(ZeroDivisionError):
             calculate([5, 0, '/'])
+        with self.assertRaises(ValueError):
+            calculate([[1, '--'], 'sqrt'])
+        with self.assertRaises(ValueError):
+            calculate([[1, '--'], 'factorial'])
+        with self.assertRaises(ValueError):
+            calculate([[0.2], 'factorial'])
+        with self.assertRaises(ValueError):
+            calculate([[0, ',', 1, '--'], 'pow'])
+        with self.assertRaises(ValueError):
+            calculate([[0], 'log'])
 
 
 if __name__ == '__main__':

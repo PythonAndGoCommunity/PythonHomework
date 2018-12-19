@@ -350,6 +350,7 @@ def main():
         tokens = lexer.get_all_tokens()
         parser = Parser(tokens)
         parser.parse()
+        print(parser.result)
         result = calculate(parser.result)
         print(result[0])
     except SyntaxError as ex:
@@ -358,6 +359,8 @@ def main():
         print('ERROR: division by zero!')
     except ModuleNotFoundError as e:
         print('ERROR: ' + str(e))
+    except ValueError:
+        print('ERROR: bad argument in function.')
 
 
 if __name__ == '__main__':
