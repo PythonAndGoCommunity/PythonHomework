@@ -100,10 +100,16 @@ class TestRPN(TestCase):
         token_list2 = ['8', 'sin', '(', '10', '+', '1'')']
         token_list3 = ['(', '3', ')', '(', '10', '+', '1', ')']
         token_list4 = ['e', 'pi']
+        token_list5 = ['(', '3', ')', '10']
+        token_list6 = ['(', '3', ')', 'sin', '(', '1', ')']
+        token_list7 = ['6', 'pi']
         self.assertEqual(self.rpn.add_implicit_multiply(token_list1), ['2', '*', '(', '10', '+', '1'')'])
         self.assertEqual(self.rpn.add_implicit_multiply(token_list2), ['8', '*', 'sin', '(', '10', '+', '1'')'])
         self.assertEqual(self.rpn.add_implicit_multiply(token_list3), ['(', '3', ')', '*', '(', '10', '+', '1', ')'])
         self.assertEqual(self.rpn.add_implicit_multiply(token_list4), ['e', '*', 'pi'])
+        self.assertEqual(self.rpn.add_implicit_multiply(token_list5), ['(', '3', ')', '*', '10'])
+        self.assertEqual(self.rpn.add_implicit_multiply(token_list6), ['(', '3', ')', '*', 'sin', '(', '1', ')'])
+        self.assertEqual(self.rpn.add_implicit_multiply(token_list7), ['6', '*', 'pi'])
 
     def test_resolve_unary(self):
         token_list1 = ['+', '13']
@@ -136,8 +142,12 @@ class TestRPN(TestCase):
         self.assertEqual(self.rpn.pop_one(), 4, 3)
 
     def test_handle_operations(self):
-        rpn_expression1 = ['pi', '2', '/', 'sin', 'minus']
-        self.assertEqual(self.rpn.handle_operations(rpn_expression1), -1)
+        expression1 = '3 + 2 1'
+        rpn_expression1 = self.rpn.convert_to_rpn(expression1)
+        with self.assertRaises(pycalc.RedundantParameterError):
+            self.rpn.handle_operations(rpn_expression1)
+        rpn_expression2 = ['pi', '2', '/', 'sin', 'minus']
+        self.assertEqual(self.rpn.handle_operations(rpn_expression2), -1)
 
 
 class TestCheck(TestCase):
@@ -176,8 +186,14 @@ class TestCheck(TestCase):
         expression1 = '1 2'
         expression2 = '8 > =  7'
         expression3 = '11 + sin(13)'
+        expression4 = '5 / / 88'
+        expression5 = '(88) .3'
         with self.assertRaises(pycalc.UnexpectedSpaceError):
             self.check.check_spaces(expression1)
         with self.assertRaises(pycalc.UnexpectedSpaceError):
             self.check.check_spaces(expression2)
         self.check.check_spaces(expression3)
+        with self.assertRaises(pycalc.UnexpectedSpaceError):
+            self.check.check_spaces(expression4)
+        with self.assertRaises(pycalc.UnexpectedSpaceError):
+            self.check.check_spaces(expression5)
