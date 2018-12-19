@@ -25,10 +25,8 @@ version = "1.2.1"
 def createparser():
     parser = argparse.ArgumentParser(
         prog='''pycalc''',
-        description='''A program to calculate complex mathematical expressions 
-        with support for custom libraries.''',
-        epilog='''(c) Nick Dubovik 2018. The author of 
-        the program, as always,does not take any responsibility for anything.''',
+        description='''A program to calculate complex mathematical expressions''',
+        epilog='''(c) Nick Dubovik 2018. The author of the program does not take any responsibility for anything.''',
         add_help=False)
     parent_group = parser.add_argument_group(title='Optional arguments')
     parent_group.add_argument('--help', '-h', action='help', help='Help')
@@ -54,8 +52,11 @@ def import_module_from_spec(module_spec):
 
 
 def result(module, sst):
+
     # Reading and token allocation------------------------------------------------------
+
     def parse(sst):
+
         if len(sst) == 0:
             raise Exception('Empty expression.')
         pr = 0
@@ -285,7 +286,6 @@ def result(module, sst):
                 x = []  # list of arguments for function
                 for l in range(k + 1):
                     y = stack.pop()
-                    # if type(y) is float:
                     x.append(y)
                 if hasattr(module, mmfun):
                     z = getattr(module, mmfun)
