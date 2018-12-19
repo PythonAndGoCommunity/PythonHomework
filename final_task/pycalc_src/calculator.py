@@ -183,7 +183,7 @@ class Calculator:
         del self.stack[:]
 
     def _process_implicit_multiplication(self, index):
-        """Сhecks for implicit multiplication."""
+        """Сheck for implicit multiplication."""
         prev_symbol = self._get_previous_symbol(index)
         if prev_symbol == ')':
             self.stack.append('*')
@@ -214,7 +214,7 @@ class Calculator:
             self._calculate_result(operator_params.function, first_operand, second_operand)
 
     def _calculate_result(self, function, first_operand, second_operand=None):
-        """Calculate function."""
+        """Calculate function(operator)."""
         try:
             if second_operand is None:
                 result = function(first_operand)
