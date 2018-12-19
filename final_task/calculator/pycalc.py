@@ -3,7 +3,7 @@ from io import StringIO
 from tokenize import generate_tokens
 import math
 from argparse import ArgumentParser
-import numbers.Number
+from numbers import Number
 from collections import namedtuple
 
 
@@ -79,7 +79,7 @@ class RPN:
             '>=': sign(0, lambda digit1, digit2: digit1 >= digit2),
             '>': sign(0, lambda digit1, digit2: digit1 > digit2)
         }
-        values = {attr: getattr(math, attr) for attr in dir(math) if isinstance(getattr(math, attr), numbers.Number)}
+        values = {attr: getattr(math, attr) for attr in dir(math) if isinstance(getattr(math, attr), Number)}
         self.const_values = values
         self.all_ops = {**self.postfix_ops, **self.prefix_ops, **self.signs}
 
