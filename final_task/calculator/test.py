@@ -146,8 +146,6 @@ class TestRPN(TestCase):
         rpn_expression1 = self.rpn.convert_to_rpn(expression1)
         with self.assertRaises(pycalc.RedundantParameterError):
             self.rpn.handle_operations(rpn_expression1)
-        rpn_expression2 = ['pi', '2', '/', 'sin', 'minus']
-        self.assertEqual(self.rpn.handle_operations(rpn_expression2), -1)
 
 
 class TestCheck(TestCase):
