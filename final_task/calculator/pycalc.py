@@ -2,7 +2,6 @@ from re import compile
 from io import StringIO
 from tokenize import generate_tokens
 import math
-from sys import exit
 from argparse import ArgumentParser
 from numbers import Number
 from collections import namedtuple
@@ -470,7 +469,7 @@ def main():
         rpn_expression = rpn.convert_to_rpn(rpn.expression)
         print(rpn.handle_operations(rpn_expression))
     except Exception as e:
-        exit(f'ERROR: {e}')
+        print(f'ERROR: {e}')
 
 
 if __name__ == "__main__":
