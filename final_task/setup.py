@@ -7,5 +7,5 @@ setup(
     author_email='pavelkuz99@outlook.com',
     description='Pure Python command-line calculator',
     packages=find_packages(),
-    scripts=['calculator/pycalc']
+    scripts=['calculator/pycalc.py']
 )
