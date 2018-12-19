@@ -16,7 +16,7 @@ class UnknownFunctionError(Exception):
     def __init__(self, message):
         super(UnknownFunctionError, self).__init__(message)
 
-        
+
 class RedundantParameterError(Exception):
     def __init__(self, message):
         super(RedundantParameterError, self).__init__(message)
@@ -247,19 +247,31 @@ class RPN:
         Returns resolved list
         """
         resolved_list = []
+
+        def add_mult_sign():
+            resolved_list.append('*')
+            resolved_list.append(token)
+
         for index, token in enumerate(tokens_list):
             prev = tokens_list[index - 1]
             if index == 0:
                 resolved_list.append(token)
+            elif token in self.prefix_ops and self.is_num(prev):
+                add_mult_sign()
+            elif token in self.const_values and self.is_num(prev):
+                add_mult_sign()
+            elif token in self.prefix_ops and self.is_num(prev):
+                add_mult_sign()
+            elif token in self.const_values and prev in self.const_values:
+                add_mult_sign()
+            elif token in self.prefix_ops and prev == ')':
+                add_mult_sign()
             elif self.is_num(token) and prev == ')':
-                resolved_list.append('*')
-                resolved_list.append(token)
+                add_mult_sign()
             elif token == '(' and prev == ')':
-                resolved_list.append('*')
-                resolved_list.append(token)
+                add_mult_sign()
             elif token == '(' and self.is_num(prev):
-                resolved_list.append('*')
-                resolved_list.append(token)
+                add_mult_sign()
             else:
                 resolved_list.append(token)
         return resolved_list
@@ -282,12 +294,23 @@ class RPN:
             else:
                 resolved_list.append(token)
         return resolved_list
-
-    @staticmethod
+ 
+    def resolve_double_const(self, some_sting):
+        """
+        Resolves constant values standing together
+        """
+        for const1 in list(self.const_values.keys()):
+            a = const1
+            for const2 in list(self.const_values.keys()):
+                b = const2
+                some_sting = some_sting.replace(f'{a}{b}', f'{a} {b}')
+        return some_sting
+ 
     def create_tokens_list(some_string):
         """
         Creates tokens list from math expressions string
         """
+        some_string = self.resolve_double_const(some_string)
         line = generate_tokens(StringIO(some_string).readline)
         return [token[1] for token in line if token[1]]
 
