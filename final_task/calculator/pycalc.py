@@ -306,7 +306,7 @@ class RPN:
                 some_sting = some_sting.replace(f'{a}{b}', f'{a} {b}')
         return some_sting
  
-    def create_tokens_list(some_string):
+    def create_tokens_list(self, some_string):
         """
         Creates tokens list from math expressions string
         """
