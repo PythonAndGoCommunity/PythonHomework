@@ -350,7 +350,6 @@ def main():
         tokens = lexer.get_all_tokens()
         parser = Parser(tokens)
         parser.parse()
-        print(parser.result)
         result = calculate(parser.result)
         print(result[0])
     except SyntaxError as ex:
