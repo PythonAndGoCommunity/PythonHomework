@@ -148,7 +148,7 @@ class RPN:
     def resolve_log(self):
         """
         If log() takes two parameter leaves it the same
-        If log() takes one parameter changes log() to ln()
+        If log() takes one parameter changes log() to ln() in place
         """
         open_parentheses_count = 0
         close_parentheses_count = 0
@@ -170,7 +170,7 @@ class RPN:
     @staticmethod
     def logarithm_two(digit):
         """
-        Calculates logarithm by base two
+        Calculates logarithm of digit by base two
         """
         if digit > 0:
             return math.log2(digit)
@@ -180,7 +180,7 @@ class RPN:
     @staticmethod
     def logarithm_ten(digit):
         """
-        Calculates logarithm by base ten
+        Calculates logarithm of digit by base ten
         """
         if digit > 0:
             return math.log10(digit)
