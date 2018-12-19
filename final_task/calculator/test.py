@@ -138,3 +138,46 @@ class TestRPN(TestCase):
     def test_handle_operations(self):
         rpn_expression1 = ['pi', '2', '/', 'sin', 'minus']
         self.assertEqual(self.rpn.handle_operations(rpn_expression1), -1)
+
+
+class TestCheck(TestCase):
+    def setUp(self):
+        self.rpn = pycalc.RPN()
+        self.check = pycalc.Check()
+
+    def test_check_for_numbers(self):
+        expression1 = 'sin+cos'
+        expression2 = '3+2'
+        with self.assertRaises(pycalc.MissingParameterError):
+            self.check.check_for_numbers(expression1)
+        self.check.check_for_numbers(expression2)
+
+    def test_check_parentheses(self):
+        expression1 = '8*(3+2))'
+        expression2 = '(8*(3+2))'
+        expression3 = '(8*(3+2)'
+        with self.assertRaises(pycalc.UnbalancedParenthesesError):
+            self.check.check_parentheses(expression1)
+        self.check.check_parentheses(expression2)
+        with self.assertRaises(pycalc.UnbalancedParenthesesError):
+            self.check.check_parentheses(expression3)
+
+    def test_check_for_symbols(self):
+        expression1 = '8#(3+2))'
+        expression2 = '8+(3~2))'
+        expression3 = '3 + 2'
+        with self.assertRaises(pycalc.UnknownSymbolError):
+            self.check.check_for_symbols(expression1)
+        with self.assertRaises(pycalc.UnknownSymbolError):
+            self.check.check_for_symbols(expression2)
+        self.check.check_for_symbols(expression3)
+
+    def test_check_spaces(self):
+        expression1 = '1 2'
+        expression2 = '8 > =  7'
+        expression3 = '11 + sin(13)'
+        with self.assertRaises(pycalc.UnexpectedSpaceError):
+            self.check.check_spaces(expression1)
+        with self.assertRaises(pycalc.UnexpectedSpaceError):
+            self.check.check_spaces(expression2)
+        self.check.check_spaces(expression3)
