@@ -132,12 +132,13 @@ class Calc:
 
                 if char == ',':    # функция round через ',' может получить второй параметр
                     self.unload_stack(True)
+                    self.unary = True
                     continue
                     
                 # формируем строку с буквами - sin/pi/epi и тд. Из этого потом сформируем функции или const
                 temp_func += char
 
-                # попытка вытащить текущий egg из пользовательского модуля
+                # попытка вытащить текущий temp_func из пользовательского модуля
                 for module_name, module_attributes in self.user_modules.items():
                     if temp_func in module_attributes:                      # получилось вытащить
                         temp = getattr(module_name, temp_func)
@@ -158,7 +159,6 @@ class Calc:
                     elif temp_func == ')':
                         self.unload_stack()
                         self.implicit_mul = True        # после закрывающей скобки может быть неявное умножение
-                        self.unary = False
 
                     # константа
                     elif temp_func in self.const:
