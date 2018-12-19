@@ -16,6 +16,11 @@ class UnknownFunctionError(Exception):
     def __init__(self, message):
         super(UnknownFunctionError, self).__init__(message)
 
+        
+class RedundantParameterError(Exception):
+    def __init__(self, message):
+        super(RedundantParameterError, self).__init__(message)
+
 
 class MissingParameterError(Exception):
     def __init__(self, message):
@@ -316,7 +321,11 @@ class RPN:
                         self.output.append(self.stack.pop())
                 self.stack.append(item)
             elif item == ',':
-                pass
+                for element in reversed(self.stack):
+                    if element != '(':
+                        self.output.append(self.stack.pop())
+                    else:
+                        break
             else:
                 raise UnknownFunctionError(f'wrong operation "{item}"')
         for element in reversed(self.stack):
@@ -367,7 +376,8 @@ class RPN:
                         self.stack.append(function(self.pop_one()))
                 except IndexError:
                     raise MissingParameterError(f'not enough operands for "{op}" operation')
-
+        if len(self.stack) > 1:
+            raise RedundantParameterError('function takes more parameters that it should')
         return self.stack[0]
 
     @staticmethod
