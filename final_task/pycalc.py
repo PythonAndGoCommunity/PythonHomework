@@ -18,8 +18,8 @@ STNUMBER = '1234567890.'
 STBUK = 'qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_'
 STOP = '<+->/!=*^%'
 
+
 version = "1.2.1"
-global module
 
 
 def createparser():
@@ -44,12 +44,7 @@ def createparser():
 def check_module(module_name):
     # Checks if the module can be imported without actually importing it
     module_spec = importlib.util.find_spec(module_name)
-    if module_spec is None:
-        # print('Module: {} not found'.format(module_name))
-        return None
-    else:
-        # print('Module: {} can be imported!'.format(module_name))
-        return module_spec
+    return module_spec
 
 
 def import_module_from_spec(module_spec):
@@ -58,7 +53,7 @@ def import_module_from_spec(module_spec):
     return module
 
 
-def sum(module, sst):
+def result(module, sst):
     # Reading and token allocation------------------------------------------------------
     def parse(sst):
         if len(sst) == 0:
@@ -303,7 +298,6 @@ def sum(module, sst):
                     stack.append(g)
                 else:
                     raise Exception('The function is not in the library.')
-                    # print(stack)
             else:
                 stack.append(token)
 
@@ -318,7 +312,7 @@ def sum(module, sst):
 def main():
     parser = createparser()
     namespace = parser.parse_args(sys.argv[1:])
-    print(namespace)
+    # print(namespace)
     try:
         lib = namespace.mod
         # lib is connected library
@@ -326,11 +320,9 @@ def main():
         module_spec = check_module(lib)
         if module_spec:
             module = import_module_from_spec(module_spec)
-        print(sum(module, st))  
-	# Output result
+        print(result(module, st))
+        # Output result
     except Exception as error:
         print('ERROR: ' + repr(error))
 
-
-#if __name__ == "__main__":
-   # main()
+    # final
