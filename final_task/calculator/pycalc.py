@@ -294,7 +294,7 @@ class RPN:
             else:
                 resolved_list.append(token)
         return resolved_list
- 
+
     def resolve_double_const(self, some_sting):
         """
         Resolves constant values standing together
@@ -305,7 +305,7 @@ class RPN:
                 b = const2
                 some_sting = some_sting.replace(f'{a}{b}', f'{a} {b}')
         return some_sting
- 
+
     def create_tokens_list(self, some_string):
         """
         Creates tokens list from math expressions string
