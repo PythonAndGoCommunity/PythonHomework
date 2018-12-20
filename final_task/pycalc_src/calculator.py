@@ -174,7 +174,9 @@ class Calculator:
             elif symbol.isalpha() or symbol == '=':
                 self.operator += symbol
 
-        self._process_implicit_multiplication(index)
+        if symbol != ')':
+            self._process_implicit_multiplication(index)
+
         self._process_number_and_constant()
         self.rpn.extend(reversed(self.stack))
 
