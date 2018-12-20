@@ -10,19 +10,6 @@ class Errors(Exception):
 
 
 """
-check that the expression is number
-"""
-
-
-def is_number(string):
-        try:
-            float(string)
-            return True
-        except ValueError:
-            return
-
-
-"""
 check that expression is not empty
 """
 

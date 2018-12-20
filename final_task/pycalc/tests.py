@@ -4,8 +4,7 @@ Unit tests go in "tests".
 
 from math import *
 import unittest
-from operations import operations
-from pycalc import checker
+from .operations import MathExp, solve_inequality, is_number
 
 TEST_CASES = {
     "Unary": {
@@ -78,40 +77,40 @@ TEST_CASES = {
 class TestCalculator(unittest.TestCase):
     def test_unary(self):
         for t in TEST_CASES['Unary']:
-            self.assertEqual(operations.MathExp(t).evaluate(), TEST_CASES['Unary'][t])
+            self.assertEqual(MathExp(t).evaluate(), TEST_CASES['Unary'][t])
 
     def test_priority(self):
         for t in TEST_CASES['Priority']:
-            self.assertEqual(operations.MathExp(t).evaluate(), TEST_CASES['Priority'][t])
+            self.assertEqual(MathExp(t).evaluate(), TEST_CASES['Priority'][t])
 
     def test_funcs(self):
         for t in TEST_CASES['Funcs']:
-            self.assertEqual(operations.MathExp(t).evaluate(), TEST_CASES['Funcs'][t])
+            self.assertEqual(MathExp(t).evaluate(), TEST_CASES['Funcs'][t])
 
     def test_associative(self):
         for t in TEST_CASES['Associative']:
-            self.assertEqual(operations.MathExp(t).evaluate(),
+            self.assertEqual(MathExp(t).evaluate(),
                              TEST_CASES['Associative'][t])
 
     def test_comparasion(self):
         for t in TEST_CASES['Comparison']:
-            self.assertEqual(operations.solve_inequality(t), TEST_CASES['Comparison'][t])
+            self.assertEqual(solve_inequality(t), TEST_CASES['Comparison'][t])
 
     def test_common(self):
         for t in TEST_CASES['Common']:
-            self.assertEqual(operations.MathExp(t).evaluate(), TEST_CASES['Common'][t])
+            self.assertEqual(MathExp(t).evaluate(), TEST_CASES['Common'][t])
 
     def test_errors(self):
         for t in TEST_CASES['Error']:
             with self.assertRaises(Exception):
-                operations.MathExp(t).evaluate()
+                MathExp(t).evaluate()
 
     def test_isnumber(self):
-        self.assertTrue(checker.is_number('2'))
-        self.assertTrue(checker.is_number('2.2'))
-        self.assertFalse(checker.is_number('2s'))
-        self.assertFalse(checker.is_number('s2'))
-        self.assertFalse(checker.is_number('s2'))
+        self.assertTrue(is_number('2'))
+        self.assertTrue(is_number('2.2'))
+        self.assertFalse(is_number('2s'))
+        self.assertFalse(is_number('s2'))
+        self.assertFalse(is_number('s2'))
 
 
 if __name__ == '__main__':

@@ -3,8 +3,9 @@ This module allows you to work
 with the functionality of calculator
 """
 import arguments
-from checker import (is_number, is_empty)
-import operations
+from checker import is_empty
+from .operations import is_number, solve_inequality, MathExp, is_inequality
+import sys
 
 
 def validate(expression):
@@ -20,11 +21,14 @@ def main():
     """
     arg = arguments.parse_arguments()
     validate(arg.EXPRESSION)
-    answer = operations.is_inequality(arg.EXPRESSION)
+    answer = is_inequality(arg.EXPRESSION)
     if answer is True:
-        print(operations.solve_inequality(arg.EXPRESSION))
+        print(solve_inequality(arg.EXPRESSION))
     else:
-        print(operations.MathExp(arg.EXPRESSION).evaluate())
+        answer = MathExp(arg.EXPRESSION).evaluate()
+        if str(answer).startswith('ERROR'):
+            sys.exit(-1)
+        print(answer)
 
 
 if __name__ == '__main__':
