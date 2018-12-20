@@ -7,7 +7,7 @@ setup(
       __version__='1.0',
       entry_points={
       'console_scripts':[
-                         'pycalc = pycalc.main:main',
+                         'pycalc = pycalc.pycalc:main',
                          ]
       },
       

@@ -67,7 +67,7 @@ class TestLexerMethods(unittest.TestCase):
 
     def test_calculate(self):
         exp = 'sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0))))+cos(sin(sin(34.0-2.0^2.0))))--cos(1.0)--cos(0.0)^3.0)'
-        self.assertEqual(calculate(exp), 0.5361064001012784)
+        self.assertEqual(calculate(exp), 0.5361064001012783)
         self.assertEqual(calculate('(3+(4*5)/10)+pow(3,2)'), 14.0)
 
     def test_parse_expression(self):
