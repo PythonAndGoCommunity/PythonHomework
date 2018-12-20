@@ -40,9 +40,10 @@ operators_dict = {
     '*': Operator('*', 3, 1, True, lambda x, y: x*y),
     '/': Operator('/', 3, 1, True, lambda x, y: x/y),
     '%': Operator('%', 3, 1, True, lambda x, y: x % y),
-    '//': Operator('//',3, 1,True, lambda x, y: x // y),
-    'unary_minus': Operator('unary_minus', 4, 1, False, lambda x: -x),
-    'unary_plus': Operator('unary_plus', 4, 1, False, lambda x: x),
-    '^': Operator('^', 5, 2, True, lambda x, y: x**y),
+    '//': Operator('//', 3, 1, True, lambda x, y: x // y),
+    'unary_minus': Operator('unary_minus', 5, 1, False, lambda x: -x),
+    'unary_plus': Operator('unary_plus', 5, 1, False, lambda x: x),
+    '^': Operator('^', 4, 2, True, lambda x, y: x**y),
 }
+
 

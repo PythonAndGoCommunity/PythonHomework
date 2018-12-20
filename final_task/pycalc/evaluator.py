@@ -2,6 +2,7 @@ from pycalc.operators import Operator, Function, Constant
 from pycalc.parser import Parser
 from pycalc.importmodules import FunctionParser
 from pycalc.validator import Validator
+from inspect import getfullargspec
 
 
 def infix_to_postfix(parsed_exp):
@@ -45,10 +46,13 @@ def calculate(exp):
     if all(isinstance(token, Operator) for token in polish):
         raise ValueError('not valid input')
     for token in polish:
+        print(polish)
         if isinstance(token, Operator) or isinstance(token, Function) or isinstance(token, Constant):
             if isinstance(token, Function) and len(polish) == 1:
+                print('im in elif isinstance(token, Function) and len(polish) == 1:')
                 stack.append(token.func())
             elif isinstance(token, Function):
+                print('im in elif lif isinstance(token, Function)')
                 x = stack.pop()
                 if type(x) is list:
                     res = token.func(*x)
@@ -56,11 +60,14 @@ def calculate(exp):
                     res = token.func(*[x])
                 stack.append(res)
             elif isinstance(token, Constant):
+                print('im in elif isinstance(token, Constant)')
                 stack.append(token.func)
             elif not token.is_binary:
+                print('im in elseelif not token.is_binary: {}'.format(token.name))
                 x = stack.pop()
                 stack.append(token.func(x))
             else:
+                print('im in else')
                 try:
                     y, x = stack.pop(), stack.pop()
                     stack.append(token.func(x, y))

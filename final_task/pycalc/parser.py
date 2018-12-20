@@ -41,6 +41,8 @@ class Parser:
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Operator) and lexem_list[i].name == '(' and not isinstance(lexem_list[i-1], Operator) and not isinstance(lexem_list[i-1], Function):
                 lexem_list.insert(i, operators_dict['*'])
+            elif isinstance(lexem_list[i], Constant) and isinstance(lexem_list[i-1], Constant):
+                lexem_list.insert(i, operators_dict['*'])
         return lexem_list
 
     def parse_expression(self, exp):
@@ -79,9 +81,10 @@ class Parser:
         for i in range(len(lexem_list)):
             if i == 0 and isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']:
                 final_list.append(0)
-            elif (isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']) and not (Parser.is_constant(lexem_list[i-1]) or Parser.is_number(lexem_list[i-1])) \
+            elif (isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']) and not (isinstance(lexem_list[i-1], Constant) or Parser.is_number(lexem_list[i-1])) \
                     and not (isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')'):
                 final_list.append(i)
+        print(final_list)
         lexems_with_indicies = enumerate(lexem_list)
         lexems_filter = list(filter(lambda x: x[0] in final_list, lexems_with_indicies))
         for unary_sign in lexems_filter:

@@ -3,7 +3,7 @@ import re
 
 class Validator:
     spaces_reg = '\s+'
-    sign_arr = ['<', '>', '=', '!']
+    sign_arr = ['<', '>', '=', '!', '/']
 
     @staticmethod
     def normalize_string(str):
@@ -57,10 +57,11 @@ class Validator:
             if char in Validator.sign_arr:
                 if str[i + 1] == ' ' and str[i + 2] == '=':
                     raise ValueError('invalid syntax')
+                elif char == '/' and str[i + 1] == ' ' and str[i + 2] == '/':
+                    raise ValueError('invalid syntax')
             elif char.isdigit() and i != len(str) - 1:
                 if str[i + 1] == ' ' and str[i + 2].isdigit():
                     raise ValueError('invalid syntax')
-
         return str
 
 

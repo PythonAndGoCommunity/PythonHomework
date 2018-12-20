@@ -26,7 +26,6 @@ def main():
          result = calculate(args.expression)
          print(f'{result}')
 
-
     except Exception as e:
         print(f"ERROR: {e}")
         sys.exit(1)
