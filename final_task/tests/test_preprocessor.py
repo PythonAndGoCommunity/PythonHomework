@@ -48,7 +48,8 @@ class TestStringMethods(unittest.TestCase):
         valid_expressions = [valid_expression('--1', '+1'),
                              valid_expression('-+2', '-2'),
                              valid_expression('++2.4', '+2.4'),
-                             valid_expression('-+-+-++++------3', '-3')
+                             valid_expression('-+-+-++++------3', '-3'),
+                             valid_expression('-+-3++', '+3+')
                              ]
 
         for expression in valid_expressions:
