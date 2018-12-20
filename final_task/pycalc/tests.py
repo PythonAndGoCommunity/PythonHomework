@@ -4,7 +4,7 @@ Unit tests go in "tests".
 
 from math import *
 import unittest
-from pycalc import operations
+from operations import operations
 from pycalc import checker
 
 TEST_CASES = {

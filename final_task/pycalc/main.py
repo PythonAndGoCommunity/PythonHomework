@@ -2,14 +2,14 @@
 This module allows you to work
 with the functionality of calculator
 """
-from pycalc import arguments
-from pycalc import checker
-from pycalc import operations
+import arguments
+from checker import (is_number, is_empty)
+import operations
 
 
 def validate(expression):
-    checker.is_empty(expression)
-    checker.is_number(expression)
+    is_empty(expression)
+    is_number(expression)
 
 
 def main():

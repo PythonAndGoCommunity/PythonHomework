@@ -1,6 +1,6 @@
 import math
 import operator
-from pycalc import checker
+from checker import Errors
 
 MATHEXP_LITERAL = 0
 MATHEXP_FUNCTION = 1
@@ -98,7 +98,7 @@ def evaluate_operator(token, arg1, arg2):
         return arg1 + arg2
     if token == "-":
         return arg1 - arg2
-    raise checker.Errors("Can't find operator")
+    raise Errors("Can't find operator")
 
 
 def is_operator(token):
@@ -107,15 +107,15 @@ def is_operator(token):
 
 def exp_check(exp):
     if not parens_are_balanced(exp):
-        raise checker.Errors("Brackets is not balanced")
+        raise Errors("Brackets is not balanced")
     exp = exp.replace(" ", "")
     exp = remove_extra_parens(exp)
     first = exp[0]
     last = exp[-1]
     if is_operator(first) and first != "+" and first != "-":
-        raise checker.Errors("Expression is malformed")
+        raise Errors("Expression is malformed")
     if is_operator(last):
-        raise checker.Errors("Expression is malformed")
+        raise Errors("Expression is malformed")
     if exp[0] == "-":
         exp = "0" + exp
     if exp[0] == "+":
@@ -214,7 +214,7 @@ class MathExp:
                 res = float(self.token)
                 return res
             if self.token not in tmp_variables_table:
-                raise checker.Errors("Symbol: " + self.token + "is undefined")
+                raise Errors("Symbol: " + self.token + "is undefined")
             res = float(tmp_variables_table[self.token])
             return res
         if self.typ == MATHEXP_FUNCTION:
@@ -226,4 +226,4 @@ class MathExp:
             right_value = self.right.evaluate(tmp_variables_table)
             res = evaluate_operator(self.token, left_value, right_value)
             return res
-        raise checker.Errors("Can't parse expression")
+        raise Errors("Can't parse expression")
