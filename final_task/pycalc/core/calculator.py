@@ -247,7 +247,7 @@ def check_valid_spaces(expression):
     is_last_number, is_last_operator, is_space = False, False, False
     token_end_position = -1
     for index, symbol in enumerate(expression):
-        if symbol in ['(', ')']:
+        if symbol in ('(', ')'):
             is_last_number, is_last_operator, is_space = False, False, False
         elif token_end_position >= index:
             continue
@@ -260,7 +260,7 @@ def check_valid_spaces(expression):
                 token_end_position = index + get_length_operator(expression, index) - 1
             is_last_number, is_last_operator, is_space = False, True, False
         else:
-            if symbol in ['!', '=']:
+            if symbol in ('!', '='):
                 raise PycalcError('Invalid operator')
             is_last_operator, is_space = False, False
             operand, token_end_position, index = find_operand(expression, index)
