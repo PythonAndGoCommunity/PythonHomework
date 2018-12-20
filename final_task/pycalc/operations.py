@@ -1,6 +1,6 @@
 import math
 import operator
-from pycalc.checker import Errors
+
 
 MATHEXP_LITERAL = 0
 MATHEXP_FUNCTION = 1
@@ -31,7 +31,7 @@ FUNCTION_LIST = {
     "log": math.log,
     "log10": math.log10,
     "abs": abs,
-    "round": round
+    "round": round,
 }
 
 
@@ -47,9 +47,10 @@ def get_function(exp):
 
 OPERATOR_PRIORITY = {
     "^": -1,
+    "pow": -1,
     "*": -2,
-    "/": -2,
     "//": -2,
+    "/": -2,
     "%": -2,
     "+": -3,
     "-": -3
@@ -88,34 +89,34 @@ def evaluate_operator(token, arg1, arg2):
         return arg1 ** arg2
     if token == "*":
         return arg1 * arg2
-    if token == "/":
-        return arg1 / arg2
     if token == "//":
         return arg1 // arg2
+    if token == "/":
+        return arg1 / arg2
     if token == "%":
         return arg1 % arg2
     if token == "+":
         return arg1 + arg2
     if token == "-":
         return arg1 - arg2
-    raise Errors("Can't find operator")
+    raise Exception("ERROR: Can't find operator")
 
 
 def is_operator(token):
-    return token in ['^', '*', '/', '//', '%', '+', '-']
+    return token in ['^', '*', '//', '/', '%', '+', '-']
 
 
 def exp_check(exp):
     if not parens_are_balanced(exp):
-        raise Errors("Brackets is not balanced")
+        raise Exception("ERROR: Brackets is not balanced")
     exp = exp.replace(" ", "")
     exp = remove_extra_parens(exp)
     first = exp[0]
     last = exp[-1]
     if is_operator(first) and first != "+" and first != "-":
-        raise Errors("Expression is malformed")
+        raise Exception("ERROR: Expression is malformed")
     if is_operator(last):
-        raise Errors("Expression is malformed")
+        raise Exception("ERROR: Expression is malformed")
     if exp[0] == "-":
         exp = "0" + exp
     if exp[0] == "+":
@@ -175,6 +176,61 @@ def solve_inequality(expression):
             return COMPARISON[i](a.evaluate(), b.evaluate())
 
 
+def is_pow(expression):
+    k = 0
+    times = expression.count("pow", 0, len(expression))
+    while k < times:
+        tmp_index = expression.find("pow")
+        if tmp_index != -1:
+            tmp_index += 4
+            arg1 = expression[tmp_index:expression.find(","):1]
+            balance = 0
+            i = expression.find(',')+1
+            while i < len(expression):
+                if expression[i] == '(':
+                    balance += 1
+                if expression[i] == ')':
+                    balance -= 1
+                if balance == -1:
+                    break
+                else:
+                    i += 1
+            arg2 = expression[expression.find(',')+1:i:1]
+            tmp_index -= 4
+            expression = expression.replace(
+                expression[tmp_index:i+1:1], arg1+"^"+arg2)
+            k += 1
+    return expression
+
+
+def is_logwith2args(expression):
+    k = 0
+    times = expression.count("log", 0, len(expression))
+    while k < times:
+        tmp_index = expression.find("log")
+        if tmp_index != -1:
+            tmp_index += 4
+            arg1 = expression[tmp_index:expression.find(","):1]
+            balance = 0
+            i = expression.find(',') + 1
+            while i < len(expression):
+                if expression[i] == '(':
+                    balance += 1
+                if expression[i] == ')':
+                    balance -= 1
+                if balance == -1:
+                    break
+                else:
+                    i += 1
+            arg2 = expression[expression.find(',') + 1:i:1]
+            tmp_index -= 4
+            expression = expression.replace(
+                expression[tmp_index:i + 1:1],
+                "log("+arg1 + ")" + "/" + "log(" + arg2 + ")")
+            k += 1
+    return expression
+
+
 class MathExp:
     """Expression parser class"""
     def __init__(self, exp):
@@ -214,7 +270,7 @@ class MathExp:
                 res = float(self.token)
                 return res
             if self.token not in tmp_variables_table:
-                raise Errors("Symbol: " + self.token + "is undefined")
+                raise Exception("ERROR: Symbol: " + self.token + "is undefined")
             res = float(tmp_variables_table[self.token])
             return res
         if self.typ == MATHEXP_FUNCTION:
@@ -226,4 +282,4 @@ class MathExp:
             right_value = self.right.evaluate(tmp_variables_table)
             res = evaluate_operator(self.token, left_value, right_value)
             return res
-        raise Errors("Can't parse expression")
+        raise Exception("ERROR: Can't parse expression")
