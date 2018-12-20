@@ -4,7 +4,7 @@ Unit tests go in "tests".
 
 from math import *
 import unittest
-from .operations import MathExp, solve_inequality, is_number
+from operations import MathExp, solve_inequality, is_number
 
 TEST_CASES = {
     "Unary": {
