@@ -90,7 +90,7 @@ def do_implicit_multiplication(expression):
     expression = expression.replace(' ', '')
     expression = re.sub(r'\)\(', ')*(', expression)
     index = 0
-    while index < len(expression) - 1:
+    while index <= len(expression) - 1:
         if token_end_position >= index:
             index += 1
             continue
