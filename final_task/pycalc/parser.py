@@ -92,11 +92,10 @@ class Parser:
         lexems_with_indicies = enumerate(lexem_list)
         lexems_filter = list(filter(lambda x: x[0] in final_list, lexems_with_indicies))
         for unary_sign in lexems_filter:
-            lexem_list[unary_sign[0]] = operators_dict['unary_plus'] \if unary_sign[1] == '+' else operators_dict['unary_minus']
-        if unary_sign[1] == '+':
-            lexem_list[unary_sign[0]] = operators_dict['unary_plus']
-        else:
-            lexem_list[unary_sign[0]] = operators_dict['unary_minus']
+            if unary_sign[1] == '+':
+                lexem_list[unary_sign[0]] = operators_dict['unary_plus']
+            else:
+                lexem_list[unary_sign[0]] = operators_dict['unary_minus']
         return lexems_filter
 
     @staticmethod
