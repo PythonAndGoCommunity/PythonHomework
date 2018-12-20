@@ -1,6 +1,6 @@
 import math
 import operator
-
+import sys
 
 MATHEXP_LITERAL = 0
 MATHEXP_FUNCTION = 1
@@ -108,15 +108,18 @@ def is_operator(token):
 
 def exp_check(exp):
     if not parens_are_balanced(exp):
-        raise Exception("ERROR: Brackets is not balanced")
+        print("ERROR: Brackets is not balanced")
+        sys.exit(-1)
     exp = exp.replace(" ", "")
     exp = remove_extra_parens(exp)
     first = exp[0]
     last = exp[-1]
     if is_operator(first) and first != "+" and first != "-":
-        raise Exception("ERROR: Expression is malformed")
+        print("ERROR: Expression is malformed")
+        sys.exit(-1)
     if is_operator(last):
-        raise Exception("ERROR: Expression is malformed")
+        print("ERROR: Expression is malformed")
+        sys.exit(-1)
     if exp[0] == "-":
         exp = "0" + exp
     if exp[0] == "+":
@@ -171,6 +174,9 @@ def solve_inequality(expression):
     for i in COMPARISON:
         if expression.find(i) != -1:
             tmp_expr = expression.split(i)
+            if tmp_expr[1] or tmp_expr[2] is None:
+                print("ERROR: inequality is wrong")
+                sys.exit(-1)
             a = MathExp(tmp_expr[0])
             b = MathExp(tmp_expr[1])
             return COMPARISON[i](a.evaluate(), b.evaluate())
@@ -270,7 +276,8 @@ class MathExp:
                 res = float(self.token)
                 return res
             if self.token not in tmp_variables_table:
-                raise Exception("ERROR: Symbol: " + self.token + "is undefined")
+                raise Exception(
+                    "ERROR: Symbol: " + self.token + "is undefined")
             res = float(tmp_variables_table[self.token])
             return res
         if self.typ == MATHEXP_FUNCTION:
@@ -282,4 +289,4 @@ class MathExp:
             right_value = self.right.evaluate(tmp_variables_table)
             res = evaluate_operator(self.token, left_value, right_value)
             return res
-        raise Exception("ERROR: Can't parse expression")
+        sys.exit(-1)

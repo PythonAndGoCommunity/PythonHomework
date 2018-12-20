@@ -4,7 +4,8 @@ with the functionality of calculator
 """
 from pycalc.arguments import parse_arguments
 from pycalc.operations import (is_number, solve_inequality,
-    MathExp, is_inequality, parens_are_balanced, is_logwith2args, is_pow)
+                               MathExp, is_inequality, parens_are_balanced,
+                               is_logwith2args, is_pow)
 import sys
 
 
@@ -14,9 +15,9 @@ def is_empty(expr):
 
 
 def validate(expression):
-    is_empty(expression)
-    is_number(expression)
-    parens_are_balanced(expression)
+        is_empty(expression)
+        is_number(expression)
+        parens_are_balanced(expression)
 
 
 def main():
@@ -29,8 +30,9 @@ def main():
 
     validate(arg.EXPRESSION)
     expression = arg.EXPRESSION
-    expression = is_logwith2args(expression)
-    expression = is_pow(expression)
+    if expression.find(",") != -1:
+        expression = is_logwith2args(expression)
+        expression = is_pow(expression)
     expression = expression.replace(" ", "")
     answer = is_inequality(expression)
     if answer is True:
