@@ -276,8 +276,9 @@ class MathExp:
                 res = float(self.token)
                 return res
             if self.token not in tmp_variables_table:
-                raise Exception(
+                print(
                     "ERROR: Symbol: " + self.token + "is undefined")
+                sys.exit(-1)
             res = float(tmp_variables_table[self.token])
             return res
         if self.typ == MATHEXP_FUNCTION:
