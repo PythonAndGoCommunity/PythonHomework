@@ -2,9 +2,9 @@
 This module allows you to work
 with the functionality of calculator
 """
-import arguments
-from checker import is_empty
-from operations import is_number, solve_inequality, MathExp, is_inequality
+from pycalc import arguments
+from pycalc.checker import is_empty
+from pycalc.operations import is_number, solve_inequality, MathExp, is_inequality
 import sys
 
 

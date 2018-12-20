@@ -1,6 +1,6 @@
 import math
 import operator
-from checker import Errors
+from pycalc.checker import Errors
 
 MATHEXP_LITERAL = 0
 MATHEXP_FUNCTION = 1

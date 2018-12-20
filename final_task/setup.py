@@ -1,12 +1,14 @@
-"""
-This module allows to installs the application
-"""
-import setuptools
+from setuptools import setup
 
-setuptools.setup(
+setup(
     name='pycalc',
     version='1.0',
-    packages=setuptools.find_packages(),
+    packages=['pycalc'],
+    url='',
+    license='',
+    author='zavxoz',
+    author_email='',
+    description='pure-python calculator',
     entry_points={
         'console_scripts': ['pycalc = pycalc.main:main']
     }
