@@ -1,5 +1,6 @@
 import re
 import math
+import error_list
 
 """import argparse
 parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
@@ -8,11 +9,11 @@ parser.add_argument("EXPRESSION", type=str,
 args = parser.parse_args()
 inp = args.EXPRESSION"""
 
-inp = '1+cos(0)'
+
+inp = 'sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0))))+cos(sin(sin(34.0-2.0^2.0))))--cos(1.0)--cos(0.0)^3.0)'
 
 functions = {name: func for name, func in math.__dict__.items() if not name.startswith('__') and callable(func)}
 functions.update({'abs': lambda a: abs(a), 'round': lambda a: round(a)})
-
 constants = {name: const for name, const in math.__dict__.items() if not name.startswith('__') and not callable(const)}
 
 
@@ -23,8 +24,11 @@ operations = list(['(', ')',
                    '>=': lambda a, b: a >= b,
                    '!=': lambda a, b: a != b,
                    '==': lambda a, b: a == b}])
+
 operations.append({'+': lambda a, b: a+b,
                    '-': lambda a, b: a-b})
+
+operations.append({'$': lambda a: -a})
 
 operations.append({'*': lambda a, b: a*b,
                    '/': lambda a, b: a/b,
@@ -33,9 +37,14 @@ operations.append({'*': lambda a, b: a*b,
 
 operations.append({'^': lambda a, b: a**b})
 operations.append(functions)
+
 func_reg = ''
+temp_arr = []
 for func in functions:
+    temp_arr.append(func)
+for func in reversed(temp_arr):
     func_reg += r'|(?:{})'.format(func)
+
 const_reg = ''
 for const in constants:
     const_reg += r'|(?:{})'.format(const)
@@ -59,12 +68,17 @@ class Token:
 
 
 tokensArray = []
-for token in parsedArray:
+for index, token in enumerate(parsedArray):
     for tokenPriority, operators in enumerate(operations):
         if token in operators:
             if token in functions:
                 tokensArray.append(Token(token, 'function', tokenPriority))
             else:
+                if tokenPriority == 3:
+                    if index == 0 or ((tokensArray[index-1].type == 'operator' or tokensArray[index-1].type == 'function') and tokensArray[index-1].priority != 1):
+                        if token == '-':
+                            tokensArray.append((Token('$', 'function', 4)))
+                        break
                 tokensArray.append(Token(token, 'operator', tokenPriority))
             break
     else:
@@ -81,6 +95,15 @@ for token in parsedArray:
 
 output = []
 operators = []
+
+if error_list.is_brackets_balanced(tokensArray) != 0:
+    raise RuntimeError('ERROR: brackets are not balanced.')
+
+if error_list.is_operations_missed(tokensArray):
+    raise RuntimeError('ERROR: missing operations')
+
+if not error_list.is_operations_ordered(tokensArray, operations):
+    raise RuntimeError('ERROR: invalid operations order or missing operands')
 
 
 class Stack:
@@ -101,6 +124,8 @@ class Stack:
                 self.len -= 1
                 if self.len > 0:
                     self.last = self.items[-1]
+                else:
+                    self.last = None
             else:
                 break
 
@@ -122,20 +147,22 @@ for elem in tokensArray:
             stack.push(elem)
 
         else:
-            for el in stack:
-                if elem.priority == 1:
-                    for i in stack:
-                        if i.priority != 0:
-                            output.append(i)
-                            stack.pop()
-                        else:
-                            stack.pop()
-                            break
+            if elem.priority == 1:
+                for i in stack:
+                    if i.priority != 0:
+                        output.append(i)
+                        stack.pop()
+                    else:
+                        stack.pop()
+                        break
 
-                elif elem.priority <= el.priority:
+            else:
+                while stack.len > 0 and elem.priority <= stack.last.priority:
+                    if len(output) == 0 and elem.value == '$':
+                        break
+                    output.append(stack.last)
                     stack.pop()
-                    stack.push(elem)
-                    output.append(el)
+                stack.push(elem)
     else:
         output.append(elem)
 else:
@@ -144,7 +171,7 @@ else:
             if i.priority > 1:
                 output.append(i)
             stack.pop()
-print(output)
+
 for token in output:
     if token.type == 'operator':
         result = operations[token.priority][token.value](stack.items[-2].value, stack.items[-1].value)
@@ -156,7 +183,6 @@ for token in output:
         new_token = Token(result, type(result))
         stack.pop()
         stack.push(new_token)
-
     else:
         stack.push(token)
 
