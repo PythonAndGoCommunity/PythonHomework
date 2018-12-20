@@ -2,7 +2,6 @@ import re
 
 
 class Validator:
-    spaces_reg = '\s+'
     sign_arr = ['<', '>', '=', '!', '/']
 
     @staticmethod
@@ -12,7 +11,7 @@ class Validator:
             :param str: String with a math expression.
             :return : Normalized string with a math expression.
         '''
-        return re.sub(Validator.spaces_reg, ' ', str).strip()
+        return re.sub('\s+', ' ', str).strip()
 
     @staticmethod
     def pre_tokinaze(str):
@@ -45,7 +44,6 @@ class Validator:
                 return False
         return not queue
 
-
     @staticmethod
     def validate_string(str):
         ''' Method that raise error if string with a math expression is not valid.
@@ -63,5 +61,4 @@ class Validator:
                 if str[i + 1] == ' ' and str[i + 2].isdigit():
                     raise ValueError('invalid syntax')
         return str
-
 

@@ -25,3 +25,4 @@ class FunctionParser:
                         self.constants_dict[object] = Constant(object, 6, 1, True, vars(modul)[object])
                     else:
                         self.functions_dict[object] = Function(object, 6, 1, True, vars(modul)[object])
+

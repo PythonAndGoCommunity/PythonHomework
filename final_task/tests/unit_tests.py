@@ -12,7 +12,7 @@ class TestLexerMethods(unittest.TestCase):
         self.function_parser = FunctionParser()
         self.operator = operators_dict['+']
         self.lexem_indicies = [(0, operators_dict['-']),(1, operators_dict['-']), (2, operators_dict['-'])]
-        self.lex_arr = [ operators_dict['-'],  operators_dict['-'],  operators_dict['-'], '3']
+        self.lex_arr = [operators_dict['-'],  operators_dict['-'],  operators_dict['-'], '3']
 
     def test_is_number_method(self):
         self.assertEqual(Parser.is_number('3.03'), True)
@@ -32,22 +32,23 @@ class TestLexerMethods(unittest.TestCase):
         self.assertEqual(Parser.is_constant('21'), False)
 
     def test_find_unary_signs_methods(self):
-        self.assertEqual(Parser.find_unary_signs([operators_dict['-'], operators_dict['-'], operators_dict['-'], '3']), [(0, operators_dict['-']),
-                                            (1, operators_dict['-']), (2, operators_dict['-'])])
+        self.assertEqual(Parser.find_unary_signs([operators_dict['-'], operators_dict['-'], operators_dict['-'], '3']),
+                                                 [(0, operators_dict['-']), (1, operators_dict['-']), (2, operators_dict['-'])])
         self.assertEqual(Parser.find_unary_signs([operators_dict['('], operators_dict['-'], operators_dict['-'],
-                                                                      operators_dict['-'], '3',operators_dict[')']]),
-                         [(1, operators_dict['-']),(2, operators_dict['-']), (3, operators_dict['-'])])
+                                                 operators_dict['-'], '3',operators_dict[')']]), [(1, operators_dict['-']),(2, operators_dict['-']),
+                                                 (3, operators_dict['-'])])
 
     def test_add_multiply_sign(self):
         self.assertEqual(Parser.add_multiply_sign(['4', self.function_parser.functions_dict['sin']]),
-                         ['4', operators_dict['*'], self.function_parser.functions_dict['sin']])
+                                                  ['4', operators_dict['*'], self.function_parser.functions_dict['sin']])
         self.assertEqual(Parser.add_multiply_sign([operators_dict['('], '4', operators_dict[')'], self.function_parser.functions_dict['sin']]),
-                         [operators_dict['('], '4', operators_dict[')'], operators_dict['*'], self.function_parser.functions_dict['sin']])
+                                                  [operators_dict['('], '4', operators_dict[')'], operators_dict['*'], self.function_parser.functions_dict['sin']])
 
         self.assertEqual(Parser.add_multiply_sign([operators_dict['('], '4', operators_dict[')'], operators_dict['('], '4', operators_dict[')']]),
-                         [operators_dict['('], '4', operators_dict[')'], operators_dict['*'], operators_dict['('], '4', operators_dict[')']])
-        self.assertEqual(Parser.add_multiply_sign(['5',operators_dict['('], '4', operators_dict[')']]),
-                         ['5', operators_dict['*'],operators_dict['('], '4', operators_dict[')']])
+                                                  [operators_dict['('], '4', operators_dict[')'], operators_dict['*'], operators_dict['('], '4',
+                                                   operators_dict[')']])
+        self.assertEqual(Parser.add_multiply_sign(['5', operators_dict['('], '4', operators_dict[')']]),['5', operators_dict['*'],
+                                                   operators_dict['('], '4', operators_dict[')']])
 
     def test_par_checker(self):
         self.assertFalse(Validator.par_check('(()'))
@@ -72,4 +73,5 @@ class TestLexerMethods(unittest.TestCase):
 
     def test_parse_expression(self):
         self.assertEqual(self.parser.parse_expression('sin(5)*3'),
-                         [self.function_parser.functions_dict['sin'], operators_dict['('], '5', operators_dict[')'], operators_dict['*'], '3'])
+                         [self.function_parser.functions_dict['sin'], operators_dict['('], '5', operators_dict[')'],
+                          operators_dict['*'], '3'])
