@@ -84,7 +84,6 @@ class Parser:
             elif (isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']) and not (isinstance(lexem_list[i-1], Constant) or Parser.is_number(lexem_list[i-1])) \
                     and not (isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')'):
                 final_list.append(i)
-        print(final_list)
         lexems_with_indicies = enumerate(lexem_list)
         lexems_filter = list(filter(lambda x: x[0] in final_list, lexems_with_indicies))
         for unary_sign in lexems_filter:
