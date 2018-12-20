@@ -24,7 +24,6 @@ def main():
              parser.parse_modules(args.use_modules)
          parser.parse_modules(['time'])
          result = calculate(args.expression)
-         print(calculate('time()'))
          print(f'{result}')
 
 
