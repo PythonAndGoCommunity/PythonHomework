@@ -41,11 +41,12 @@ class Parser:
                             Parser.is_number(lexem_list[i-1])):
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Operator) and lexem_list[i].name == '(' and \
-                           isinstance(lexem_list[i-1], Operator) and
+                           isinstance(lexem_list[i-1], Operator) and \
                            lexem_list[i-1].name == ')':
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Operator) and lexem_list[i].name == '(' and \
-                not isinstance(lexem_list[i-1], Operator) and not isinstance(lexem_list[i-1], Function):
+                            not isinstance(lexem_list[i-1], Operator) \
+                            and not isinstance(lexem_list[i-1], Function):
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Constant) and isinstance(lexem_list[i-1], Constant):
                 lexem_list.insert(i, operators_dict['*'])
@@ -88,8 +89,9 @@ class Parser:
             if i == 0 and isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']:
                 final_list.append(0)
             elif (isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']) and \
-                not (isinstance(lexem_list[i-1], Constant) or Parser.is_number(lexem_list[i-1])) \
-                and not (isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')'):
+                             not (isinstance(lexem_list[i-1], Constant)
+                             or Parser.is_number(lexem_list[i-1])) and not \
+                             (isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')'):
                 final_list.append(i)
         lexems_with_indicies = enumerate(lexem_list)
         lexems_filter = list(filter(lambda x: x[0] in final_list, lexems_with_indicies))

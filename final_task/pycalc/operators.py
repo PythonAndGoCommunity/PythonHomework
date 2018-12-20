@@ -45,4 +45,3 @@ operators_dict = {
     'unary_plus': Operator('unary_plus', 5, 1, False, lambda x: x),
     '^': Operator('^', 4, 2, True, lambda x, y: x**y),
 }
-
