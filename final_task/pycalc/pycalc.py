@@ -18,14 +18,14 @@ def get_args():
 
 def main():
     try:
-        # args = get_args()
-        # parser = FunctionParser()
-        # if args.use_modules:
-        #     parser.parse_modules(args.use_modules)
-        # parser.parse_modules(['time'])
-        # result = calculate(args.expression)
-        # print(calculate('time()'))
-        # print(f'{result}')
+         args = get_args()
+         parser = FunctionParser()
+         if args.use_modules:
+             parser.parse_modules(args.use_modules)
+         parser.parse_modules(['time'])
+         result = calculate(args.expression)
+         print(calculate('time()'))
+         print(f'{result}')
 
 
     except Exception as e:
