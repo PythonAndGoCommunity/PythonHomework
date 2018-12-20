@@ -11,7 +11,7 @@ class Validator:
             :param str: String with a math expression.
             :return : Normalized string with a math expression.
         '''
-        return re.sub('\s+', ' ', str).strip()
+        return re.sub(r'\s+', ' ', str).strip()
 
     @staticmethod
     def pre_tokinaze(str):
@@ -61,4 +61,3 @@ class Validator:
                 if str[i + 1] == ' ' and str[i + 2].isdigit():
                     raise ValueError('invalid syntax')
         return str
-

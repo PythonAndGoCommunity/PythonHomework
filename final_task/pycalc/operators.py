@@ -46,4 +46,3 @@ operators_dict = {
     '^': Operator('^', 4, 2, True, lambda x, y: x**y),
 }
 
-

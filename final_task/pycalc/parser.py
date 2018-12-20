@@ -34,13 +34,15 @@ class Parser:
             if isinstance(lexem_list[i], Function) and not isinstance(lexem_list[i-1], Operator):
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Function) and isinstance(lexem_list[i-1], Operator) \
-                 and lexem_list[i-1].name == ')':
+                            and lexem_list[i-1].name == ')':
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Operator) and lexem_list[i].name == '(' and \
-                (isinstance(lexem_list[i-1], Constant) or Parser.is_number(lexem_list[i-1])):
+                           (isinstance(lexem_list[i-1], Constant) or
+                            Parser.is_number(lexem_list[i-1])):
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Operator) and lexem_list[i].name == '(' and \
-                isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')':
+                           isinstance(lexem_list[i-1], Operator) and
+                           lexem_list[i-1].name == ')':
                 lexem_list.insert(i, operators_dict['*'])
             elif isinstance(lexem_list[i], Operator) and lexem_list[i].name == '(' and \
                 not isinstance(lexem_list[i-1], Operator) and not isinstance(lexem_list[i-1], Function):
@@ -73,7 +75,7 @@ class Parser:
                 start_index, end_index = end_index, len(exp)
             else:
                 end_index -= 1
-        lex_list =Parser.add_multiply_sign(lexem_array)
+        lex_list = Parser.add_multiply_sign(lexem_array)
         unary_signs = Parser.find_unary_signs(lex_list)
         final_lexem_list = Parser.remove_redundant_unary_signs(unary_signs, lex_list)
 
@@ -86,8 +88,8 @@ class Parser:
             if i == 0 and isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']:
                 final_list.append(0)
             elif (isinstance(lexem_list[i], Operator) and lexem_list[i].name in ['+', '-']) and \
-                  not (isinstance(lexem_list[i-1], Constant) or Parser.is_number(lexem_list[i-1])) \
-                  and not (isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')'):
+                not (isinstance(lexem_list[i-1], Constant) or Parser.is_number(lexem_list[i-1])) \
+                and not (isinstance(lexem_list[i-1], Operator) and lexem_list[i-1].name == ')'):
                 final_list.append(i)
         lexems_with_indicies = enumerate(lexem_list)
         lexems_filter = list(filter(lambda x: x[0] in final_list, lexems_with_indicies))
@@ -105,12 +107,10 @@ class Parser:
             last_index, last_sign = lexems_with_indicies[final_index]
             prev_index, prev_sign = lexems_with_indicies[final_index - 1]
             if last_index - 1 == prev_index and last_sign.name == prev_sign.name:
-               lex_list[prev_index:last_index + 1] = [operators_dict['unary_plus']]
-               lexems_with_indicies[final_index - 1: final_index + 1] = [(prev_index,  operators_dict['+'])]
+                lex_list[prev_index:last_index + 1] = [operators_dict['unary_plus']]
+                lexems_with_indicies[final_index - 1: final_index + 1] = [(prev_index,  operators_dict['+'])]
             elif last_index - 1 == prev_index and last_sign != prev_sign:
                 lex_list[prev_index: last_index + 1] = [operators_dict['unary_minus']]
                 lexems_with_indicies[final_index - 1: final_index + 1] = [(prev_index,  operators_dict['-'])]
             final_index -= 1
         return lex_list
-
-

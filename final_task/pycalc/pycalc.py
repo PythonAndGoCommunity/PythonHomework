@@ -18,15 +18,13 @@ def get_args():
 
 def main():
     try:
-         args = get_args()
-         parser = FunctionParser()
-         if args.use_modules:
-             parser.parse_modules(args.use_modules)
-         parser.parse_modules(['time'])
-         result = calculate(args.expression)
-         print(f'{result}')
-
+        args = get_args()
+        parser = FunctionParser()
+        if args.use_modules:
+            parser.parse_modules(args.use_modules)
+        parser.parse_modules(['time'])
+        result = calculate(args.expression)
+        print(f'{result}')
     except Exception as e:
         print(f"ERROR: {e}")
         sys.exit(1)
-
