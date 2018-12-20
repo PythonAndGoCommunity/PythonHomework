@@ -89,8 +89,10 @@ def do_implicit_multiplication(expression):
     insert_positions = []
     expression = expression.replace(' ', '')
     expression = re.sub(r'\)\(', ')*(', expression)
-    for index in range(len(expression)):
+    index = 0
+    while index < len(expression) - 1:
         if token_end_position >= index:
+            index += 1
             continue
         tmp_index = index
         operand, token_end_position, index = find_operand(expression, index)
@@ -118,6 +120,7 @@ def do_implicit_multiplication(expression):
             tmp_index = index
             if tmp_index < len(expression) and expression[tmp_index] == '(' and not is_call:
                 insert_positions.append(tmp_index + len(insert_positions))
+        index += 1
     expression = list(expression)
     for index in insert_positions:
         expression.insert(index, '*')
