@@ -1,10 +1,10 @@
 import unittest
 try:
-    from pycalc import set_user_mod, postfix_translator, postfix_eval, PREFIX_FUNC
+    from pycalc import set_user_mod, postfix_translator, postfix_eval
 except Exception as err:
-    from .pycalc import set_user_mod, postfix_translator, postfix_eval, PREFIX_FUNC
+    from .pycalc import set_user_mod, postfix_translator, postfix_eval
 
-from math import pi, e, pow, sin
+from math import pow, sin
 
 
 class TestPostfixTranslator(unittest.TestCase):
@@ -22,16 +22,16 @@ class TestPostfixTranslator(unittest.TestCase):
         self.assertEqual(postfix_translator("+-1-(-1)*-2"), "1 +- 1 +- 2 +- * -")
 
     def test_const(self):
-        self.assertEqual(postfix_translator("pi*e-pi"), "{} {} * {} -".format(pi, e, pi))
+        self.assertEqual(postfix_translator("pi*e-pi"), "pi e * pi -")
 
     def test_func(self):
-        self.assertEqual(postfix_translator("pow(3,2)"), "3  2 2{}pow".format(PREFIX_FUNC))
+        self.assertEqual(postfix_translator("pow(3,2)"), "3  2 pow(2)")
 
     def test_twice_opr(self):
         self.assertEqual(postfix_translator("3//2>=2!=3"), "3 2 // 2 >= 3 !=")
 
     def test_impl_mult(self):
-        self.assertEqual(postfix_translator("(1+2)(2+3)pie"), "1 2 + 2 3 + * {} * {} *".format(pi, e))
+        self.assertEqual(postfix_translator("(1+2)(2+3)pie"), "1 2 + 2 3 + * pi * e *")
 
 
 class TestPostfixEval(unittest.TestCase):
@@ -49,7 +49,7 @@ class TestPostfixEval(unittest.TestCase):
 
     def test_func(self):
         ans = pow(4, 2)*sin(3)*abs(-3)
-        self.assertEqual(postfix_eval("4 2 2#Fpow 3 1#Fsin *  3 +- 1#Fabs *"), ans)
+        self.assertEqual(postfix_eval("4 2 pow(2) 3 sin(1) *  3 +- abs(1) *"), ans)
 
 
 if __name__ == '__main__':

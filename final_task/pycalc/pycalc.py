@@ -6,7 +6,6 @@ from string import ascii_letters, digits
 LIST_OPERATOR = ['+', '-', '*', '^', '/', '%', '<', '>', '=', '!']
 LIST_DIGITS = list(digits)
 LIST_LETTERS = list(ascii_letters)
-PREFIX_FUNC = '#F'
 PRIORITY_DICT = {
     '^': 5,
     '+-': 5,
@@ -26,7 +25,7 @@ BOOL_DICT = {'True': True, 'False': False}
 FUNCTION_DICT = {'abs': abs, 'pow': pow, 'round': round}
 # global variable dict, key: str module name, value: list containing fuction names from [key]
 module_func_dict = {}
-#
+# Operator stack
 stack_opr = []
 
 
@@ -54,6 +53,7 @@ The operator pushes a stack of other operators.
 
     global stack_opr
     buf = list()
+    # right-associative operator
     if opr == '^' or opr == '+-':
         for opr2 in stack_opr[::-1]:
             if opr2 == '(':
@@ -64,6 +64,7 @@ The operator pushes a stack of other operators.
                 break
         stack_opr.append(opr)
 
+    # left-associative operator
     else:
         for opr2 in stack_opr[::-1]:
             if opr2 == '(':
@@ -91,7 +92,7 @@ defined in the variable module_func_dict.
         return const
     for module in module_func_dict:
         if const in module_func_dict[module]:
-            return [str(getattr(module, const))]
+            return [const]
     else:
         # Recursion
         i = 0
@@ -101,7 +102,7 @@ defined in the variable module_func_dict.
             r_const = const[i + 1:]
             for module in module_func_dict:
                 if l_const in module_func_dict[module]:
-                    return [str(getattr(module, l_const)),  *_stack_push('*'), *_const_separator(r_const)]
+                    return [l_const,  *_stack_push('*'), *_const_separator(r_const)]
             i += 1
         else:
             raise Exception('unknown constant {}'.format(const))
@@ -121,25 +122,24 @@ Implements an Shunting-yard algorithm
         raise Exception('empty input')
 
     output_list = list()
-    func_buf = ''
+    func_buf = list()  # argument counter in function
     last_token = ''
-    count_args = list()
+    count_args = list()  # argument counter in function
     for i, token in enumerate(input_str):
         if token == ' ':
             output_list.append(' ')
             continue
 
-        elif token in LIST_LETTERS \
-                or token == '_':
+        elif token in LIST_LETTERS or token == '_':
             if last_token == ')':
                 output_list.extend(_stack_push('*'))
             if last_token in LIST_DIGITS:
                 output_list.extend(_stack_push('*'))
-            func_buf += token
+            func_buf.append(token)
 
         elif token in LIST_DIGITS:
             if func_buf:
-                func_buf += token
+                func_buf.append(token)
             else:
                 output_list.append(token)
 
@@ -160,19 +160,20 @@ Implements an Shunting-yard algorithm
 
         elif token == '(':
             if func_buf:
-                stack_opr.append(func_buf)
+                stack_opr.append(''.join(func_buf))
                 count_args.append(1)
-                func_buf = ''
+                func_buf = []
             elif last_token == ')' or last_token in LIST_DIGITS:
                 output_list.extend(_stack_push('*'))
             stack_opr.append('(')
 
         elif token == ')':
+            # function without argument
             if last_token == '(':
                 count_args[-1] = 0
             if func_buf:
-                output_list.extend(_const_separator(func_buf))
-                func_buf = ''
+                output_list.extend(_const_separator(''.join(func_buf)))
+                func_buf = []
             for opr in stack_opr[::-1]:
                 if opr == '(':
                     stack_opr.pop()
@@ -181,18 +182,21 @@ Implements an Shunting-yard algorithm
                     output_list.extend([' ', stack_opr.pop()])
             else:
                 raise Exception('unpaired brackets')
+            # if function brackets
             if stack_opr:
                 if stack_opr[-1] not in LIST_OPERATOR and stack_opr[-1] != '(':
-                    output_list.extend([' ', str(count_args.pop()), PREFIX_FUNC, stack_opr.pop()])
+                    output_list.extend([' ', stack_opr.pop(), '(', str(count_args.pop()), ')'])
 
         elif token in LIST_OPERATOR:
             if func_buf:
-                output_list.extend(_const_separator(func_buf))
-                func_buf = ''
+                output_list.extend(_const_separator(''.join(func_buf)))
+                func_buf = []
+            # unary operator
             if (token == '-') & (last_token in LIST_OPERATOR or last_token in ['', '(']):
                 output_list.extend(_stack_push('+-'))
             elif (token == '+') & (last_token in LIST_OPERATOR or last_token == ''):
                 pass
+            # twice operator != <= >= ==
             elif token in ['=', '<', '>', '!']:
                 if last_token in ['!=', '==', '<=', '>=', '!=']:
                     continue
@@ -204,6 +208,7 @@ Implements an Shunting-yard algorithm
                     raise Exception('unknown operator: "="')
                 else:
                     output_list.extend(_stack_push(token))
+            # twice operator //
             elif token == '/':
                 if last_token == '//':
                     continue
@@ -213,6 +218,7 @@ Implements an Shunting-yard algorithm
                     output_list.extend(_stack_push(token))
                 else:
                     output_list.extend(_stack_push(token))
+            # other operator
             else:
                 output_list.extend(_stack_push(token))
 
@@ -221,13 +227,14 @@ Implements an Shunting-yard algorithm
         last_token = token
 
     if func_buf:
-        output_list.extend(_const_separator(func_buf))
+        output_list.extend(_const_separator(''.join(func_buf)))
 
     while stack_opr:
         token = stack_opr.pop()
         if token == '(':
             raise Exception('unpaired brackets')
         output_list.extend([' ', token])
+
     return ''.join(output_list)
 
 
@@ -293,12 +300,13 @@ The function calculates the mathematical expression written in postfix notation.
                 stack.append(stack.pop() != val2)
         elif token in BOOL_DICT:
             stack.append(BOOL_DICT[token])
-        elif PREFIX_FUNC in token:
-            pos = token.find(PREFIX_FUNC)
+        # function
+        elif '(' in token:
+            pos = token.find('(')
             args_list = []
-            for _ in range(int(token[:pos])):
+            for _ in range(int(token[pos+1:-1])):
                 args_list.append(stack.pop())
-            func_name = token[pos + len(PREFIX_FUNC):]
+            func_name = token[:pos]
             for module in module_func_dict:
                 if func_name in module_func_dict[module]:
                     res = getattr(module, func_name)(*args_list[::-1])
@@ -309,6 +317,13 @@ The function calculates the mathematical expression written in postfix notation.
                 else:
                     raise Exception('unknown function {}'.format(func_name))
             stack.append(res)
+        # const
+        elif token.isidentifier():
+            for module in module_func_dict:
+                if token in module_func_dict[module]:
+                    stack.append(getattr(module, token))
+                    break
+        # number
         else:
             stack.append(float(token))
     if len(stack) > 1:
