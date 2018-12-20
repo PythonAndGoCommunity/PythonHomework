@@ -1,7 +1,7 @@
 """
 This module allows to installs the application
 """
-import setuptools 
+import setuptools
 
 setuptools.setup(
     name='pycalc',
