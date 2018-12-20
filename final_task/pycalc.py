@@ -251,5 +251,13 @@ def compare(expressions, comparator):
     return comparators[comparator](expressions[0], expressions[1])
 
 
-test = input()
-print(get_result(test))
+def main():
+    # parsing args
+    arg_parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
+    arg_parser.add_argument('EXPRESSION', help='expression string to evaluate')
+    expression = arg_parser.parse_args().EXPRESSION
+    modules = arg_parser.parse_args().use_modules
+    
+    
+    if __name__ == '__main__':
+    main()
