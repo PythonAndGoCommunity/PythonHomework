@@ -7,11 +7,13 @@ from collections import namedtuple
 from pycalc_src.preprocessor import Preprocessor
 from pycalc_src.exceptions import BaseCalculatorException
 
+RETURN_CODE = 0
+
 
 class TestStringMethods(unittest.TestCase):
     """Docstring."""
 
-    def test_preprocessing__valid_expressions(self):
+    def test_prepare_expression__valid_expressions(self):
         """Docstring."""
         valid_expression = namedtuple('valid_expression', 'expression result')
         valid_expressions = [valid_expression('TAN(1)', 'tan(1)'),
@@ -20,7 +22,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in valid_expressions:
             preprocessor = Preprocessor(expression.expression)
-            func_result = preprocessor.preprocessing()
+            func_result = preprocessor.prepare_expression()
 
             self.assertEqual(func_result, expression.result)
 
@@ -35,10 +37,10 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             preprocessor = Preprocessor(expression.expression)
-            preprocessor._Preprocessor__return_code = 0
+            preprocessor._return_code = RETURN_CODE
 
             with self.assertRaises(BaseCalculatorException):
-                result = preprocessor.preprocessing()
+                result = preprocessor.prepare_expression()
 
     def test_clean_repeatable_operators__valid_expressions(self):
         """Docstring."""

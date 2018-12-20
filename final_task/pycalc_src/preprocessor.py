@@ -11,18 +11,18 @@ class Preprocessor:
 
     def __init__(self, expression):
         self.expression = expression
-        self.__return_code = 1
+        self._return_code = 1
 
-    def preprocessing(self):
+    def prepare_expression(self):
         """Prepare expression for calculate."""
         if not self.expression:
-            raise PreprocessingError('expression is empty', self.__return_code)
+            raise PreprocessingError('expression is empty', self._return_code)
 
         if not isinstance(self.expression, str):
-            raise PreprocessingError('expression is not a string', self.__return_code)
+            raise PreprocessingError('expression is not a string', self._return_code)
 
         if self.expression.count('(') != self.expression.count(')'):
-            raise PreprocessingError('brackets are not balanced', self.__return_code)
+            raise PreprocessingError('brackets are not balanced', self._return_code)
 
         self.expression = self.expression.lower()
 

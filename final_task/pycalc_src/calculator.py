@@ -20,12 +20,12 @@ class Calculator:
         self.unary_operator = ''
         self.rpn = []
         self.stack = []
-        self.__return_code = 1
+        self._return_code = 1
 
     def _process_digit(self, index, symbol):
         """Process digit from expression."""
         if self.expression[index - 1] == ' ' and self.number:
-            raise CalculatorError('invalid syntax', self.__return_code)
+            raise CalculatorError('invalid syntax', self._return_code)
         self.number += symbol
 
     def _process_number_and_constant(self):
@@ -58,7 +58,7 @@ class Calculator:
 
         if self.operator:
             if self.operator not in OPERATORS:
-                raise CalculatorError('operator not supported', self.__return_code)
+                raise CalculatorError('operator not supported', self._return_code)
 
             self._process_implicit_multiplication(closing_bracket_index - len(self.operator))
 
@@ -86,7 +86,7 @@ class Calculator:
 
         if self.stack and self.stack[-1] in COMPARISON_SYMBOLS:
             if self.expression[index - 1] == ' ':
-                raise CalculatorError('unexpected whitespace', self.__return_code)
+                raise CalculatorError('unexpected whitespace', self._return_code)
             self.stack[-1] += symbol
         else:
             while self.stack:
@@ -143,7 +143,7 @@ class Calculator:
             return symbol == self.expression[index - 1] == '/'
         return False
 
-    def _process_expression(self):
+    def _prepare_rpn(self):
         """Process expression to reverse polish notation."""
         for index, symbol in enumerate(self.expression):
 
@@ -174,11 +174,12 @@ class Calculator:
             elif symbol.isalpha() or symbol == '=':
                 self.operator += symbol
 
+        self._process_implicit_multiplication(index)
         self._process_number_and_constant()
         self.rpn.extend(reversed(self.stack))
 
         if not self.rpn:
-            raise CalculatorError('not enough data to calculate', self.__return_code)
+            raise CalculatorError('not enough data to calculate', self._return_code)
 
         del self.stack[:]
 
@@ -201,9 +202,9 @@ class Calculator:
                 real_params_count = 1
 
         if len(self.stack) < real_params_count:
-            raise CalculatorError("not enough operand's for function {}".format(operator), self.__return_code)
+            raise CalculatorError("not enough operand's for function {}".format(operator), self._return_code)
         elif self.stack and not isinstance(self.stack[-1], (int, float)):
-            raise CalculatorError("incorrect operand's for function {}".format(operator), self.__return_code)
+            raise CalculatorError("incorrect operand's for function {}".format(operator), self._return_code)
 
         if real_params_count == 1:
             operand = self.stack.pop()
@@ -220,12 +221,8 @@ class Calculator:
                 result = function(first_operand)
             else:
                 result = function(first_operand, second_operand)
-        except ZeroDivisionError as e:
-            raise CalculatorError(e, self.__return_code)
-        except ArithmeticError as e:
-            raise CalculatorError(e, self.__return_code)
-        except Exception as e:
-            raise CalculatorError(e, self.__return_code)
+        except (ZeroDivisionError, ArithmeticError, Exception) as e:
+            raise CalculatorError(e, self._return_code)
         else:
             self.stack.append(result)
 
@@ -251,8 +248,6 @@ class Calculator:
 
     def _convert_to_number(self, number):
         """Convert number characters to number."""
-        if not isinstance(number, str):
-            return 0
         return float(number) if '.' in number else int(number)
 
     def _get_previous_symbol(self, index):
@@ -265,8 +260,8 @@ class Calculator:
     def calculate(self):
         """Prepare and calculate expression."""
         preprocessor = Preprocessor(self.expression)
-        self.expression = preprocessor.preprocessing()
-        self._process_expression()
+        self.expression = preprocessor.prepare_expression()
+        self._prepare_rpn()
         self._calculate_rpn()
 
         return self.stack[-1]

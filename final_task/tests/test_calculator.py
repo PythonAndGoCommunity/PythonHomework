@@ -11,6 +11,8 @@ from collections import namedtuple
 from pycalc_src.calculator import Calculator
 from pycalc_src.exceptions import BaseCalculatorException
 
+RETURN_CODE = 0
+
 
 class TestStringMethods(unittest.TestCase):
     """Docstring."""
@@ -35,7 +37,7 @@ class TestStringMethods(unittest.TestCase):
         expression = '1 2 3 4'
 
         calc = Calculator(expression)
-        calc._Calculator__return_code = 0
+        calc._return_code = RETURN_CODE
         calc.number = '1'
 
         with self.assertRaises(BaseCalculatorException):
@@ -86,7 +88,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator('')
-            calc._Calculator__return_code = 0
+            calc._return_code = RETURN_CODE
             calc.unary_operator = expression.unary_operator
             calc.operator = expression.operator
 
@@ -137,7 +139,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
-            calc._Calculator__return_code = 0
+            calc._return_code = RETURN_CODE
             calc.stack = expression.stack
 
             with self.assertRaises(BaseCalculatorException):
@@ -204,7 +206,7 @@ class TestStringMethods(unittest.TestCase):
             else:
                 self.assertFalse(func_result)
 
-    def test_process_expression__valid_expressions(self):
+    def test_prepare_rpn__valid_expressions(self):
         """Docstring."""
 
         valid_expression = namedtuple('valid_expression', 'expression result_rpn')
@@ -221,11 +223,11 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in valid_expressions:
             calc = Calculator(expression.expression)
-            calc._process_expression()
+            calc._prepare_rpn()
 
             self.assertEqual(calc.rpn, expression.result_rpn)
 
-    def test_process_expression__invalid_expressions(self):
+    def test_prepare_rpn__invalid_expressions(self):
         """Docstring."""
 
         invalid_expression = namedtuple('invalid_expression', 'expression')
@@ -234,10 +236,10 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
-            calc._Calculator__return_code = 0
+            calc._return_code = RETURN_CODE
 
             with self.assertRaises(BaseCalculatorException):
-                calc._process_expression()
+                calc._prepare_rpn()
 
     def test_calculate_operator__valid_expressions(self):
         """Docstring."""
@@ -265,7 +267,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
-            calc._Calculator__return_code = 0
+            calc._return_code = RETURN_CODE
             calc.stack = expression.stack
 
             with self.assertRaises(BaseCalculatorException):
@@ -297,7 +299,7 @@ class TestStringMethods(unittest.TestCase):
 
         for expression in invalid_expressions:
             calc = Calculator(expression.expression)
-            calc._Calculator__return_code = 0
+            calc._return_code = RETURN_CODE
 
             with self.assertRaises(BaseCalculatorException):
                 calc._calculate_result(expression.function, expression.first_operand, expression.second_operand)
@@ -340,8 +342,7 @@ class TestStringMethods(unittest.TestCase):
         valid_expression = namedtuple('valid_expression', 'number result')
         valid_expressions = [valid_expression('569', 569),
                              valid_expression('789.99', 789.99),
-                             valid_expression('-500.87', -500.87),
-                             valid_expression([], 0)
+                             valid_expression('-500.87', -500.87)
                              ]
 
         for expression in valid_expressions:
