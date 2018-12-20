@@ -32,23 +32,29 @@ class TestLexerMethods(unittest.TestCase):
         self.assertEqual(Parser.is_constant('21'), False)
 
     def test_find_unary_signs_methods(self):
-        self.assertEqual(Parser.find_unary_signs([operators_dict['-'], operators_dict['-'], operators_dict['-'], '3']), \
-                                                 [(0, operators_dict['-']), (1, operators_dict['-']), (2, operators_dict['-'])])
-        self.assertEqual(Parser.find_unary_signs([operators_dict['('], operators_dict['-'], operators_dict['-'],operators_dict['-'], \
-                                                  '3', operators_dict[')']]), [(1, operators_dict['-']),(2, operators_dict['-']), \
+        self.assertEqual(Parser.find_unary_signs([operators_dict['-'], operators_dict['-'], \
+                                                  operators_dict['-'], '3']), \
+                                                 [(0, operators_dict['-']), (1, operators_dict['-']), \
+                                                  (2, operators_dict['-'])])
+        self.assertEqual(Parser.find_unary_signs([operators_dict['('], operators_dict['-'], operators_dict['-'], \
+                                                  operators_dict['-'], '3', operators_dict[')']]), \
+                                                 [(1, operators_dict['-']),(2, operators_dict['-']), \
                                                   (3, operators_dict['-'])])
 
     def test_add_multiply_sign(self):
         self.assertEqual(Parser.add_multiply_sign(['4', self.function_parser.functions_dict['sin']]), \
-                                                  ['4', operators_dict['*'], self.function_parser.functions_dict['sin']])
-        self.assertEqual(Parser.add_multiply_sign([operators_dict['('], '4', operators_dict[')'], self.function_parser.functions_dict['sin']]), \
+                                                  ['4', operators_dict['*'], \
+                                                   self.function_parser.functions_dict['sin']])
+        self.assertEqual(Parser.add_multiply_sign([operators_dict['('], '4', operators_dict[')'], \
+                                                   self.function_parser.functions_dict['sin']]), \
                                                   [operators_dict['('], '4', operators_dict[')'], operators_dict['*'], \
                                                    self.function_parser.functions_dict['sin']])
-        self.assertEqual(Parser.add_multiply_sign([operators_dict['('], '4', operators_dict[')'], operators_dict['('], '4', operators_dict[')']]), \
-                                                  [operators_dict['('], '4', operators_dict[')'], operators_dict['*'], operators_dict['('], '4', \
+        self.assertEqual(Parser.add_multiply_sign([operators_dict['('], '4', operators_dict[')'], operators_dict['('], \
+                                                   '4', operators_dict[')']]), [operators_dict['('], '4', \
+                                                   operators_dict[')'], operators_dict['*'], operators_dict['('], '4', \
                                                    operators_dict[')']])
-        self.assertEqual(Parser.add_multiply_sign(['5', operators_dict['('], '4', operators_dict[')']]),['5', operators_dict['*'], \
-                                                   operators_dict['('], '4', operators_dict[')']])
+        self.assertEqual(Parser.add_multiply_sign(['5', operators_dict['('], '4', operators_dict[')']]), ['5', \
+                                                   operators_dict['*'], operators_dict['('], '4', operators_dict[')']])
 
     def test_par_checker(self):
         self.assertFalse(Validator.par_check('(()'))
@@ -67,7 +73,8 @@ class TestLexerMethods(unittest.TestCase):
         self.assertEqual(Validator.validate_string("2 >= 45"), "2 >= 45")
 
     def test_calculate(self):
-        exp = 'sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0))))+cos(sin(sin(34.0-2.0^2.0))))--cos(1.0)--cos(0.0)^3.0)'
+        exp = 'sin(-cos(-sin(3.0)-cos(-sin(-3.0*5.0)-sin(cos(log10(43.0))))+cos(sin(sin(34.0-2.0^2.0)))) \
+               --cos(1.0)--cos(0.0)^3.0)'
         self.assertEqual(calculate(exp), 0.5361064001012783)
         self.assertEqual(calculate('(3+(4*5)/10)+pow(3,2)'), 14.0)
 
