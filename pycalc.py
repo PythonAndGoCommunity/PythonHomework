@@ -330,9 +330,13 @@ def calculate(exp):
     return res
 
 
-if __name__ == '__main__':
+def main():
     argParser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     argParser.add_argument('EXPRESSION', help='expression string to evaluate', type=str)
     args = argParser.parse_args()
     expression = args.EXPRESSION
     print(calculate(expression))
+
+
+if __name__ == '__main__':
+    main()
