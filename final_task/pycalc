@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import argparse
+from libs.element import Element, BaseExpressionException
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("-m MODULE ", "--use-modules", metavar="MODULE...", nargs="?", help="additional modules to use")
+    parser.add_argument("EXPRESSION", help="expression string to evaluate", type=str)
+
+    args = parser.parse_args()
+
+    try:
+        expression = Element(expression=args.EXPRESSION)
+        print(expression.value())
+    except BaseExpressionException as exc:
+        print("ERROR: {}".format(str(exc)))

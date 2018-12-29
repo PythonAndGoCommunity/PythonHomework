@@ -5,10 +5,15 @@ __pycache__/
 
 # PyCharm files
 .idea/
+htmlcov/
+__pycache__/
 
 # C extensions
 *.so
 
+.coverage
+
+*.pyc
 # Distribution / packaging
 .Python
 build/

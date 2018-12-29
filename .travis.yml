@@ -6,7 +6,7 @@ install:
 script:
   - cd final_task
   - pip install .
-  - nosetests --cover-branches --with-coverage .
+  - coverage run -m unittest discover
   - pycodestyle --max-line-length=120 .
   - python ./../pycalc_checker.py
   - cd -
