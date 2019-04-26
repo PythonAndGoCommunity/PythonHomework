@@ -42,7 +42,7 @@ class ErrorUnknownTokens(Exception):
 
 sys.tracebacklimit = 0
 
-op = namedtuple('op', ['prec',  'func'])
+op = namedtuple('op', ['prec', 'func'])
 
 operators = {
     '^': op(4, operator.pow),
@@ -147,10 +147,10 @@ def get_tokens(expression, input_queue=None):
         return get_tokens(expression[token.end():], input_queue)
     else:
         for index, token in enumerate(input_queue):
-            if (input_queue[index-1] in operators or
-                input_queue[index-1] is 'p' or
-                input_queue[index-1] is 'n' or
-                input_queue[index-1] is '(' or
+            if (input_queue[index - 1] in operators or
+                input_queue[index - 1] is 'p' or
+                input_queue[index - 1] is 'n' or
+                input_queue[index - 1] is '(' or
                     index is 0):
                 if token is '+':
                     input_queue[index] = 'p'
