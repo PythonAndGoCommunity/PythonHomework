@@ -8,35 +8,35 @@ import re
 from collections import namedtuple
 
 
-class ErrorOperands(Exception):
+class OperandsError(Exception):
     pass
 
 
-class ErrorOperators(Exception):
+class OperatorsError(Exception):
     pass
 
 
-class ErrorWhitespace(Exception):
+class WhitespaceError(Exception):
     pass
 
 
-class ErrorBracketsBalance(Exception):
+class UnbalancedBracketsError(Exception):
     pass
 
 
-class ErrorUnexpectedComma(Exception):
+class UnexpectedCommaError(Exception):
     pass
 
 
-class ErrorEmptyExpression(Exception):
+class EmptyExpressionError(Exception):
     pass
 
 
-class ErrorParse(Exception):
+class ParseError(Exception):
     pass
 
 
-class ErrorUnknownTokens(Exception):
+class UnknownTokensError(Exception):
     pass
 
 
@@ -93,7 +93,6 @@ comparators = {
 
 
 def isnumber(num):
-    """Return 'True' if num is a number and 'False' otherwise."""
     try:
         float(num)
         return True
@@ -102,38 +101,38 @@ def isnumber(num):
 
 
 def check_whitespace(expression):
-    """Check for 'bad' whitespace in a given expression."""
+    """Check for whitespace breaking comparison operators and numbers in a given expression."""
     expression = expression.strip()
     token = re.search(r'[><=!]\s+=|\*\s+\*|\d\.?\s+\.?\d|\/\s+\/', expression)
     if token is not None:
-        raise ErrorWhitespace("ERROR: 'bad' whitespace in the expression.")
+        raise WhitespaceError("ERROR: unexpected whitespace in the expression.")
 
 
 def check_brackets(expression):
     """Check whether brackets are balanced in the expression."""
-    count = 0
-    for ex in expression:
-        if ex == '(':
-            count += 1
-        elif ex == ')':
-            count -= 1
-        if count < 0:
-            raise ErrorBracketsBalance("ERROR: brackets are not balanced.")
-    if count > 0:
-        raise ErrorBracketsBalance("ERROR: brackets are not balanced.")
+    symbol_count = 0
+    for symbol in expression:
+        if symbol == '(':
+            symbol_count += 1
+        elif symbol == ')':
+            symbol_count -= 1
+        if symbol_count < 0:
+            raise UnbalancedBracketsError("ERROR: brackets are not balanced.")
+    if symbol_count > 0:
+        raise UnbalancedBracketsError("ERROR: brackets are not balanced.")
 
 
 def check_commas(expression):
     """Check for commas in unexpected places."""
     token = re.search(r'[^\)ieu\d]\,|\,[^\dpet\(]|^\,|\,$', expression)
     if token is not None:
-        raise ErrorUnexpectedComma("ERROR: unexpected comma.")
+        raise UnexpectedCommaError("ERROR: unexpected comma.")
 
 
 def get_tokens(expression, input_queue=None):
     """Recursively split expression string into tokens and store them in input_queue."""
     if expression is '':
-        raise ErrorEmptyExpression("ERROR: no expression provided.")
+        raise EmptyExpressionError("ERROR: no expression provided.")
     if input_queue is None:
         expression = expression.strip().lower().replace(' ', '')
         input_queue = []
@@ -141,7 +140,7 @@ def get_tokens(expression, input_queue=None):
     try:
         token.group()
     except Exception:
-        raise ErrorParse("ERROR: couldn't parse this expression.")
+        raise ParseError("ERROR: couldn't parse this expression.")
     input_queue.append(token.group())
     if len(token.group()) < len(expression):
         return get_tokens(expression[token.end():], input_queue)
@@ -159,10 +158,9 @@ def get_tokens(expression, input_queue=None):
         return input_queue
 
 
-def infix_to_postfix(input_queue):
-    """Shunting-yard algorithm that returns input expression in postfix notation."""
+def convert_infix_to_postfix(input_queue):
     if input_queue[-1] in operators or input_queue[-1] in prefixes:
-        raise ErrorOperators("ERROR: trailing operators.")
+        raise OperatorsError("ERROR: trailing operators.")
     output_queue = []
     operator_stack = []
     while len(input_queue):
@@ -179,13 +177,13 @@ def infix_to_postfix(input_queue):
         elif token is ',':
             # since a comma can appear only after a logarithm or power, a check is implemented here
             if 'log' not in operator_stack and 'pow' not in operator_stack:
-                raise ErrorUnexpectedComma("ERROR: unexpected comma.")
+                raise UnexpectedCommaError("ERROR: unexpected comma.")
             try:
                 while operator_stack[-1] is not '(':
                     output_queue.append(operator_stack.pop())
                 input_queue.pop(0)
             except IndexError:
-                raise ErrorUnexpectedComma("ERROR: unexpected comma.")
+                raise UnexpectedCommaError("ERROR: unexpected comma.")
         elif token in operators:
             while True:
                 if not operator_stack:
@@ -206,7 +204,7 @@ def infix_to_postfix(input_queue):
             operator_stack.pop()
             input_queue.pop(0)
         else:
-            raise ErrorUnknownTokens("ERROR: unknown tokens.")
+            raise UnknownTokensError("ERROR: unknown tokens.")
     while len(operator_stack):
         output_queue.append(operator_stack.pop())
     return output_queue
@@ -223,7 +221,7 @@ def split_comparison(expression):
     check_commas(expression)
     token = re.findall(r'==|>=|<=|>|<|!=', expression)
     if len(token) > 1:
-        raise ErrorOperators("ERROR: more than one comparison operator.")
+        raise OperatorsError("ERROR: more than one comparison operator.")
     elif len(token) is 0:
         return expression, None
     else:
@@ -261,12 +259,12 @@ def calculate(expression):
     if len(stack) is 1:
         return stack[0]
     else:
-        raise ErrorOperands("ERROR: wrong number of operands.")
+        raise OperandsError("ERROR: wrong number of operands.")
 
 
 def get_result(expression):
     expression = get_tokens(expression)
-    expression = infix_to_postfix(expression)
+    expression = convert_infix_to_postfix(expression)
     try:
         expression = calculate(expression)
     except ZeroDivisionError as err:
