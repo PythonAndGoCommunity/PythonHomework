@@ -106,6 +106,7 @@ def check_whitespace(expression):
     token = re.search(r'[><=!]\s+=|\*\s+\*|\d\.?\s+\.?\d|\/\s+\/', expression)
     if token is not None:
         raise WhitespaceError("ERROR: unexpected whitespace in the expression.")
+    return None
 
 
 def check_brackets(expression):
@@ -120,6 +121,7 @@ def check_brackets(expression):
             raise UnbalancedBracketsError("ERROR: brackets are not balanced.")
     if symbol_count > 0:
         raise UnbalancedBracketsError("ERROR: brackets are not balanced.")
+    return None
 
 
 def check_commas(expression):
@@ -127,6 +129,7 @@ def check_commas(expression):
     token = re.search(r'[^\)ieu\d]\,|\,[^\dpet\(]|^\,|\,$', expression)
     if token is not None:
         raise UnexpectedCommaError("ERROR: unexpected comma.")
+    return None
 
 
 def get_tokens(expression, input_queue=None):
