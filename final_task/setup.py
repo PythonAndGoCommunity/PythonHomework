@@ -1,6 +1,6 @@
 """pycalc script setup"""
 
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages  # pragma: no cover
 
 setup(
     name='pycalc',
@@ -12,4 +12,4 @@ setup(
         'console_scripts': [
             'pycalc=pycalc.core:main',
         ]
-    })
+    })  # pragma: no cover

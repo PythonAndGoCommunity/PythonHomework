@@ -218,10 +218,7 @@ def split_comparison(expression):
     Split given expression into two to compare them.
     When given a non-comparison statement, return it without modifying.
     """
-    check_whitespace(expression)
-    check_brackets(expression)
     expression = re.sub(r'\s', '', expression)
-    check_commas(expression)
     token = re.findall(r'==|>=|<=|>|<|!=', expression)
     if len(token) > 1:
         raise OperatorsError("ERROR: more than one comparison operator.")
@@ -280,14 +277,17 @@ def compare(expressions, comparator):
     return comparators[comparator](expressions[0], expressions[1])
 
 
-def main():
+def main():  # pragma: no cover
     parser = argparse.ArgumentParser(description='Pure-python command-line calculator.')
     parser.add_argument('EXPRESSION', action="store", help="expression string to evaluate")
     args = parser.parse_args()
     if args.EXPRESSION is not None:
         try:
             expression = args.EXPRESSION
+            check_whitespace(expression)
+            check_brackets(expression)
             expressions, comparator = split_comparison(expression)
+            check_commas(expression)
             if not comparator:
                 print(get_result(expressions))
             else:
@@ -296,5 +296,5 @@ def main():
             print(exception)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     main()
